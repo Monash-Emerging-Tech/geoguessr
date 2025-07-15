@@ -6,6 +6,7 @@ using UnityEngine;
 
 
 
+
 /***
  * 
  * LocationManager, Responsible for handling the data of each Location, 
@@ -19,6 +20,13 @@ using UnityEngine;
 public class LocationManager : MonoBehaviour
 {
 
+    [System.Serializable]
+    public class locationData
+    {
+        public List<Location> Locations;
+        public List<MapPack> MapPacks;
+    }
+
 
     [System.Serializable]
     public struct Location
@@ -27,12 +35,15 @@ public class LocationManager : MonoBehaviour
         // (Name will be the long form data presented on the Screen after a guess)
         public int ID;
         public string Name;
+        public string FileName;
 
+        public float x;
+        public float y;
         // Need to add more stuff here when we know how to use it better
         // Location x
         // Location y
 
-
+        [System.NonSerialized]
         // Link to the 360 Image of the Location
         public Material LocationMaterial;
     }
@@ -53,35 +64,16 @@ public class LocationManager : MonoBehaviour
     public MapPack currentMapPack;
     public Location currentLocation;
 
+    // Data File containing info on locations and mappacks
+    public TextAsset jsonFile;
+
     public void Start()
     {
-        int idx = 0;
-        int errors = 0;
-        foreach (Location location in locationList) {
-            if (location.ID != idx) {
-                Debug.Log($"Out of Place Location, ID: {location.ID}, Index: {idx}");
-                errors++; 
-            }
 
-            idx++;
-        }
+        LoadData();
 
-        idx = 0;
+        CheckAllignment();
 
-        foreach (MapPack mapPack in mapPacks)
-        {
-            if (mapPack.ID != idx)
-            {
-                Debug.Log($"Out of Place Map Pack, ID: {mapPack.ID}, Index: {idx}");
-                errors++;
-            }
-
-            idx++;
-        }
-
-        if (errors == 0) {
-            Debug.Log("All locations and Map packs alligned");
-        }
     }
 
 
@@ -126,6 +118,69 @@ public class LocationManager : MonoBehaviour
 
 
         return locations;
+    }
+
+
+
+    private void LoadData() {
+        
+        if (jsonFile == null)
+        {
+            Debug.LogError("JSON Data File is not assigned in the inspector.");
+            return;
+        }
+
+         
+        locationData data = JsonUtility.FromJson<locationData>(jsonFile.text);
+        locationList = data.Locations;
+        mapPacks = data.MapPacks;
+
+        for (int i = 0; i < locationList.Count; i++)
+        {
+            Location location = locationList[i];
+
+            location.LocationMaterial = Resources.Load<Material>($"Materials/Locations/{location.FileName}");
+
+            if (location.LocationMaterial == null)
+                Debug.LogWarning($"Material not found for location {location.Name}, MaterialName: {location.FileName}");
+
+            locationList[i] = location; 
+        }
+
+    }
+
+    private void CheckAllignment() {
+
+        int idx = 0;
+        int errors = 0;
+        foreach (Location location in locationList)
+        {
+            if (location.ID != idx)
+            {
+                Debug.Log($"Out of Place Location, ID: {location.ID}, Index: {idx}");
+                errors++;
+            }
+
+            idx++;
+        }
+
+        idx = 0;
+
+        foreach (MapPack mapPack in mapPacks)
+        {
+            if (mapPack.ID != idx)
+            {
+                Debug.Log($"Out of Place Map Pack, ID: {mapPack.ID}, Index: {idx}");
+                errors++;
+            }
+
+            idx++;
+        }
+
+        if (errors == 0)
+        {
+            Debug.Log("All locations and Map packs alligned");
+        }
     }
 
 }
