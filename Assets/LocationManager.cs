@@ -39,7 +39,8 @@ public class LocationManager : MonoBehaviour
 
     [System.Serializable]
     public struct MapPack
-    { 
+    {
+        public int ID;
         public string Name;
         public List<int> locationIDs;
     }
@@ -65,8 +66,21 @@ public class LocationManager : MonoBehaviour
             idx++;
         }
 
+        idx = 0;
+
+        foreach (MapPack mapPack in mapPacks)
+        {
+            if (mapPack.ID != idx)
+            {
+                Debug.Log($"Out of Place Map Pack, ID: {mapPack.ID}, Index: {idx}");
+                errors++;
+            }
+
+            idx++;
+        }
+
         if (errors == 0) {
-            Debug.Log("All locations alligned");
+            Debug.Log("All locations and Map packs alligned");
         }
     }
 
@@ -88,6 +102,11 @@ public class LocationManager : MonoBehaviour
 
     public void setCurrentLocation(Location location) {
         currentLocation = location;
+    }
+
+    public void setCurrentMapPack(int Id)
+    {
+        currentMapPack = mapPacks[Id];
     }
 
     public List<Location> getLocationsFromMap(MapPack mapPack) {
