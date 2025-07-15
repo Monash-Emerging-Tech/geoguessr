@@ -616,37 +616,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecaa0b3959b050f4f8d7a414162a2e6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  locationList:
-  - ID: 0
-    Name: Placeholder 0
-    LocationMaterial: {fileID: 2100000, guid: ba1a5d565edc2e84a90226ee6736199b, type: 2}
-  - ID: 1
-    Name: Placeholder 1
-    LocationMaterial: {fileID: 2100000, guid: 74af808decdb1e648b470484df2ee268, type: 2}
-  - ID: 2
-    Name: Placeholder 2
-    LocationMaterial: {fileID: 2100000, guid: 422a37d3f47cb434badf9e9785b85080, type: 2}
-  - ID: 3
-    Name: Placeholder 3
-    LocationMaterial: {fileID: 2100000, guid: 4e43af8a5cc66984da0a79ece0db92e3, type: 2}
-  - ID: 4
-    Name: Placeholder 4
-    LocationMaterial: {fileID: 2100000, guid: 3f9d8981ba8bb634699a7f073e024a5e, type: 2}
-  - ID: 5
-    Name: Placeholder 5
-    LocationMaterial: {fileID: 2100000, guid: 4d537c8f12703bd4ab2347b7641246e0, type: 2}
-  mapPacks:
-  - Name: all
-    locationIDs: 
-  - Name: OG 360 Images
-    locationIDs: 
+  locationList: []
+  mapPacks: []
   currentMapPack:
-    Name: Allofyall
-    locationIDs: 0100000003000000
+    ID: 0
+    Name: 
+    locationIDs: 
   currentLocation:
     ID: 0
     Name: 
-    LocationMaterial: {fileID: 0}
+    FileName: 
+    x: 0
+    y: 0
+  jsonFile: {fileID: 4900000, guid: 48bc3805d99a16348aae474b0ef1a41f, type: 3}
 --- !u!4 &1662745586
 Transform:
   m_ObjectHideFlags: 0
