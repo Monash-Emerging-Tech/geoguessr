@@ -15,7 +15,10 @@ public class LocationManager : MonoBehaviour
         public int ID;
         public string Name;
 
-
+        // Need to add more stuff here when we know how to use it better
+        // Location x
+        // Location y
+        // Mappacks?
 
 
 
