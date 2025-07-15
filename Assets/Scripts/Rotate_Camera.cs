@@ -1,6 +1,15 @@
 using Unity.VisualScripting;
 using UnityEngine;
 
+
+    /***
+    * Rotate_Camera.cs, used to handle rotating the camera by clicking and dragging the left mouse button 
+    * Written by: O_Bolt
+    * Last Modified: 15/07/25
+    */
+
+
+
 public class RotateCamera : MonoBehaviour
 {
 
@@ -24,8 +33,9 @@ public class RotateCamera : MonoBehaviour
     private float xMinLimit = -80f;    
     private float xMaxLimit = 80f;     
 
-    private float hor = 0.0f;
-    private float vert = 0.0f;
+    // Important to remember that this is a rotation around the axis, meaning looking up and down is the x-axis
+    private float x = 0.0f;
+    private float y = 0.0f;
 
     private float smoothx = 0.0f;
     private float smoothy = 0.0f;
@@ -36,6 +46,7 @@ public class RotateCamera : MonoBehaviour
     void Start()
     {
 
+        // Quick Debug, always have an invisible object set at 0,0,0 so that the camera can rotate/orbit around
         if (originPoint == null)
         {
             Debug.LogError("No OriginPoint found for the Camera Rotation");
@@ -45,8 +56,8 @@ public class RotateCamera : MonoBehaviour
 
         // Get camera's current angles
         Vector3 angles = transform.eulerAngles;
-        hor = angles.x;
-        vert = angles.y;
+        x = angles.x;
+        y = angles.y;
     }
 
     void LateUpdate()
@@ -69,21 +80,22 @@ public class RotateCamera : MonoBehaviour
 
 
             // Apply smoothing to mouse movement by averaging the current and previous deltas
-            // Lerp function ensures that the new rotation speed is no more than 10% of the previous rotation speed (given default values)
+            // Lerp function ensures that the new rotation speed is no more than a 10% increase of the previous rotation speed (given default values)
+            // ^^ above statement may be false actually, I've got no clue what I'm talking about
             smoothx = Mathf.Lerp(smoothx, deltaX, smoothingFactor);
             smoothy = Mathf.Lerp(smoothy, deltaY, smoothingFactor);
 
-            // Change these to invert controls, controls currently align with google maps
 
-            hor -= smoothx;
-            vert += smoothy;
+            // Change these to invert controls, controls currently align with google maps
+            x -= smoothx;
+            y += smoothy;
 
             // Ensure the angle is between it's flipping limits
-            vert = Mathf.Clamp(vert, xMinLimit, xMaxLimit);
+            y = Mathf.Clamp(y, xMinLimit, xMaxLimit);
         }
 
         // Position the camera now given the new rotation with reference to the originpoint
-        Quaternion rotation = Quaternion.Euler(vert, hor, 0);
+        Quaternion rotation = Quaternion.Euler(y, x, 0);
         Vector3 position = rotation * new Vector3(0.0f, 0.0f, -distance) + originPoint.position;
 
         transform.rotation = rotation;
