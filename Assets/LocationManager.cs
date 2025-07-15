@@ -1,13 +1,26 @@
 using System.Collections.Generic;
+using System.Linq;
+using NUnit.Framework.Constraints;
+using UnityEditor;
 using UnityEngine;
 
+
+
+/***
+ * 
+ * LocationManager, Responsible for handling the data of each Location, 
+ * including the current chosen one and the Map Packs\
+ * Functionality for choosing and display a location is here as well
+ * 
+ * Written by O-Bolt
+ * Last Modified: 15/07/2025
+ * 
+ */
 public class LocationManager : MonoBehaviour
 {
 
 
     [System.Serializable]
-    
-
     public struct Location
     {
         // Each Location has an ID, name and location material
@@ -18,26 +31,82 @@ public class LocationManager : MonoBehaviour
         // Need to add more stuff here when we know how to use it better
         // Location x
         // Location y
-        // Mappacks?
-
 
 
         // Link to the 360 Image of the Location
         public Material LocationMaterial;
     }
 
+    [System.Serializable]
+    public struct MapPack
+    { 
+        public string Name;
+        public List<int> locationIDs;
+    }
+
     // For now we'll just list all locations in one big list, could also do mappacks in the future
     public List<Location> locationList;
+    public List<MapPack> mapPacks;
+
+    
+    public MapPack currentMapPack;
+    public Location currentLocation;
+
+    public void Start()
+    {
+        int idx = 0;
+        int errors = 0;
+        foreach (Location location in locationList) {
+            if (location.ID != idx) {
+                Debug.Log($"Out of Place Location, ID: {location.ID}, Index: {idx}");
+                errors++; 
+            }
+
+            idx++;
+        }
+
+        if (errors == 0) {
+            Debug.Log("All locations alligned");
+        }
+    }
+
+
 
     // Selects a random location and sets to the skybox
     // Could pass through a mappack in the future?
     public void SelectRandomLocation()
     {
-        if (locationList.Count == 0) return;
+        List<Location> locations = getLocationsFromMap(currentMapPack);
+        
+        if (locations.Count == 0) return;
+ 
+        int rdmIdx = Random.Range(0, locations.Count);
+        RenderSettings.skybox = locations[rdmIdx].LocationMaterial;
+        Debug.Log("Location ID: " + locations[rdmIdx].ID + " - " + locationList[rdmIdx].Name);
+        setCurrentLocation(locations[rdmIdx]);
+    }
 
-        int rdmIdx = Random.Range(0, locationList.Count);
-        RenderSettings.skybox = locationList[rdmIdx].LocationMaterial;
-        Debug.Log("Location ID: " + locationList[rdmIdx].ID + " - " + locationList[rdmIdx].Name);
+    public void setCurrentLocation(Location location) {
+        currentLocation = location;
+    }
+
+    public List<Location> getLocationsFromMap(MapPack mapPack) {
+
+        if (mapPack.Name == "all" || mapPack.Name == "") {
+            return locationList;
+        }
+
+        List<Location> locations = new List<Location>();
+
+        foreach (int ID in mapPack.locationIDs) {
+            // Should be alligned
+            Debug.Log("Location Found" + ID);
+            locations.Add(locationList[ID]);
+        }
+
+
+
+        return locations;
     }
 
 }

@@ -635,6 +635,18 @@ MonoBehaviour:
   - ID: 5
     Name: Placeholder 5
     LocationMaterial: {fileID: 2100000, guid: 4d537c8f12703bd4ab2347b7641246e0, type: 2}
+  mapPacks:
+  - Name: all
+    locationIDs: 
+  - Name: OG 360 Images
+    locationIDs: 
+  currentMapPack:
+    Name: Allofyall
+    locationIDs: 0100000003000000
+  currentLocation:
+    ID: 0
+    Name: 
+    LocationMaterial: {fileID: 0}
 --- !u!4 &1662745586
 Transform:
   m_ObjectHideFlags: 0
