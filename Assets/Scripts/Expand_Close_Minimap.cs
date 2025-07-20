@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class Expand_Close_Minimap : MonoBehaviour
 {
-    public RectTransform mapContainer; // Drag MapContainer here
-    public RectTransform primaryButton; // Drag MapContainer here
+    public RectTransform mapContainer; 
+    public RectTransform primaryButton; 
     public RectTransform cornerButtons;
     public Vector3 minimizedScale = new Vector3(0.5f, 0.5f, 0.5f);
     public Vector3 expandedScale = new Vector3(1.5f, 1.5f, 1.5f);
