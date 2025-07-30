@@ -19,6 +19,7 @@
 # Recordings can get excessive in size
 /[Rr]ecordings/
 
+
 # Uncomment this line if you wish to ignore the asset store tools plugin
 # /[Aa]ssets/AssetStoreTools*
 
@@ -73,3 +74,11 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+
+# TextMeshPro specific
+Packages/com.unity.textmeshpro/
+Assets/TextMeshPro/Resources/FontAssetCreationSettings.asset
+
+# Ignore the whole TextMesh Pro directory
+/[Aa]ssets/[Tt]extMesh [Pp]ro/
