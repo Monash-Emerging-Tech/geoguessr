@@ -1,0 +1,39 @@
+name: Update Features from main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-feature-branches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # access all branches
+
+      - name: Set up Git
+        run: |
+          git config user.name "Github Actions"
+          git config user.email "actions@github.com"
+
+      - name: Fetch all branches
+        run: |
+         git fetch -all
+
+      - name: Merge main into all feature branches
+        run: |
+          for branch in $(git for-each-ref --format='%(refname:short)' refs/remotes/origin/feature/*); do
+            local_branch=${branch#origin/}
+            echo "Processing $local_branch"
+            git checkout $local_branch
+            git merge origin/main --no-edit || {
+              echo "Merge conflict in $local_branch, skipping..."
+              git merge --abort
+              continue
+            }
+            git push origin $local_branch
+          done
+    
