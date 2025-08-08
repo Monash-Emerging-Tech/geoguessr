@@ -6,9 +6,10 @@ public class DebugLogScript : MonoBehaviour
 {
     private GameObject gameManager;
     private GameLoader gameLoader;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     private TMP_Text text;
 
+
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         gameManager = GameObject.Find("GameLogic");
