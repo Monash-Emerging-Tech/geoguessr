@@ -1658,6 +1658,7 @@ GameObject:
   m_Component:
   - component: {fileID: 760483379793809431}
   - component: {fileID: 2292482373262251928}
+  - component: {fileID: 4348372079737037497}
   m_Layer: 5
   m_Name: Slider (2)
   m_TagString: Untagged
@@ -1738,6 +1739,23 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4348372079737037497
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5107920017016194831}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0d1f4b40b360374584407b2f8948a12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sensitivitySlider: {fileID: 0}
+  minSensitivity: 0.1
+  maxSensitivity: 10
+  defaultSensitivity: 5
+  rotateCameras: []
 --- !u!1 &5428985315283395824
 GameObject:
   m_ObjectHideFlags: 0
