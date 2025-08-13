@@ -6,57 +6,67 @@ using UnityEngine.UI;
 /***
  * 
  * ToggleSwitch, Responsible for toggling ON/OFF different game settings 
- * 
+ * Will need to develop attach specific game setting to button
+ *
  * Written by aleu0007
- * Last Modified: 6/08/2025
+ * Last Modified: 13/08/2025
  * 
  */
 public class ToggleSwitch : MonoBehaviour, IPointerClickHandler
 {
-    [Header("Slider Setup")]
-    [SerializeField, Range(0, 1f)] protected float sliderValue;
+    [Header("Button Setup")]
     public bool CurrentValue { get; private set; }
-
-    private Slider _slider;
+    
+    [Header("Setting Configuration")]
+    [SerializeField] private string settingName = "DefaultSetting"; // The name of the setting this toggle controls eg. timer / practice mode
+    [SerializeField] private Sprite onStateSprite; // Sprite to display when toggle is ON
+    [SerializeField] private Sprite offStateSprite; // Sprite to display when toggle is OFF
+    
+    private Button _button;
+    private Image _buttonImage;
 
     [Header("Events")]
     [SerializeField] private UnityEvent onToggleOn;
     [SerializeField] private UnityEvent onToggleOff;
+    
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-
+        SetupToggleComponents();
+        UpdateButtonAppearance();
     }
 
     protected void OnValidate()
     {
         SetupToggleComponents();
-        _slider.value = sliderValue;
+        UpdateButtonAppearance();
     }
 
     private void SetupToggleComponents()
     {
-        if (_slider != null)
+        if (_button != null)
             return;
 
-        SetupSliderComponent();
+        SetupButtonComponent();
     }
 
-    private void SetupSliderComponent()
+    private void SetupButtonComponent()
     {
-        _slider = GetComponent<Slider>();
+        _button = GetComponent<Button>();
 
-        if (_slider == null)
+        if (_button == null)
         {
-            Debug.Log("No slider found!", this);
+            Debug.LogError("No Button component found on " + gameObject.name + "! Please attach this script to a GameObject with a Button component.", this);
             return;
         }
 
-        _slider.interactable = false;
-        var sliderColors = _slider.colors;
-        sliderColors.disabledColor = Color.white;
-        _slider.colors = sliderColors;
-        _slider.transition = Selectable.Transition.None;
+        // Get the Image component from the button itself
+        _buttonImage = _button.GetComponent<Image>();
+        
+        if (_buttonImage == null)
+        {
+            Debug.LogError("No Image component found on " + gameObject.name + ". Button image will not be updated.", this);
+        }
     }
 
     protected virtual void Awake()
@@ -77,11 +87,51 @@ public class ToggleSwitch : MonoBehaviour, IPointerClickHandler
     private void SetState(bool state)
     {
         CurrentValue = state;
-        _slider.value = sliderValue = CurrentValue ? 1 : 0;
+        UpdateButtonAppearance();
+        
+        // Log the current state to console
+        Debug.Log($"[{settingName}] Toggle Button State: {(CurrentValue ? "ON" : "OFF")}");
 
         if (CurrentValue)
             onToggleOn?.Invoke();
         else
             onToggleOff?.Invoke();
+    }
+    
+    private void UpdateButtonAppearance()
+    {
+        if (_buttonImage != null)
+        {
+            // Update the button's sprite based on current state
+            _buttonImage.sprite = CurrentValue ? onStateSprite : offStateSprite;
+        }
+        else
+        {
+            Debug.LogWarning("Button Image component not found. Cannot update sprite.", this);
+        }
+        
+        // Validate that sprites are assigned
+        if (onStateSprite == null || offStateSprite == null)
+        {
+            Debug.LogWarning($"[{settingName}] ON or OFF sprite is not assigned. Please assign sprites in the inspector.", this);
+        }
+    }
+    
+    /// <summary>
+    /// Public method to set the toggle state externally
+    /// </summary>
+    /// <param name="state">The desired state (true = ON, false = OFF)</param>
+    public void SetToggleState(bool state)
+    {
+        SetState(state);
+    }
+    
+    /// <summary>
+    /// Public method to get the current setting name
+    /// </summary>
+    /// <returns>The name of the setting this toggle controls</returns>
+    public string GetSettingName()
+    {
+        return settingName;
     }
 }
