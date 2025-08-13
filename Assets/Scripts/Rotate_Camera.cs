@@ -1,12 +1,14 @@
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 
-    /***
-    * Rotate_Camera.cs, used to handle rotating the camera by clicking and dragging the left mouse button 
-    * Written by: O_Bolt
-    * Last Modified: 15/07/25
-    */
+/***
+* Rotate_Camera.cs, used to handle rotating the camera by clicking and dragging the left mouse button 
+* Written by: O_Bolt
+* Last Modified: 15/07/25
+*/
 
 
 
@@ -41,7 +43,11 @@ public class RotateCamera : MonoBehaviour
     private float smoothy = 0.0f;
 
     // Not relevant in our case since we're not looking at an object, we're just moving the camera around the world
-    private float distance = 10f;   
+    private float distance = 10f;
+
+
+    public List<GameObject> cameraDisabledUIElements = new List<GameObject>();
+    private bool dragStartedOnUI = false;
 
     void Start()
     {
@@ -62,13 +68,26 @@ public class RotateCamera : MonoBehaviour
 
     void LateUpdate()
     {
+
         // declare this else where with a function once the user has ability to edit mouse sensitivity
         xSpeed = mouseSensitivity*200;
         ySpeed = mouseSensitivity*200;
 
+
+
+        // Check if the Mouse was clicked, this only happens on the first frame of the mouse being clicked
+        if (Input.GetMouseButtonDown(0))
+        {
+            dragStartedOnUI = IsMouseOverUI();  // Check if over a UI Element
+        }
+
         // Left Mouse Button, check if it's down
         if (Input.GetMouseButton(0)) 
         {
+            
+            if (dragStartedOnUI)
+                return;
+
             // Get mouse delta input and clamp it to avoid large jumps
             float deltaX = Input.GetAxis("Mouse X") * xSpeed * Time.deltaTime;
             float deltaY = Input.GetAxis("Mouse Y") * ySpeed * Time.deltaTime;
@@ -102,4 +121,29 @@ public class RotateCamera : MonoBehaviour
         transform.position = position;
     }
 
+
+    // Checks if the mouse is currently over one of the excluded UI that is set in the unity project
+    private bool IsMouseOverUI()
+    {
+
+        // Prompted, no idea how this works currently, I'll understand it later lol
+        if (EventSystem.current == null)
+            return false;
+
+        PointerEventData pointerData = new PointerEventData(EventSystem.current)
+        {
+            position = Input.mousePosition
+        };
+
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(pointerData, results);
+
+        foreach (RaycastResult result in results)
+        {
+            if (cameraDisabledUIElements.Contains(result.gameObject))
+                return true;
+        }
+
+        return false;
+    }
 }
