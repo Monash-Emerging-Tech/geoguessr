@@ -41,6 +41,9 @@ public class LocationManager
         public float x;
         public float y;
         public float z;
+
+        // Point of Interest ID
+        public string POI;
         // Need to add more stuff here when we know how to use it better
         // Location x
         // Location y
