@@ -61,7 +61,7 @@
         {
             "ID": 0,
             "Name": "all",
-            "locationIDs": [] // This means include all, only applicable to this map pack
+            "locationIDs": [] 
         },
         {
             "ID": 1,
