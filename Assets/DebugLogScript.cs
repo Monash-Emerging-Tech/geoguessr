@@ -35,9 +35,13 @@ public class DebugLogScript : MonoBehaviour
             "\r\ninGame: " + gameLoader.inGame +
             "\r\nCurrent Score: " + gameLoader.currentScore +
             "\r\nRound: " + gameLoader.currentRound +
+            "\r\nMapPackId: " + gameLoader.mapPackId +
+            "\r\nMode: " + gameLoader.GameMode +
             "\r\nLocation: " + gameLoader.locationManager.currentLocation.Name +
             "\r\nLocation X: " + gameLoader.locationManager.currentLocation.x +
-            "\r\nLocation Y: " + gameLoader.locationManager.currentLocation.y;
+            "\r\nLocation Y: " + gameLoader.locationManager.currentLocation.y +
+            "\r\nLocation Z: " + gameLoader.locationManager.currentLocation.z +
+            "\r\nLocation POI: " + gameLoader.locationManager.currentLocation.POI;
         }
 
     }

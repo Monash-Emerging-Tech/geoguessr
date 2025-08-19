@@ -21,7 +21,7 @@ public class GameLoader : MonoBehaviour
     public int currentScore;
     public int currentRound;
 
-    public int GameMode;
+    public int GameMode = 0;
     public int mapPackId = 0;
 
     // Used to find the LocationManager variables
@@ -79,6 +79,12 @@ public class GameLoader : MonoBehaviour
         locationManager.setCurrentMapPack(mapPackId);
         locationManager.SelectRandomLocation();
     }
+    
+
+    // More Game Control Logic Here
+
+
+
 
 
     // This ensures that there is only one GameLoader in the game at one time, and ensures that the GameObject is not destroyed

@@ -45,8 +45,6 @@ public class LocationManager
         // Point of Interest ID
         public string POI;
         // Need to add more stuff here when we know how to use it better
-        // Location x
-        // Location y
 
         [System.NonSerialized]
         // Link to the 360 Image of the Location
