@@ -21,12 +21,16 @@ window.addEventListener('load', () => {
 
     /* Instantiate a MazeMap JS API Map */
     // TODO: Add your correct campus id number or tag string here
-    const campusId = 0;
-    const map = makeMazeMapInstance({campuses: campusId});
+    const campusId = 159; // Clayton Campus
+    const map = makeMazeMapInstance({
+        campuses: campusId, 
+        center: {lng: 145.133963, lat:-37.911785},
+        zoom: 15.4
+    });
 
     ReactDOM.render(<div className={'appRoot'}>
         <header className={'header'}>
-            <h2>Hello Map!</h2>
+            <h2>MNET Geoguessr + Monash MazeMaps</h2>
             <p>This page uses an npm package of MazeMap JS API</p>
         </header>
         <MazeMapWrapper map={map} />
