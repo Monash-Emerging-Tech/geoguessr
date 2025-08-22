@@ -1,0 +1,72 @@
+{
+    "Locations": [
+        {
+            "ID": 0,
+            "Name": "Placeholder 0",
+            "FileName": "360_PlaceHolder",
+            "X": 0,
+            "Y": 0,
+            "Z": 0,
+            "POI": "0"
+        },
+        {
+            "ID": 1,
+            "Name": "Placeholder 1",
+            "FileName": "360_PlaceHolder_1",
+            "X": 0,
+            "Y": 0,
+            "Z": 0,
+            "POI": "0"
+        },
+        {
+            "ID": 2,
+            "Name": "Placeholder 2",
+            "FileName": "360_PlaceHolder_1 1",
+            "X": 0,
+            "Y": 0,
+            "Z": 0,
+            "POI": "0"
+        },
+        {
+            "ID": 3,
+            "Name": "Placeholder 3",
+            "FileName": "360_PlaceHolder_1 2",
+            "X": 0,
+            "Y": 0,
+            "Z": 0,
+            "POI": "0"
+        },
+        {
+            "ID": 4,
+            "Name": "Placeholder 4",
+            "FileName": "360_PlaceHolder_1 3",
+            "X": 0,
+            "Y": 0,
+            "Z": 0,
+            "POI": "0"
+        },
+        {
+            "ID": 5,
+            "Name": "Placeholder 5",
+            "FileName": "360_PlaceHolder_1 4",
+            "X": 0,
+            "Y": 0,
+            "Z": 0,
+            "POI": "0"
+        }
+    ],
+
+
+    "MapPacks": [
+        {
+            "ID": 0,
+            "Name": "all",
+            "locationIDs": [] 
+        },
+        {
+            "ID": 1,
+            "Name": "OG Placeholders",
+            "locationIDs": [ 0, 1 ]
+        }
+    ]
+}

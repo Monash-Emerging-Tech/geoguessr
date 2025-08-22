@@ -3,6 +3,7 @@ using System.Linq;
 using NUnit.Framework.Constraints;
 using UnityEditor;
 using UnityEngine;
+using System.IO;
 
 
 
@@ -17,7 +18,7 @@ using UnityEngine;
  * Last Modified: 15/07/2025
  * 
  */
-public class LocationManager : MonoBehaviour
+public class LocationManager
 {
 
     [System.Serializable]
@@ -39,6 +40,10 @@ public class LocationManager : MonoBehaviour
 
         public float x;
         public float y;
+        public float z;
+
+        // Point of Interest ID
+        public string POI;
         // Need to add more stuff here when we know how to use it better
         // Location x
         // Location y
@@ -60,12 +65,10 @@ public class LocationManager : MonoBehaviour
     public List<Location> locationList;
     public List<MapPack> mapPacks;
 
-    
+    private string jsonFilePath = "Assets/Resources/locationData.json";
+
     public MapPack currentMapPack;
     public Location currentLocation;
-
-    // Data File containing info on locations and mappacks
-    public TextAsset jsonFile;
 
     public void Start()
     {
@@ -121,19 +124,27 @@ public class LocationManager : MonoBehaviour
     }
 
 
+    public List<MapPack> GetMapPacks() {
+        return mapPacks;
+    }
 
     private void LoadData() {
         
-        if (jsonFile == null)
+        if (jsonFilePath == "")
         {
             Debug.LogError("JSON Data File is not assigned in the inspector.");
             return;
         }
 
-         
-        locationData data = JsonUtility.FromJson<locationData>(jsonFile.text);
+        string jsonData = File.ReadAllText(jsonFilePath);
+
+        Debug.Log(jsonData);
+
+        locationData data = JsonUtility.FromJson<locationData>(jsonData);
         locationList = data.Locations;
         mapPacks = data.MapPacks;
+
+        Debug.Log("Count: " + locationList.Count);
 
         for (int i = 0; i < locationList.Count; i++)
         {
@@ -149,6 +160,8 @@ public class LocationManager : MonoBehaviour
 
     }
 
+
+    // Validates the data in that was loaded by the json file
     private void CheckAllignment() {
 
         int idx = 0;
