@@ -138,7 +138,7 @@ PrefabInstance:
     - target: {fileID: 2700939851569638865, guid: 927b5bb8e8123f54fb77764e95f3043e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1256462229}
+      objectReference: {fileID: 1256462227}
     - target: {fileID: 2700939851569638865, guid: 927b5bb8e8123f54fb77764e95f3043e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -242,10 +242,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 472160925289474316, guid: 927b5bb8e8123f54fb77764e95f3043e, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1139382792}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 927b5bb8e8123f54fb77764e95f3043e, type: 3}
 --- !u!224 &73853816 stripped
 RectTransform:
@@ -819,8 +816,7 @@ GameObject:
   - component: {fileID: 1256462223}
   - component: {fileID: 1256462222}
   - component: {fileID: 1256462226}
-  - component: {fileID: 1256462228}
-  - component: {fileID: 1256462229}
+  - component: {fileID: 1256462227}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -923,7 +919,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1256462221}
   m_CullTransparentMesh: 1
---- !u!114 &1256462228
+--- !u!114 &1256462227
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -932,10 +928,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1256462221}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d1cb395b1de98b542afead015f69b864, type: 3}
+  m_Script: {fileID: 11500000, guid: 162fd8a9efc7d404a80d5e3495313014, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  overlayUI: {fileID: 0}
+  prefab: {fileID: 8271798863812296646, guid: 68bea656fb570f243abd1452b4e4f44e, type: 3}
+  parent: {fileID: 1256462225}
+  preventMultiple: 1
 --- !u!1 &1271600496 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5079296347715497146, guid: 927b5bb8e8123f54fb77764e95f3043e, type: 3}
