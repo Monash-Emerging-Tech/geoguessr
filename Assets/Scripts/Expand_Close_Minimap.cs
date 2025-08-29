@@ -1,13 +1,20 @@
 
 using UnityEngine;
 
+
+/// Expand/Close Minimap
+/// 
+/// Written by Ange
+/// 
+/// </summary>
+
 public class Expand_Close_Minimap : MonoBehaviour
 {
     public RectTransform mapContainer; 
     public RectTransform primaryButton; 
     public RectTransform cornerButtons;
     public Vector3 minimizedScale = new Vector3(0.5f, 0.5f, 0.5f);
-    public Vector3 expandedScale = new Vector3(1.5f, 1.5f, 1.5f);
+    public Vector3 expandedScale = new Vector3(5f, 5f, 5f);
     public float scaleSpeed = 5f;
 
     private Vector3 targetScale;
@@ -16,10 +23,10 @@ public class Expand_Close_Minimap : MonoBehaviour
     void Start()
     {
         // Initialise in expanded view
-        targetScale = expandedScale;
+        targetScale = minimizedScale;
         mapContainer.localScale = targetScale;
         if (mapContainer != null)
-            targetWidth = mapContainer.rect.width * expandedScale.x;
+            targetWidth = mapContainer.rect.width * targetScale.x;
         if (primaryButton != null)
             primaryButton.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, targetWidth);
         // Ensure cornerButtons are visible and sized in expanded view
