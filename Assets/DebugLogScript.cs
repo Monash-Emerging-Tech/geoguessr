@@ -2,6 +2,17 @@ using UnityEngine;
 using TMPro;
 using static Unity.Burst.Intrinsics.X86.Avx;
 
+
+
+/// Debug Log Script
+/// 
+/// Displays text information on screen about to current state of the Game
+/// 
+/// Written by O-Bolt
+/// 
+
+
+
 public class DebugLogScript : MonoBehaviour
 {
     private GameObject gameManager;
@@ -12,6 +23,7 @@ public class DebugLogScript : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        // Make sure a gamemanager is connected
         gameManager = GameObject.Find("GameLogic");
         if (gameManager != null)
         {
@@ -29,6 +41,7 @@ public class DebugLogScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Display on the text field provided
         if (gameManager != null)
         {
             text.text = "Debug Log:" +
