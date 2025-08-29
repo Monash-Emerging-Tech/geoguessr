@@ -129,11 +129,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2559136030309641381, guid: 927b5bb8e8123f54fb77764e95f3043e, type: 3}
       propertyPath: expandedScale.x
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2559136030309641381, guid: 927b5bb8e8123f54fb77764e95f3043e, type: 3}
       propertyPath: expandedScale.y
-      value: 3
+      value: 3.5
       objectReference: {fileID: 0}
     - target: {fileID: 2559136030309641381, guid: 927b5bb8e8123f54fb77764e95f3043e, type: 3}
       propertyPath: expandedScale.z
