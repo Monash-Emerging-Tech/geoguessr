@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import * as Mazemap from 'mazemap';
 import { MazeMapWrapper, makeMazeMapInstance } from './MazeMap';
 import './App.css';
 
 function App() {
   const [map, setMap] = useState(null);
+  const [marker, setMarker] = useState(null);
 
   useEffect(() => {
     // Initialize Mazemap when component mounts
@@ -44,27 +46,107 @@ function App() {
     return `${zLevel} (Level ${zLevel})`;
   };
 
-  // Handle map click events
+  // Handle map click events and add/update marker
   const handleMapClick = (event) => {
-    // Extract z-level (floor/level) information from the map
-    // zLevel represents which floor of the building was clicked (0 = ground floor, 1 = first floor, etc.)
-    const zLevel = event.target.getZLevel ? event.target.getZLevel() : 'unknown';
-    const zLevelName = typeof zLevel === 'number' ? getZLevelName(zLevel) : zLevel;
+    // Use the official MazeMap API to get comprehensive click data
+    const clickData = event.target.getMapClickData ? event.target.getMapClickData(event) : null;
     
-    console.log('Map clicked at:', {
+    // Extract z-level information (either from clickData or fallback)
+    let zLevel = 'unknown';
+    let zLevelName = 'unknown';
+    
+    if (clickData && clickData.zLevel !== undefined) {
+      zLevel = clickData.zLevel;
+      zLevelName = getZLevelName(zLevel);
+    } else {
+      // Fallback to manual extraction if getMapClickData is not available
+      zLevel = event.target.getZLevel ? event.target.getZLevel() : 'unknown';
+      zLevelName = typeof zLevel === 'number' ? getZLevelName(zLevel) : zLevel;
+    }
+    
+    // Create new marker data
+    const newMarker = {
+      id: Date.now(),
+      lng: event.lngLat.lng,
+      lat: event.lngLat.lat,
+      zLevel: zLevel,
+      zLevelName: zLevelName,
+      timestamp: new Date().toLocaleTimeString(),
+      // Additional data from getMapClickData if available
+      buildingId: clickData ? clickData.buildingId : null,
+      roomId: clickData ? clickData.roomId : null,
+      poiId: clickData ? clickData.poiId : null
+    };
+
+    // Update marker state (this will replace any existing marker)
+    setMarker(newMarker);
+    
+    // Add marker to the map
+    addMarkerToMap(newMarker);
+    
+    console.log('Marker placed at:', {
       coordinates: event.lngLat,
       zLevel: zLevel,
       zLevelName: zLevelName,
       lng: event.lngLat.lng,
-      lat: event.lngLat.lat
+      lat: event.lngLat.lat,
+      clickData: clickData
     });
+  };
+
+  // Function to add marker to the map
+  const addMarkerToMap = (markerData) => {
+    if (!map) {
+      console.error('Map not available for marker placement');
+      return;
+    }
+
+    console.log('Adding marker to map:', markerData);
+
+    // Remove existing marker if it exists
+    if (map._currentMarker) {
+      console.log('Removing existing marker');
+      map._currentMarker.remove();
+    }
+
+    try {
+      // Create new marker using the official MazeMap API
+      const newMarker = new Mazemap.MazeMarker({
+        zLevel: markerData.zLevel // Set the floor zLevel coordinate
+      })
+      .setLngLat([markerData.lng, markerData.lat]) // Set the LngLat coordinates
+      .addTo(map); // Add to the map
+
+      console.log('Marker created and added to map:', newMarker);
+
+      // Store reference to current marker
+      map._currentMarker = newMarker;
+    } catch (error) {
+      console.error('Error creating marker:', error);
+    }
   };
 
   return (
     <div className="App">
       <header className="App-header">
         <h1>MNET Geoguessr + Monash MazeMaps</h1>
-        <p>Click on the map to see coordinates in the console!</p>
+        <p>Click on the map to place your guess!</p>
+        {marker && (
+          <div className="marker-info">
+            <h3>Your Guess</h3>
+            <p><strong>Level:</strong> {marker.zLevelName}</p>
+            <p><strong>Coordinates:</strong> {marker.lng.toFixed(6)}, {marker.lat.toFixed(6)}</p>
+            {marker.buildingId && (
+              <p><strong>Building ID:</strong> {marker.buildingId}</p>
+            )}
+            {marker.roomId && (
+              <p><strong>Room ID:</strong> {marker.roomId}</p>
+            )}
+            {marker.poiId && (
+              <p><strong>POI ID:</strong> {marker.poiId}</p>
+            )}
+          </div>
+        )}
       </header>
       <main className="App-main">
         {map && <MazeMapWrapper map={map} onMapClick={handleMapClick} />}

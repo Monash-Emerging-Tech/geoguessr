@@ -64,6 +64,25 @@ The application includes a custom level selector that:
 - **Event Cleanup**: Properly removes event listeners to prevent memory leaks
 - **Minimal State**: No unnecessary state management for this basic functionality
 
+### Interactive Markers
+
+The application includes a marker system for placing guesses:
+- **Single Marker**: Only one marker can exist on the map at a time
+- **Guess Storage**: Each marker stores longitude, latitude, and z-level
+- **Official API**: Uses MazeMap.MazeMarker for reliable marker placement
+- **Z-Level Support**: Markers automatically appear on the correct floor level
+- **Guess Display**: Shows current guess information in the header
+
+### Enhanced Click Data
+
+The application leverages MazeMap's official `getMapClickData()` method to provide:
+- **Z-Level Information**: Floor/level where the click occurred
+- **Building ID**: Identifier for the building structure
+- **Room ID**: Specific room identifier if available
+- **POI ID**: Point of Interest identifier if available
+- **Coordinates**: Precise longitude and latitude
+- **Fallback Support**: Graceful degradation if the method isn't available
+
 ## Getting Started
 
 1. Install dependencies: `npm install`
@@ -81,16 +100,22 @@ The application includes a custom level selector that:
 
 When you click on the map, you'll see output like:
 ```
-Map clicked at: {
+Marker placed at: {
   coordinates: {lng: 145.133963, lat: -37.911785},
   zLevel: -1,
   zLevelName: "P1 (Parking Level 1)",
   lng: 145.133963,
-  lat: -37.911785
+  lat: -37.911785,
+  clickData: {
+    zLevel: -1,
+    buildingId: "building_123",
+    roomId: "room_456",
+    poiId: "poi_789"
+  }
 }
 ```
 
-The `zLevel` represents the floor/level of the building where you clicked, and `zLevelName` provides a human-readable description including parking levels.
+The `zLevel` represents the floor/level of the building where you clicked, and `zLevelName` provides a human-readable description including parking levels. Each click also places a marker on the map representing your guess location. The `clickData` object contains additional information from MazeMap's official API.
 
 ## Future Enhancements
 
