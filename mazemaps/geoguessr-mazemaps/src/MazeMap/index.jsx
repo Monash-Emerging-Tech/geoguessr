@@ -1,19 +1,9 @@
-// @flow
-import type { Node } from 'react';
-import * as React from 'react';
+import React from 'react';
+import * as Mazemap from 'mazemap';
+import 'mazemap/mazemap.min.css';
+import "./mazemap-wrapper.css";
 
-import * as Mazemap from "node_modules/mazemap/mazemap.min.js"
-import "node_modules/mazemap/mazemap.min.css"
-import "./mazemap-wrapper.css"
-window.Mazemap = Mazemap;
-
-type Props = {
-    map: Mazemap.Map,
-    children?: Node,
-    className?: string,
-};
-
-export function makeMazeMapInstance(options: Object): Mazemap.Map {
+export function makeMazeMapInstance(options) {
     const mazemapRoot = document.createElement('div');
     mazemapRoot.className = 'mapRoot';
     const defaultOptions = {
@@ -36,9 +26,11 @@ export function makeMazeMapInstance(options: Object): Mazemap.Map {
     return map;
 }
 
-export class MazeMapWrapper extends React.Component<Props> {
-
-    _onResizeBound: any;
+export class MazeMapWrapper extends React.Component {
+    constructor(props) {
+        super(props);
+        this._onResizeBound = null;
+    }
 
     componentDidMount(){
         this.props.map.on('resize', this._onResize);
@@ -77,5 +69,4 @@ export class MazeMapWrapper extends React.Component<Props> {
             } className={['mazemapWrapper', this.props.className].join(' ')}> {this.props.children}</div>
         );
     }
-
 }
