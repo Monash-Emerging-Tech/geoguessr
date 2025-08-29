@@ -1,70 +1,101 @@
-# Getting Started with Create React App
+# MNET Geoguessr + Monash MazeMaps
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A React application that integrates MazeMap (Monash University's indoor mapping system) with basic map click functionality.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- **Interactive MazeMap**: Displays Monash University Clayton Campus using MazeMap JS API
+- **Map Click Functionality**: Click anywhere on the map to capture coordinates
+- **Console Logging**: Click coordinates are logged to the browser console
 
-### `npm start`
+## Map Click Functionality
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+The application now supports basic map click events that:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **Capture Coordinates**: Longitude and latitude of each click
+- **Track Z-Level**: Floor/level information where the click occurred
+- **Console Logging**: Logs click data to the browser console for debugging
+- **Simple Event Handling**: Clean, minimal implementation focused on data capture
+- **Level Restrictions**: Only shows levels LG (Lower Ground) and above, excluding basement levels
 
-### `npm test`
+### Z-Level Restrictions
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+The map is configured to display parking levels and building levels:
+- **P4 (Parking Level 4)**: Level -4
+- **P3 (Parking Level 3)**: Level -3
+- **P2 (Parking Level 2)**: Level -2
+- **P1 (Parking Level 1)**: Level -1
+- **LG (Lower Ground)**: Level 0
+- **G (Ground)**: Level 1  
+- **1 (First Floor)**: Level 2
+- **2 (Second Floor)**: Level 3
+- **3 (Third Floor)**: Level 4
+- **4 (Fourth Floor)**: Level 5
+- **5 (Fifth Floor)**: Level 6
+- **6 (Sixth Floor)**: Level 7
+- **7 (Seventh Floor)**: Level 8
+- **8 (Eighth Floor)**: Level 9
+- **9 (Ninth Floor)**: Level 10
+- **10 (Tenth Floor)**: Level 11
+- **11 (Eleventh Floor)**: Level 12
 
-### `npm run build`
+Only parking levels (P1-P4) and building levels (LG-11) are accessible. Other basement levels are automatically excluded from the map view.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Custom Level Selector
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+The application includes a custom level selector that:
+- **Replaces the default MazeMap control** with a clean, custom interface
+- **Shows parking levels (P1-P4) and building levels (LG-11)** - only relevant levels are displayed
+- **Provides clear level names** (e.g., "P1 (Parking Level 1)", "LG (Lower Ground)", "G (Ground)")
+- **Prevents access to other basement levels** - users cannot navigate to irrelevant basement areas
+- **Maintains full functionality** for all accessible levels including parking
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### How It Works
 
-### `npm run eject`
+1. **Event Handling**: Click events are captured by the MazeMap instance
+2. **Data Processing**: Coordinates are extracted from the click event
+3. **Console Output**: Click data is logged to the browser console
+4. **Clean Architecture**: Simple event flow without complex state management
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Technical Implementation
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- **MazeMap Integration**: Click events are wired up in `makeMazeMapInstance()`
+- **React Event Handling**: Uses props to pass click handlers down to the map component
+- **Event Cleanup**: Properly removes event listeners to prevent memory leaks
+- **Minimal State**: No unnecessary state management for this basic functionality
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Getting Started
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+1. Install dependencies: `npm install`
+2. Start the development server: `npm start`
+3. Open the browser console (F12 → Console tab)
+4. Click anywhere on the map to see coordinates logged to the console
 
-## Learn More
+## File Structure
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- `src/MazeMap/index.jsx`: Core MazeMap component with click event handling
+- `src/App.js`: Main application with simple click handler
+- `src/App.css`: Basic styling for the application
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Console Output
 
-### Code Splitting
+When you click on the map, you'll see output like:
+```
+Map clicked at: {
+  coordinates: {lng: 145.133963, lat: -37.911785},
+  zLevel: -1,
+  zLevelName: "P1 (Parking Level 1)",
+  lng: 145.133963,
+  lat: -37.911785
+}
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+The `zLevel` represents the floor/level of the building where you clicked, and `zLevelName` provides a human-readable description including parking levels.
 
-### Analyzing the Bundle Size
+## Future Enhancements
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Add visual markers on the map for clicked locations
+- Store click data in state for display in the UI
+- Implement distance calculations between clicks
+- Add click history tracking
+- Create game mechanics for geoguessr-style gameplay
