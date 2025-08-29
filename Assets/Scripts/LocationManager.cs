@@ -21,6 +21,7 @@ using System.IO;
 public class LocationManager
 {
 
+    // Location Data Class, Locations and Mappacks
     [System.Serializable]
     public class locationData
     {
@@ -45,8 +46,7 @@ public class LocationManager
         // Point of Interest ID
         public string POI;
         // Need to add more stuff here when we know how to use it better
-        // Location x
-        // Location y
+      
 
         [System.NonSerialized]
         // Link to the 360 Image of the Location
@@ -65,8 +65,11 @@ public class LocationManager
     public List<Location> locationList;
     public List<MapPack> mapPacks;
 
+    // path to the locationData.json file
     private string jsonFilePath = "Assets/Resources/locationData.json";
 
+    
+    // In game selections
     public MapPack currentMapPack;
     public Location currentLocation;
 
@@ -85,7 +88,7 @@ public class LocationManager
     // Could pass through a mappack in the future?
     public void SelectRandomLocation()
     {
-        List<Location> locations = getLocationsFromMap(currentMapPack);
+        List<Location> locations = getLocationsFromMapPack(currentMapPack);
         
         if (locations.Count == 0) return;
  
@@ -95,24 +98,18 @@ public class LocationManager
         setCurrentLocation(locations[rdmIdx]);
     }
 
-    public void setCurrentLocation(Location location) {
-        currentLocation = location;
-    }
-
-    public void setCurrentMapPack(int Id)
+    public List<Location> getLocationsFromMapPack(MapPack mapPack)
     {
-        currentMapPack = mapPacks[Id];
-    }
 
-    public List<Location> getLocationsFromMap(MapPack mapPack) {
-
-        if (mapPack.Name == "all" || mapPack.Name == "") {
+        if (mapPack.Name == "all" || mapPack.Name == "")
+        {
             return locationList;
         }
 
         List<Location> locations = new List<Location>();
 
-        foreach (int ID in mapPack.locationIDs) {
+        foreach (int ID in mapPack.locationIDs)
+        {
             // Should be alligned
             Debug.Log("Location Found" + ID);
             locations.Add(locationList[ID]);
@@ -124,10 +121,22 @@ public class LocationManager
     }
 
 
+    //Setters and Getters
+    public void setCurrentLocation(Location location) {
+        currentLocation = location;
+    }
+
+    public void setCurrentMapPack(int Id)
+    {
+        currentMapPack = mapPacks[Id];
+    }
+
+
     public List<MapPack> GetMapPacks() {
         return mapPacks;
     }
 
+    // Creates Locations and Mappacks from the json File
     private void LoadData() {
         
         if (jsonFilePath == "")
@@ -162,15 +171,18 @@ public class LocationManager
 
 
     // Validates the data in that was loaded by the json file
+    // All locations and Mappacks need to have the same ID and position in the JSON file for consistency
+    // Makes loading data easier for now anyway, I'm sure we can just allocate memory instead but that would require validating Locations
     private void CheckAllignment() {
 
+        // Match all the locations to each other
         int idx = 0;
         int errors = 0;
         foreach (Location location in locationList)
         {
             if (location.ID != idx)
             {
-                Debug.Log($"Out of Place Location, ID: {location.ID}, Index: {idx}");
+                Debug.Log($"Out of Place Location, ID: {location.ID}, Index in json File: {idx}");
                 errors++;
             }
 
@@ -178,12 +190,11 @@ public class LocationManager
         }
 
         idx = 0;
-
         foreach (MapPack mapPack in mapPacks)
         {
             if (mapPack.ID != idx)
             {
-                Debug.Log($"Out of Place Map Pack, ID: {mapPack.ID}, Index: {idx}");
+                Debug.Log($"Out of Place Map Pack, ID: {mapPack.ID}, Index in json File: {idx}");
                 errors++;
             }
 

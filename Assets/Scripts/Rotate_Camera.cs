@@ -35,16 +35,20 @@ public class RotateCamera : MonoBehaviour
     private float xMinLimit = -80f;    
     private float xMaxLimit = 80f;     
 
-    // Important to remember that this is a rotation around the axis, meaning looking up and down is the x-axis
+    // Important to remember that this is a rotation around the axis, meaning looking up and down is around the x-axis
     private float x = 0.0f;
     private float y = 0.0f;
 
     private float smoothx = 0.0f;
     private float smoothy = 0.0f;
 
+
     // Not relevant in our case since we're not looking at an object, we're just moving the camera around the world
+    // This changes to be Camera FOV for zooming, distance not important at all
     private float distance = 10f;
 
+    // Left mouse button
+    private int LEFT = 0;
 
     public List<GameObject> cameraDisabledUIElements = new List<GameObject>();
     private bool dragStartedOnUI = false;
@@ -70,21 +74,22 @@ public class RotateCamera : MonoBehaviour
     {
 
         // declare this else where with a function once the user has ability to edit mouse sensitivity
+        // 200 is a number I found works, let's get rid of this scaling factor at a later date
         xSpeed = mouseSensitivity*200;
         ySpeed = mouseSensitivity*200;
 
 
 
         // Check if the Mouse was clicked, this only happens on the first frame of the mouse being clicked
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(LEFT))
         {
             dragStartedOnUI = IsMouseOverUI();  // Check if over a UI Element
         }
 
         // Left Mouse Button, check if it's down
-        if (Input.GetMouseButton(0)) 
+        if (Input.GetMouseButton(LEFT)) 
         {
-            
+            // Don't let the camera move if the mouse is on UI
             if (dragStartedOnUI)
                 return;
 
@@ -126,20 +131,23 @@ public class RotateCamera : MonoBehaviour
     private bool IsMouseOverUI()
     {
 
-        // Prompted, no idea how this works currently, I'll understand it later lol
+        // Make sure Eventsystem is active
         if (EventSystem.current == null)
             return false;
 
+        // Create the mouse pointer event, set to current mouse position
         PointerEventData pointerData = new PointerEventData(EventSystem.current)
         {
             position = Input.mousePosition
         };
 
+        // RayCastAll see's if there is a UI element under the mouse 
         List<RaycastResult> results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(pointerData, results);
 
         foreach (RaycastResult result in results)
         {
+            // If a UI Element that the mouse is not allowed to be over is in the results, then disable the camera movement
             if (cameraDisabledUIElements.Contains(result.gameObject))
                 return true;
         }

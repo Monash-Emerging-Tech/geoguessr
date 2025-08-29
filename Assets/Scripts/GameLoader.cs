@@ -16,7 +16,7 @@ using static LocationManager;
 public class GameLoader : MonoBehaviour
 {
 
-    // Public Variables //
+    // Public Variables 
     public bool inGame;
     public int currentScore;
     public int currentRound;
