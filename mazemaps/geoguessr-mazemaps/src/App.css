@@ -66,3 +66,23 @@
   width: 100%;
   height: 100%;
 }
+
+@font-face {
+  font-family: 'OffBit-101';
+  src: url('/fonts/WOFF2/OffBit-101.woff2') format('woff2'),
+       url('/fonts/WOFF/OffBit-101.woff') format('woff'),
+       url('/fonts/TTF/OffBit-101.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap; /* Improves loading performance */
+}
+
+@font-face {
+  font-family: 'OffBit-101Bold';
+  src: url('/fonts/WOFF2/OffBit-101Bold.woff2') format('woff2'),
+       url('/fonts/WOFF/OffBit-101Bold.woff') format('woff'),
+       url('/fonts/TTF/OffBit-101Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
