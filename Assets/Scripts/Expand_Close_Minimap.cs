@@ -17,9 +17,10 @@ public class Expand_Close_Minimap : MonoBehaviour
     public Vector3 expandedScale = new Vector3(5f, 5f, 5f);
     public float scaleSpeed = 5f;
 
+    public bool fullscreen;
+
     private Vector3 targetScale;
     private float targetWidth;
-
     void Start()
     {
         // Initialise in expanded view
@@ -103,9 +104,9 @@ public class Expand_Close_Minimap : MonoBehaviour
         }
     }
 
-    public void Expand()
+    public void Expand(bool fullscreen = false)
     {
-        targetScale = expandedScale;
+        targetScale = !fullscreen? expandedScale : getFullScreenScale();
         if (mapContainer != null)
             targetWidth = mapContainer.rect.width * expandedScale.x;
         // Align right edge after width is set
@@ -116,5 +117,22 @@ public class Expand_Close_Minimap : MonoBehaviour
             float offset = mapRight - buttonRight;
             primaryButton.anchoredPosition = new Vector2(primaryButton.anchoredPosition.x + offset, primaryButton.anchoredPosition.y);
         }
+    }
+
+
+
+    public Vector3 getFullScreenScale()
+    {
+        RectTransform rectTransform = mapContainer.GetComponent<RectTransform>();
+
+        Debug.Log(Screen.width);
+        Debug.Log(rectTransform.rect.width);
+
+        Vector3 fullScreenScale = new Vector3(
+                Screen.width / rectTransform.rect.width,
+                Screen.height / rectTransform.rect.height,
+                Screen.height / rectTransform.rect.height);
+
+        return fullScreenScale;
     }
 }
