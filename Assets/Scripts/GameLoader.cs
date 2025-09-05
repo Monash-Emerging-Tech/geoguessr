@@ -18,6 +18,7 @@ public class GameLoader : MonoBehaviour
 
     // Public Variables 
     public bool inGame;
+    public bool userGuessing;
     public int currentScore;
     public int currentRound;
 
