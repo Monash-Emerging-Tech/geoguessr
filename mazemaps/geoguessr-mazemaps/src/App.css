@@ -67,14 +67,15 @@
   height: 100%;
 }
 
-@font-face {
+/* font imports not working */
+/* @font-face {
   font-family: 'OffBit-101';
   src: url('/fonts/WOFF2/OffBit-101.woff2') format('woff2'),
        url('/fonts/WOFF/OffBit-101.woff') format('woff'),
        url('/fonts/TTF/OffBit-101.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
-  font-display: swap; /* Improves loading performance */
+  font-display: swap; 
 }
 
 @font-face {
@@ -85,4 +86,4 @@
   font-weight: bold;
   font-style: normal;
   font-display: swap;
-}
+} */
