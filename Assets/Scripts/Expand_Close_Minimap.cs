@@ -23,6 +23,8 @@ public class Expand_Close_Minimap : MonoBehaviour
 
     private Vector3 targetScale;
     private float targetWidth;
+
+    private GameLogic gameLoader;
     void Start()
     {
         // Initialise in expanded view
@@ -41,6 +43,8 @@ public class Expand_Close_Minimap : MonoBehaviour
             cornerButtons.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, expandedHeight);
             // Position will be handled in Update()
         }
+
+        gameLoader = GameObject.Find("GameLogic").GetComponent<GameLogic>();
     }
 
     void Update()
@@ -122,11 +126,11 @@ public class Expand_Close_Minimap : MonoBehaviour
         }
     }
 
-
     // Uses the Canvas Default Resolution Size to find how much to scale the map to fullscreen after the guess button is made
     // Default Resolution at the time of writing this is 1920x1080
     public Vector3 getFullScreenScale()
     {
+        
         RectTransform rectTransform = mapContainer.GetComponent<RectTransform>();
         CanvasScaler canvasScaler = canvas.GetComponent<CanvasScaler>();
 
@@ -142,5 +146,20 @@ public class Expand_Close_Minimap : MonoBehaviour
         //Debug.Log($"{fullScreenScale}");
 
         return fullScreenScale;
+    }
+
+
+    public void GuessButtonClick()
+    {
+
+        if (gameLoader.isGuessing)
+        {
+            Expand(true);
+        }
+        else
+        {
+            Minimize();
+        }
+
     }
 }

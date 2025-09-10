@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -13,16 +14,18 @@ using static LocationManager;
  * Last Modified: 08/08/2025
  * 
  */
-public class GameLoader : MonoBehaviour
+public class GameLogic : MonoBehaviour
 {
 
     // Public Variables 
     public bool inGame;
-    public bool userGuessing;
+
+    public bool isGuessing;
+
     public int currentScore;
     public int currentRound;
 
-    public int GameMode;
+    public int GameMode = 0;
     public int mapPackId = 0;
 
     // Used to find the LocationManager variables
@@ -31,17 +34,14 @@ public class GameLoader : MonoBehaviour
     private List<LocationManager.MapPack> mapPacks;
 
 
-    public static GameLoader Instance; // Global reference
+    public static GameLogic Instance; // Global reference
 
-
+    // From Main Menu to the Game Scene
     // Moves to the Game Scene for the game to start, performs all thes start game logic
-    public void StartGame()
+    public void LoadGame()
     {
         SceneManager.LoadScene("GameScene");
-        inGame = true;
-        currentRound = 0;
-        currentScore = 0;
-        List<LocationManager.MapPack> mapPacks = locationManager.GetMapPacks(); 
+         
     }
 
 
@@ -60,7 +60,11 @@ public class GameLoader : MonoBehaviour
     {
         // If the scenes is the GameScene, we should now change the Map and let the game start
         if (scene.name == "GameScene") {
-            changeMap();
+            inGame = true;
+            currentRound = 0;
+            currentScore = 0;
+            isGuessing = true;
+            nextRound();
         }
         
         Debug.Log("Scene name: " + scene.name);
@@ -69,17 +73,55 @@ public class GameLoader : MonoBehaviour
 
     public void nextRound() {
         currentRound++;
+
+        if (currentRound > 5) {
+            SceneManager.LoadScene("BreakdownScene");
+        }
+
+        isGuessing = true;
         // currentScore += ; // Update the score eventually
         changeMap();
 
     }
 
 
+
+    public void sumbitGuess()
+    {
+        isGuessing = false;
+
+        // Talk to MazeMaps here
+
+        int Score = calculateScore(new Vector3(0, 0, 0), locationManager.currentLocation);
+        currentScore += Score;
+
+    }
+
+
+    public int calculateScore(Vector3 guess, Location answer)
+    {
+        int distance = (int)Math.Sqrt(Math.Pow(guess.x - answer.x, 2) + Math.Pow(guess.y - answer.y, 2));
+
+        int score = 5000 - distance;
+
+        return distance;
+    }
+
+
+
     // Changes the map shown to the player at the start of a new round
     public void changeMap() {
         locationManager.setCurrentMapPack(mapPackId);
+        
+        //TODO: Make it so the same location can't be selected twice in the same session
         locationManager.SelectRandomLocation();
     }
+    
+
+    // More Game Control Logic Here
+
+
+
 
 
     // This ensures that there is only one GameLoader in the game at one time, and ensures that the GameObject is not destroyed

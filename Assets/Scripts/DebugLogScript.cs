@@ -16,7 +16,7 @@ using static Unity.Burst.Intrinsics.X86.Avx;
 public class DebugLogScript : MonoBehaviour
 {
     private GameObject gameManager;
-    private GameLoader gameLoader;
+    private GameLogic gameLoader;
     private TMP_Text text;
 
 
@@ -28,7 +28,7 @@ public class DebugLogScript : MonoBehaviour
         if (gameManager != null)
         {
             Debug.Log("Debug Log Found GameManager!");
-            gameLoader = gameManager.GetComponent<GameLoader>();
+            gameLoader = gameManager.GetComponent<GameLogic>();
             text = GetComponent<TMP_Text>();
         }
         else
@@ -46,11 +46,16 @@ public class DebugLogScript : MonoBehaviour
         {
             text.text = "Debug Log:" +
             "\r\ninGame: " + gameLoader.inGame +
+            "\r\nGuessing: " + gameLoader.isGuessing +
             "\r\nCurrent Score: " + gameLoader.currentScore +
             "\r\nRound: " + gameLoader.currentRound +
+            "\r\nMapPackId: " + gameLoader.mapPackId +
+            "\r\nMode: " + gameLoader.GameMode +
             "\r\nLocation: " + gameLoader.locationManager.currentLocation.Name +
             "\r\nLocation X: " + gameLoader.locationManager.currentLocation.x +
-            "\r\nLocation Y: " + gameLoader.locationManager.currentLocation.y;
+            "\r\nLocation Y: " + gameLoader.locationManager.currentLocation.y +
+            "\r\nLocation Z: " + gameLoader.locationManager.currentLocation.z +
+            "\r\nLocation POI: " + gameLoader.locationManager.currentLocation.POI;
         }
 
     }
