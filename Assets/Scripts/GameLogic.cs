@@ -31,7 +31,7 @@ public class GameLogic : MonoBehaviour
     // Used to find the LocationManager variables
     public LocationManager locationManager = new LocationManager();
 
-    private Dictionary<int, LocationManager.MapPack> allMapPacks;
+    private Dictionary<int, LocationManager.MapPack> mapPacks;
 
 
     public static GameLogic Instance; // Global reference
@@ -86,7 +86,7 @@ public class GameLogic : MonoBehaviour
 
 
 
-    public void sumbitGuess()
+    public void enterGuess()
     {
         isGuessing = false;
 
@@ -133,7 +133,7 @@ public class GameLogic : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
             locationManager.Start();
-            allMapPacks = locationManager.GetMapPacks();
+            mapPacks = locationManager.GetMapPacks();
         }
         else
         {

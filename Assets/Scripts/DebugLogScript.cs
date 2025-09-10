@@ -41,6 +41,7 @@ public class DebugLogScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         // Display on the text field provided
         if (gameManager != null)
         {

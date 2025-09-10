@@ -60,8 +60,8 @@ public class LocationManager
     }
 
     // For now we'll just list all locations in one big list, could also do mappacks in the future
-    public Dictionary<int, Location> locationDict;
-    public Dictionary<int, MapPack> mapPackDict;
+    public Dictionary<int, Location> locationDict = new Dictionary<int, Location>();
+    public Dictionary<int, MapPack> mapPackDict = new Dictionary<int, MapPack>();
 
     // path to the locationData.json file
     private string jsonFilePath = "Assets/Resources/locationData.json";
@@ -97,10 +97,12 @@ public class LocationManager
     public List<Location> getLocationsFromMapPack(MapPack mapPack)
     {
 
+        Debug.Log(locationDict);
         List<Location> locations = new List<Location>();
 
         if (mapPack.Name == "all" || mapPack.Name == "")
         {
+            
             locations = locationDict.Values.ToList();
             return locations;
         }
@@ -121,6 +123,7 @@ public class LocationManager
 
     public void setCurrentMapPack(int Id)
     {
+        Debug.Log("Test: " + mapPackDict);
         currentMapPack = mapPackDict[Id];
     }
 
@@ -143,8 +146,16 @@ public class LocationManager
         Debug.Log(jsonData);
 
         locationData data = JsonUtility.FromJson<locationData>(jsonData);
-        
-        foreach (Location location in data.Locations) {
+
+        foreach (Location currentLocation in data.Locations) {
+
+            Location location = currentLocation;
+
+            location.LocationMaterial = Resources.Load<Material>($"Materials/Locations/{location.FileName}");
+
+            if (location.LocationMaterial == null)
+                Debug.LogWarning($"Material not found for location {location.Name}, MaterialName: {location.FileName}");
+
             locationDict.Add(location.ID, location);
         }
 
@@ -155,19 +166,6 @@ public class LocationManager
 
 
         Debug.Log("Count: " + locationDict.Count);
-
-        foreach (Location currentLocation in locationDict.Values)
-        {
-            // Because it's ready only
-            Location location = locationDict[currentLocation.ID];
-
-            location.LocationMaterial = Resources.Load<Material>($"Materials/Locations/{location.FileName}");
-
-            if (location.LocationMaterial == null)
-                Debug.LogWarning($"Material not found for location {location.Name}, MaterialName: {location.FileName}");
-
-            locationDict[currentLocation.ID] = location; 
-        }
 
     }
 

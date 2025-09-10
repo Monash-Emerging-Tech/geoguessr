@@ -30,7 +30,7 @@ public class Guess_Button_Logic : MonoBehaviour
 
 
         if (gameLogic.isGuessing) {
-            gameLogic.sumbitGuess();
+            gameLogic.enterGuess();
             textReference.text = "NEXT GUESS!";
         }
         else
