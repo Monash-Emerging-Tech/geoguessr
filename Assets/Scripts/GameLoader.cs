@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -18,7 +19,9 @@ public class GameLoader : MonoBehaviour
 
     // Public Variables 
     public bool inGame;
-    public bool userGuessing;
+
+    public bool isGuessing;
+
     public int currentScore;
     public int currentRound;
 
@@ -41,6 +44,7 @@ public class GameLoader : MonoBehaviour
         inGame = true;
         currentRound = 0;
         currentScore = 0;
+        isGuessing = true;
         List<LocationManager.MapPack> mapPacks = locationManager.GetMapPacks(); 
     }
 
@@ -69,10 +73,32 @@ public class GameLoader : MonoBehaviour
 
     public void nextRound() {
         currentRound++;
+        isGuessing = true;
         // currentScore += ; // Update the score eventually
         changeMap();
 
     }
+
+
+
+    public void enterGuess()
+    {
+        isGuessing = false;
+        int Score = calculateScore(new Vector3(0, 0, 0), locationManager.currentLocation);
+        currentScore += Score;
+
+    }
+
+
+    public int calculateScore(Vector3 guess, Location answer)
+    {
+        int distance = (int)Math.Sqrt(Math.Pow(guess.x - answer.x, 2) + Math.Pow(guess.y - answer.y, 2));
+
+        int score = 5000 - distance;
+
+        return distance;
+    }
+
 
 
     // Changes the map shown to the player at the start of a new round
