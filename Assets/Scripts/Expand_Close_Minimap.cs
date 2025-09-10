@@ -24,7 +24,7 @@ public class Expand_Close_Minimap : MonoBehaviour
     private Vector3 targetScale;
     private float targetWidth;
 
-    private GameLoader gameLoader;
+    private GameLogic gameLoader;
     void Start()
     {
         // Initialise in expanded view
@@ -44,7 +44,7 @@ public class Expand_Close_Minimap : MonoBehaviour
             // Position will be handled in Update()
         }
 
-        gameLoader = GameObject.Find("GameLogic").GetComponent<GameLoader>();
+        gameLoader = GameObject.Find("GameLogic").GetComponent<GameLogic>();
     }
 
     void Update()

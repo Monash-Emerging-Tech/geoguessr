@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class HideMapControls : MonoBehaviour
 {
-    private GameLoader gameLoader;
+    private GameLogic gameLoader;
 
     private void Start()
     {
-        gameLoader = GameObject.Find("GameLogic").GetComponent<GameLoader>();
+        gameLoader = GameObject.Find("GameLogic").GetComponent<GameLogic>();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created

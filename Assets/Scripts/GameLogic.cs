@@ -14,7 +14,7 @@ using static LocationManager;
  * Last Modified: 08/08/2025
  * 
  */
-public class GameLoader : MonoBehaviour
+public class GameLogic : MonoBehaviour
 {
 
     // Public Variables 
@@ -34,14 +34,14 @@ public class GameLoader : MonoBehaviour
     private List<LocationManager.MapPack> mapPacks;
 
 
-    public static GameLoader Instance; // Global reference
+    public static GameLogic Instance; // Global reference
 
-
+    // From Main Menu to the Game Scene
     // Moves to the Game Scene for the game to start, performs all thes start game logic
     public void LoadGame()
     {
         SceneManager.LoadScene("GameScene");
-        List<LocationManager.MapPack> mapPacks = locationManager.GetMapPacks(); 
+         
     }
 
 
@@ -73,6 +73,11 @@ public class GameLoader : MonoBehaviour
 
     public void nextRound() {
         currentRound++;
+
+        if (currentRound > 5) {
+            SceneManager.LoadScene("BreakdownScene");
+        }
+
         isGuessing = true;
         // currentScore += ; // Update the score eventually
         changeMap();
@@ -81,9 +86,12 @@ public class GameLoader : MonoBehaviour
 
 
 
-    public void enterGuess()
+    public void sumbitGuess()
     {
         isGuessing = false;
+
+        // Talk to MazeMaps here
+
         int Score = calculateScore(new Vector3(0, 0, 0), locationManager.currentLocation);
         currentScore += Score;
 
@@ -104,6 +112,8 @@ public class GameLoader : MonoBehaviour
     // Changes the map shown to the player at the start of a new round
     public void changeMap() {
         locationManager.setCurrentMapPack(mapPackId);
+        
+        //TODO: Make it so the same location can't be selected twice in the same session
         locationManager.SelectRandomLocation();
     }
     

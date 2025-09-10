@@ -4,6 +4,7 @@ using NUnit.Framework.Constraints;
 using UnityEditor;
 using UnityEngine;
 using System.IO;
+using static LocationManager;
 
 
 
@@ -43,8 +44,6 @@ public class LocationManager
         public float y;
         public float z;
 
-        // Point of Interest ID
-        public string POI;
         // Need to add more stuff here when we know how to use it better
 
         [System.NonSerialized]
@@ -61,8 +60,8 @@ public class LocationManager
     }
 
     // For now we'll just list all locations in one big list, could also do mappacks in the future
-    public List<Location> locationList;
-    public List<MapPack> mapPacks;
+    public Dictionary<int, Location> locationDict;
+    public Dictionary<int, MapPack> mapPackDict;
 
     // path to the locationData.json file
     private string jsonFilePath = "Assets/Resources/locationData.json";
@@ -76,8 +75,6 @@ public class LocationManager
     {
 
         LoadData();
-
-        CheckAllignment();
 
     }
 
@@ -93,28 +90,25 @@ public class LocationManager
  
         int rdmIdx = Random.Range(0, locations.Count);
         RenderSettings.skybox = locations[rdmIdx].LocationMaterial;
-        Debug.Log("Location ID: " + locations[rdmIdx].ID + " - " + locationList[rdmIdx].Name);
+        Debug.Log("Location ID: " + locations[rdmIdx].ID + " - " + locationDict[rdmIdx].Name);
         setCurrentLocation(locations[rdmIdx]);
     }
 
     public List<Location> getLocationsFromMapPack(MapPack mapPack)
     {
 
+        List<Location> locations = new List<Location>();
+
         if (mapPack.Name == "all" || mapPack.Name == "")
         {
-            return locationList;
+            locations = locationDict.Values.ToList();
+            return locations;
         }
-
-        List<Location> locations = new List<Location>();
 
         foreach (int ID in mapPack.locationIDs)
         {
-            // Should be alligned
-            Debug.Log("Location Found" + ID);
-            locations.Add(locationList[ID]);
+            locations.Append(locationDict[ID]);
         }
-
-
 
         return locations;
     }
@@ -127,12 +121,12 @@ public class LocationManager
 
     public void setCurrentMapPack(int Id)
     {
-        currentMapPack = mapPacks[Id];
+        currentMapPack = mapPackDict[Id];
     }
 
 
-    public List<MapPack> GetMapPacks() {
-        return mapPacks;
+    public Dictionary<int, MapPack> GetMapPacks() {
+        return mapPackDict;
     }
 
     // Creates Locations and Mappacks from the json File
@@ -149,26 +143,38 @@ public class LocationManager
         Debug.Log(jsonData);
 
         locationData data = JsonUtility.FromJson<locationData>(jsonData);
-        locationList = data.Locations;
-        mapPacks = data.MapPacks;
+        
+        foreach (Location location in data.Locations) {
+            locationDict.Add(location.ID, location);
+        }
 
-        Debug.Log("Count: " + locationList.Count);
-
-        for (int i = 0; i < locationList.Count; i++)
+        foreach (MapPack mapPack in data.MapPacks)
         {
-            Location location = locationList[i];
+            mapPackDict.Add(mapPack.ID, mapPack);
+        }
+
+
+        Debug.Log("Count: " + locationDict.Count);
+
+        for (int i = 0; i < locationDict.Count; i++)
+        {
+            Location location = locationDict[i];
 
             location.LocationMaterial = Resources.Load<Material>($"Materials/Locations/{location.FileName}");
 
             if (location.LocationMaterial == null)
                 Debug.LogWarning($"Material not found for location {location.Name}, MaterialName: {location.FileName}");
 
-            locationList[i] = location; 
+            locationDict[i] = location; 
         }
 
     }
 
 
+    /*
+     * 
+     * OUTDATED:
+    * 
     // Validates the data in that was loaded by the json file
     // All locations and Mappacks need to have the same ID and position in the JSON file for consistency
     // Makes loading data easier for now anyway, I'm sure we can just allocate memory instead but that would require validating Locations
@@ -205,5 +211,6 @@ public class LocationManager
             Debug.Log("All locations and Map packs alligned");
         }
     }
+    */
 
 }

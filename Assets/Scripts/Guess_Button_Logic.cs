@@ -6,7 +6,7 @@ public class Guess_Button_Logic : MonoBehaviour
 {
 
 
-    private GameLoader gameLogic;
+    private GameLogic gameLogic;
 
     public TMP_Text textReference;
     
@@ -14,7 +14,7 @@ public class Guess_Button_Logic : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        gameLogic = GameObject.Find("GameLogic").GetComponent<GameLoader>();
+        gameLogic = GameObject.Find("GameLogic").GetComponent<GameLogic>();
         textReference.text = "GUESS";
     }
 
@@ -30,7 +30,7 @@ public class Guess_Button_Logic : MonoBehaviour
 
 
         if (gameLogic.isGuessing) {
-            gameLogic.enterGuess();
+            gameLogic.sumbitGuess();
             textReference.text = "NEXT GUESS!";
         }
         else

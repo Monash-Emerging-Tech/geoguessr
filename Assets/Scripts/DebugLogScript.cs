@@ -16,7 +16,7 @@ using static Unity.Burst.Intrinsics.X86.Avx;
 public class DebugLogScript : MonoBehaviour
 {
     private GameObject gameManager;
-    private GameLoader gameLoader;
+    private GameLogic gameLoader;
     private TMP_Text text;
 
 
@@ -28,7 +28,7 @@ public class DebugLogScript : MonoBehaviour
         if (gameManager != null)
         {
             Debug.Log("Debug Log Found GameManager!");
-            gameLoader = gameManager.GetComponent<GameLoader>();
+            gameLoader = gameManager.GetComponent<GameLogic>();
             text = GetComponent<TMP_Text>();
         }
         else
