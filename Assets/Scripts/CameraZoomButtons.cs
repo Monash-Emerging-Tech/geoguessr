@@ -1,5 +1,10 @@
 using UnityEngine;
 
+/// CameraZoomButtons
+/// Written by Madison 
+
+
+
 public class CameraZoomButtons : MonoBehaviour
 {
     [Header("Assign")]

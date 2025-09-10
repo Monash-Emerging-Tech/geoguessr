@@ -1,25 +1,35 @@
 
 using UnityEngine;
+using UnityEngine.UI;
+
+
+/// Expand/Close Minimap
+/// 
+/// Written by Ange
+/// 
+/// </summary>
 
 public class Expand_Close_Minimap : MonoBehaviour
 {
+    public Canvas canvas;
     public RectTransform mapContainer; 
     public RectTransform primaryButton; 
     public RectTransform cornerButtons;
     public Vector3 minimizedScale = new Vector3(0.5f, 0.5f, 0.5f);
-    public Vector3 expandedScale = new Vector3(1.5f, 1.5f, 1.5f);
+    public Vector3 expandedScale = new Vector3(5f, 5f, 5f);
     public float scaleSpeed = 5f;
+
+    public bool fullscreen;
 
     private Vector3 targetScale;
     private float targetWidth;
-
     void Start()
     {
         // Initialise in expanded view
-        targetScale = expandedScale;
+        targetScale = minimizedScale;
         mapContainer.localScale = targetScale;
         if (mapContainer != null)
-            targetWidth = mapContainer.rect.width * expandedScale.x;
+            targetWidth = mapContainer.rect.width * targetScale.x;
         if (primaryButton != null)
             primaryButton.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, targetWidth);
         // Ensure cornerButtons are visible and sized in expanded view
@@ -96,18 +106,41 @@ public class Expand_Close_Minimap : MonoBehaviour
         }
     }
 
-    public void Expand()
+    public void Expand(bool fullscreen = false)
     {
-        targetScale = expandedScale;
+        targetScale = !fullscreen? expandedScale : getFullScreenScale();
+
         if (mapContainer != null)
-            targetWidth = mapContainer.rect.width * expandedScale.x;
+            targetWidth = mapContainer.rect.width * targetScale.x;
         // Align right edge after width is set
         if (primaryButton != null && mapContainer != null)
         {
-            float mapRight = mapContainer.anchoredPosition.x + (mapContainer.rect.width * (1 - mapContainer.pivot.x)) * expandedScale.x;
-            float buttonRight = primaryButton.anchoredPosition.x + (primaryButton.rect.width * (1 - primaryButton.pivot.x)) * expandedScale.x;
+            float mapRight = mapContainer.anchoredPosition.x + (mapContainer.rect.width * (1 - mapContainer.pivot.x)) * targetScale.x;
+            float buttonRight = primaryButton.anchoredPosition.x + (primaryButton.rect.width * (1 - primaryButton.pivot.x)) * targetScale.x;
             float offset = mapRight - buttonRight;
             primaryButton.anchoredPosition = new Vector2(primaryButton.anchoredPosition.x + offset, primaryButton.anchoredPosition.y);
         }
+    }
+
+
+    // Uses the Canvas Default Resolution Size to find how much to scale the map to fullscreen after the guess button is made
+    // Default Resolution at the time of writing this is 1920x1080
+    public Vector3 getFullScreenScale()
+    {
+        RectTransform rectTransform = mapContainer.GetComponent<RectTransform>();
+        CanvasScaler canvasScaler = canvas.GetComponent<CanvasScaler>();
+
+        //Debug.Log(Screen.width);
+        //Debug.Log(rectTransform.rect.width);
+
+        Vector3 fullScreenScale = new Vector3(
+                ((canvasScaler.referenceResolution.x - 30) / rectTransform.rect.width),
+                (canvasScaler.referenceResolution.y / rectTransform.rect.height) * 80/100,
+                ((canvasScaler.referenceResolution.y / rectTransform.rect.height) * 80/100));
+
+
+        //Debug.Log($"{fullScreenScale}");
+
+        return fullScreenScale;
     }
 }
