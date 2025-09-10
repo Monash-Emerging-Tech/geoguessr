@@ -54,8 +54,7 @@ public class DebugLogScript : MonoBehaviour
             "\r\nLocation: " + gameLoader.locationManager.currentLocation.Name +
             "\r\nLocation X: " + gameLoader.locationManager.currentLocation.x +
             "\r\nLocation Y: " + gameLoader.locationManager.currentLocation.y +
-            "\r\nLocation Z: " + gameLoader.locationManager.currentLocation.z +
-            "\r\nLocation POI: " + gameLoader.locationManager.currentLocation.POI;
+            "\r\nLocation Z: " + gameLoader.locationManager.currentLocation.z;
         }
 
     }

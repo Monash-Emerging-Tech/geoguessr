@@ -156,16 +156,17 @@ public class LocationManager
 
         Debug.Log("Count: " + locationDict.Count);
 
-        for (int i = 0; i < locationDict.Count; i++)
+        foreach (Location currentLocation in locationDict.Values)
         {
-            Location location = locationDict[i];
+            // Because it's ready only
+            Location location = locationDict[currentLocation.ID];
 
             location.LocationMaterial = Resources.Load<Material>($"Materials/Locations/{location.FileName}");
 
             if (location.LocationMaterial == null)
                 Debug.LogWarning($"Material not found for location {location.Name}, MaterialName: {location.FileName}");
 
-            locationDict[i] = location; 
+            locationDict[currentLocation.ID] = location; 
         }
 
     }
