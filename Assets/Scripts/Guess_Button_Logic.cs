@@ -26,12 +26,14 @@ public class Guess_Button_Logic : MonoBehaviour
 
     public void onClick() {
 
+        Debug.Log(gameLogic.isGuessing);
+
+
         if (gameLogic.isGuessing) {
             gameLogic.enterGuess();
             textReference.text = "NEXT GUESS!";
         }
-
-        if (!gameLogic.isGuessing)
+        else
         {
             gameLogic.nextRound();
             textReference.text = "GUESS";

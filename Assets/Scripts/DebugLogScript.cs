@@ -46,6 +46,7 @@ public class DebugLogScript : MonoBehaviour
         {
             text.text = "Debug Log:" +
             "\r\ninGame: " + gameLoader.inGame +
+            "\r\nGuessing: " + gameLoader.isGuessing +
             "\r\nCurrent Score: " + gameLoader.currentScore +
             "\r\nRound: " + gameLoader.currentRound +
             "\r\nMapPackId: " + gameLoader.mapPackId +

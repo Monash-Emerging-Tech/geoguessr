@@ -38,13 +38,9 @@ public class GameLoader : MonoBehaviour
 
 
     // Moves to the Game Scene for the game to start, performs all thes start game logic
-    public void StartGame()
+    public void LoadGame()
     {
         SceneManager.LoadScene("GameScene");
-        inGame = true;
-        currentRound = 0;
-        currentScore = 0;
-        isGuessing = true;
         List<LocationManager.MapPack> mapPacks = locationManager.GetMapPacks(); 
     }
 
@@ -64,7 +60,11 @@ public class GameLoader : MonoBehaviour
     {
         // If the scenes is the GameScene, we should now change the Map and let the game start
         if (scene.name == "GameScene") {
-            changeMap();
+            inGame = true;
+            currentRound = 0;
+            currentScore = 0;
+            isGuessing = true;
+            nextRound();
         }
         
         Debug.Log("Scene name: " + scene.name);
