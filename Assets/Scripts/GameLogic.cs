@@ -8,7 +8,8 @@ using static LocationManager;
 
 /***
  * 
- * GameLoader, Responsible for the in game events and keeping track of players score. 
+ * GameLogic, Responsible for all game logic including scoring, round management, and game state.
+ * Communicates with MapInteractionManager for map interactions.
  * 
  * Written by O-Bolt
  * Last Modified: 08/08/2025
@@ -16,23 +17,29 @@ using static LocationManager;
  */
 public class GameLogic : MonoBehaviour
 {
+    [Header("Game Settings")]
+    [SerializeField] private int totalRounds = 5;
+    [SerializeField] private int maxScore = 5000;
+    [SerializeField] private MapInteractionManager mapManager;
 
     // Public Variables 
     public bool inGame;
-
     public bool isGuessing;
-
     public int currentScore;
     public int currentRound;
-
     public int GameMode = 0;
     public int mapPackId = 0;
+
+    // Private game state
+    private int totalScore = 0;
+    private int currentRoundScore = 0;
+    private Vector2? currentGuessLocation;
+    private Vector2? currentActualLocation;
 
     // Used to find the LocationManager variables
     public LocationManager locationManager = new LocationManager();
 
     private Dictionary<int, LocationManager.MapPack> allMapPacks;
-
 
     public static GameLogic Instance; // Global reference
 
@@ -52,6 +59,15 @@ public class GameLogic : MonoBehaviour
     {
         Debug.Log("OnEnable called");
         SceneManager.sceneLoaded += OnSceneLoaded;
+        
+        // Subscribe to map events
+        MapInteractionManager.OnMapClicked += OnMapClicked;
+    }
+    
+    private void OnDisable()
+    {
+        // Unsubscribe from events
+        MapInteractionManager.OnMapClicked -= OnMapClicked;
     }
 
     // Function is called when the scene is loaded
@@ -63,6 +79,7 @@ public class GameLogic : MonoBehaviour
             inGame = true;
             currentRound = 0;
             currentScore = 0;
+            totalScore = 0;
             isGuessing = true;
             nextRound();
         }
@@ -74,39 +91,104 @@ public class GameLogic : MonoBehaviour
     public void nextRound() {
         currentRound++;
 
-        if (currentRound > 5) {
+        if (currentRound > totalRounds) {
             SceneManager.LoadScene("BreakdownScene");
+            return;
         }
 
         isGuessing = true;
-        // currentScore += ; // Update the score eventually
+        currentRoundScore = 0;
+        
+        // Change map and start new round
         changeMap();
-
+        
+        // Show map for guessing
+        if (mapManager != null)
+        {
+            mapManager.ShowMap();
+        }
     }
 
 
 
-    public void sumbitGuess()
+    public void submitGuess()
     {
+        if (!isGuessing || !currentGuessLocation.HasValue) return;
+        
         isGuessing = false;
 
-        // Talk to MazeMaps here
-
-        int Score = calculateScore(new Vector3(0, 0, 0), locationManager.currentLocation);
-        currentScore += Score;
-
+        // Calculate score
+        if (currentActualLocation.HasValue)
+        {
+            currentRoundScore = CalculateScore(currentActualLocation.Value, currentGuessLocation.Value);
+            totalScore += currentRoundScore;
+            currentScore = totalScore;
+            
+            Debug.Log($"Round {currentRound} - Distance: {CalculateDistance(currentActualLocation.Value, currentGuessLocation.Value):F2}m, Score: {currentRoundScore}, Total: {totalScore}");
+        }
+        
+        // Show actual location marker on map
+        if (mapManager != null && currentActualLocation.HasValue)
+        {
+            mapManager.RenderMarker(currentActualLocation.Value.x, currentActualLocation.Value.y, "Actual Location", "actual");
+        }
+        
+        // Update score display
+        if (mapManager != null)
+        {
+            mapManager.UpdateScoreDisplay(totalScore, currentRound);
+        }
     }
 
-
-    public int calculateScore(Vector3 guess, Location answer)
+    /// <summary>
+    /// Called when map is clicked
+    /// </summary>
+    /// <param name="guessLocation">The guessed location coordinates</param>
+    private void OnMapClicked(Vector2 guessLocation)
     {
-        int distance = (int)Math.Sqrt(Math.Pow(guess.x - answer.x, 2) + Math.Pow(guess.y - answer.y, 2));
-
-        int score = 5000 - distance;
-
-        return distance;
+        if (!isGuessing) return;
+        
+        currentGuessLocation = guessLocation;
+        Debug.Log($"Guess placed at: {guessLocation}");
+        
+        // Render guess marker on map
+        if (mapManager != null)
+        {
+            mapManager.RenderMarker(guessLocation.x, guessLocation.y, "Your Guess", "guess");
+        }
     }
 
+    /// <summary>
+    /// Calculates score based on distance between guess and actual location
+    /// </summary>
+    /// <param name="actual">Actual location coordinates</param>
+    /// <param name="guess">Guess location coordinates</param>
+    /// <returns>Score from 0 to maxScore</returns>
+    private int CalculateScore(Vector2 actual, Vector2 guess)
+    {
+        float distance = CalculateDistance(actual, guess);
+        
+        // Simple scoring: maxScore minus distance (with minimum of 0)
+        int score = Mathf.Max(0, maxScore - Mathf.RoundToInt(distance));
+        
+        return score;
+    }
+    
+    /// <summary>
+    /// Calculates distance between two coordinates using simple Euclidean distance
+    /// Works directly with lat/lng coordinates for campus-scale distances
+    /// </summary>
+    /// <param name="coord1">First coordinate (lat, lng)</param>
+    /// <param name="coord2">Second coordinate (lat, lng)</param>
+    /// <returns>Distance in coordinate units</returns>
+    private float CalculateDistance(Vector2 coord1, Vector2 coord2)
+    {
+        // Simple Euclidean distance using lat/lng directly
+        float deltaLat = coord2.x - coord1.x;
+        float deltaLng = coord2.y - coord1.y;
+        
+        return Mathf.Sqrt(deltaLat * deltaLat + deltaLng * deltaLng);
+    }
 
 
     // Changes the map shown to the player at the start of a new round
@@ -115,6 +197,18 @@ public class GameLogic : MonoBehaviour
         
         //TODO: Make it so the same location can't be selected twice in the same session
         locationManager.SelectRandomLocation();
+        
+        // Set the actual location for scoring
+        var location = locationManager.currentLocation;
+        currentActualLocation = new Vector2(location.x, location.y);
+        
+        // Set actual location in map manager
+        if (mapManager != null)
+        {
+            mapManager.SetActualLocation(location.x, location.y);
+        }
+        
+        Debug.Log($"Round {currentRound} - Location: {location.Name} at {location.x}, {location.y}");
     }
     
 

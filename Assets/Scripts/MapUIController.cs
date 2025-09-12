@@ -35,10 +35,11 @@ public class MapUIController : MonoBehaviour
     private void Start()
     {
         // Subscribe to game events
-        GeoguessrGameManager.OnRoundStarted += OnRoundStarted;
-        GeoguessrGameManager.OnRoundEnded += OnRoundEnded;
-        GeoguessrGameManager.OnGameEnded += OnGameEnded;
-        GeoguessrGameManager.OnTimerUpdate += OnTimerUpdate;
+        // Note: These events are now handled by GameLoader
+        // GeoguessrGameManager.OnRoundStarted += OnRoundStarted;
+        // GeoguessrGameManager.OnRoundEnded += OnRoundEnded;
+        // GeoguessrGameManager.OnGameEnded += OnGameEnded;
+        // GeoguessrGameManager.OnTimerUpdate += OnTimerUpdate;
         
         MapInteractionManager.OnGuessSubmitted += OnGuessSubmitted;
         MapInteractionManager.OnMapOpened += OnMapOpened;
@@ -56,10 +57,11 @@ public class MapUIController : MonoBehaviour
     private void OnDestroy()
     {
         // Unsubscribe from events
-        GeoguessrGameManager.OnRoundStarted -= OnRoundStarted;
-        GeoguessrGameManager.OnRoundEnded -= OnRoundEnded;
-        GeoguessrGameManager.OnGameEnded -= OnGameEnded;
-        GeoguessrGameManager.OnTimerUpdate -= OnTimerUpdate;
+        // Note: These events are now handled by GameLoader
+        // GeoguessrGameManager.OnRoundStarted -= OnRoundStarted;
+        // GeoguessrGameManager.OnRoundEnded -= OnRoundEnded;
+        // GeoguessrGameManager.OnGameEnded -= OnGameEnded;
+        // GeoguessrGameManager.OnTimerUpdate -= OnTimerUpdate;
         
         MapInteractionManager.OnGuessSubmitted -= OnGuessSubmitted;
         MapInteractionManager.OnMapOpened -= OnMapOpened;
@@ -160,9 +162,9 @@ public class MapUIController : MonoBehaviour
     /// </summary>
     private void UpdateScoreDisplay()
     {
-        if (scoreText != null && GeoguessrGameManager.Instance != null)
+        if (scoreText != null && GameLoader.Instance != null)
         {
-            int totalScore = GeoguessrGameManager.Instance.GetTotalScore();
+            int totalScore = GameLoader.Instance.totalScore;
             scoreText.text = string.Format(scoreFormat, totalScore);
         }
     }
@@ -172,10 +174,10 @@ public class MapUIController : MonoBehaviour
     /// </summary>
     private void UpdateRoundDisplay()
     {
-        if (roundText != null && GeoguessrGameManager.Instance != null)
+        if (roundText != null && GameLoader.Instance != null)
         {
-            int currentRound = GeoguessrGameManager.Instance.GetCurrentRound();
-            int totalRounds = GeoguessrGameManager.Instance.GetTotalRounds();
+            int currentRound = GameLoader.Instance.currentRound;
+            int totalRounds = 5; // Default total rounds
             roundText.text = string.Format(roundFormat, currentRound, totalRounds);
         }
     }

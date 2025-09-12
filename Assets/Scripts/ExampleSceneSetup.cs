@@ -43,8 +43,8 @@ public class ExampleSceneSetup : MonoBehaviour
         // 1. Create and configure MapInteractionManager
         SetupMapInteractionManager();
         
-        // 2. Create and configure GeoguessrGameManager
-        SetupGeoguessrGameManager();
+        // 2. Create and configure GameLoader
+        SetupGameLoader();
         
         // 3. Create and configure MapUIController
         SetupMapUIController();
@@ -88,44 +88,29 @@ public class ExampleSceneSetup : MonoBehaviour
     }
     
     /// <summary>
-    /// Sets up the GeoguessrGameManager
+    /// Sets up the GameLoader
     /// </summary>
-    private void SetupGeoguessrGameManager()
+    private void SetupGameLoader()
     {
-        GameObject gameManagerGO = GameObject.Find("GeoguessrGameManager");
-        if (gameManagerGO == null)
+        GameObject gameLoaderGO = GameObject.Find("GameLoader");
+        if (gameLoaderGO == null)
         {
-            gameManagerGO = new GameObject("GeoguessrGameManager");
+            gameLoaderGO = new GameObject("GameLoader");
         }
         
-        GeoguessrGameManager gameManager = gameManagerGO.GetComponent<GeoguessrGameManager>();
-        if (gameManager == null)
+        GameLoader gameLoader = gameLoaderGO.GetComponent<GameLoader>();
+        if (gameLoader == null)
         {
-            gameManager = gameManagerGO.AddComponent<GeoguessrGameManager>();
+            gameLoader = gameLoaderGO.AddComponent<GameLoader>();
         }
-        
-        // Configure settings
-        var totalRoundsField = typeof(GeoguessrGameManager).GetField("totalRounds", 
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        totalRoundsField?.SetValue(gameManager, totalRounds);
-        
-        var roundTimeLimitField = typeof(GeoguessrGameManager).GetField("roundTimeLimit", 
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        roundTimeLimitField?.SetValue(gameManager, roundTimeLimit);
         
         // Find and assign MapInteractionManager reference
-        var mapManagerField = typeof(GeoguessrGameManager).GetField("mapManager", 
+        var mapManagerField = typeof(GameLoader).GetField("mapManager", 
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         var mapManager = FindObjectOfType<MapInteractionManager>();
-        mapManagerField?.SetValue(gameManager, mapManager);
+        mapManagerField?.SetValue(gameLoader, mapManager);
         
-        // Find and assign LocationManager reference (if exists)
-        var locationManagerField = typeof(GeoguessrGameManager).GetField("locationManager", 
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        var locationManager = FindObjectOfType<LocationManager>();
-        locationManagerField?.SetValue(gameManager, locationManager);
-        
-        Debug.Log("GeoguessrGameManager configured");
+        Debug.Log("GameLoader configured");
     }
     
     /// <summary>
@@ -373,16 +358,16 @@ public class ExampleSceneSetup : MonoBehaviour
             Debug.Log("MapInteractionManager found");
         }
         
-        // Check GeoguessrGameManager
-        GeoguessrGameManager gameManager = FindObjectOfType<GeoguessrGameManager>();
-        if (gameManager == null)
+        // Check GameLoader
+        GameLoader gameLoader = FindObjectOfType<GameLoader>();
+        if (gameLoader == null)
         {
-            Debug.LogError("GeoguessrGameManager not found!");
+            Debug.LogError("GameLoader not found!");
             isValid = false;
         }
         else
         {
-            Debug.Log("GeoguessrGameManager found");
+            Debug.Log("GameLoader found");
         }
         
         // Check MapUIController
