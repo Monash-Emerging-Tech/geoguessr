@@ -20,9 +20,12 @@ Follow the detailed instructions in `README.md` for step-by-step manual configur
 - **UI Controls**: Map controls, score display, and round information
 
 ### Unity C# Side
-- **`MapInteractionManager.cs`**: Handles Unity-JavaScript communication
-- **`GeoguessrGameManager.cs`**: Main game logic and round management
-- **`MapUIController.cs`**: UI controls for map interaction
+- **`GameLogic.cs`**: Main game logic, round management, and scoring system
+- **`LocationManager.cs`**: Manages location data, map packs, and skybox materials
+- **`MapInteractionManager.cs`**: Handles Unity-JavaScript communication and map interactions
+- **`MapUIController.cs`**: UI controls for map interaction, scaling, and button management
+- **`GuessButtonManager.cs`**: Manages guess button states and interactions
+- **`DebugLogScript.cs`**: Displays game state information for debugging
 
 ## Data Flow
 
@@ -62,10 +65,17 @@ Unity sends marker data → JavaScript renders markers on MazeMap
 - `minScore`: Minimum possible score per round
 - `scoreCurve`: Animation curve for score calculation
 
-### GeoguessrGameManager
+### GameLogic
 - `totalRounds`: Number of rounds in the game
-- `roundTimeLimit`: Time limit per round (seconds)
-- `enableTimer`: Whether to show timer
+- `mapPackId`: ID of the map pack to use for locations
+- `mapManager`: Reference to MapInteractionManager
+- `locationManager`: Reference to LocationManager
+- `gameUI`: Reference to main game UI GameObject
+- `mapUI`: Reference to map UI GameObject
+- `resultsUI`: Reference to results UI GameObject
+
+### LocationManager
+- `jsonResourcePath`: Path to location data JSON file in Resources folder (default: "locationData")
 
 ## API Reference
 
@@ -80,16 +90,26 @@ showLoading(show)                     // Show/hide loading indicator
 
 ### Unity C# Methods
 ```csharp
+// GameLogic
+gameLogic.LoadGame()                  // Load game scene
+gameLogic.RestartGame()               // Restart entire game
+gameLogic.submitGuess()               // Submit current guess
+gameLogic.GetCurrentScore()           // Get current score
+gameLogic.GetCurrentRound()           // Get current round
+gameLogic.GetLocationManager()        // Get LocationManager instance
+
 // MapInteractionManager
 mapManager.ShowMap()                  // Show map
 mapManager.HideMap()                  // Hide map
 mapManager.SetActualLocation(lat, lng) // Set actual location
 mapManager.UpdateScoreDisplay(score, round) // Update score display
+mapManager.ResetRound()               // Reset round data
 
-// GeoguessrGameManager
-gameManager.StartRound()              // Start new round
-gameManager.EndRound()                // End current round
-gameManager.RestartGame()             // Restart entire game
+// LocationManager
+locationManager.Start()               // Initialize and load data
+locationManager.SelectRandomLocation() // Select random location from current map pack
+locationManager.SetCurrentMapPack(id) // Set current map pack by ID
+locationManager.GetCurrentLocation()  // Get current location
 ```
 
 ## File Structure
@@ -100,9 +120,24 @@ Assets/WebGLTemplate/geoguessrTemplate/
 └── INTEGRATION_GUIDE.md   # This quick reference
 
 Assets/Scripts/
+├── GameLogic.cs                # Main game logic and round management
+├── LocationManager.cs          # Location data and map pack management
 ├── MapInteractionManager.cs    # Unity-JavaScript bridge
-├── GeoguessrGameManager.cs     # Main game logic
-└── MapUIController.cs          # UI controls
+├── MapUIController.cs          # Map UI controls and scaling
+├── GuessButtonManager.cs       # Guess button state management
+├── DebugLogScript.cs           # Debug information display
+└── ScoreBannerController.cs    # Score and round display
+
+Assets/Prefabs/
+├── GameLogic.prefab            # Main game logic prefab
+├── LocationManager.prefab      # Location manager prefab
+├── MapInteractionManager.prefab # Map interaction manager prefab
+├── minimap.prefab              # Minimap UI prefab
+├── score-banner.prefab         # Score display prefab
+└── Debug Log.prefab            # Debug log prefab
+
+Assets/Resources/
+└── locationData.json           # Location and map pack data
 ```
 
 ## Support
