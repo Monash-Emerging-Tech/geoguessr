@@ -17,7 +17,7 @@ public class GameLogic : MonoBehaviour
     [Header("Game Settings")]
     [SerializeField] private int totalRounds = 5;
     // [SerializeField] private int gameMode = 0; // TODO
-    [SerializeField] private int mapPackId = 0;
+    [SerializeField] private string mapPackName = "all";
     
     [Header("Map Integration")]
     [SerializeField] private MapInteractionManager mapManager;
@@ -39,6 +39,9 @@ public class GameLogic : MonoBehaviour
     private bool isGameActive = false;
     private bool isRoundActive = false;
     
+    // MapPack management
+    private int resolvedMapPackId = -1;
+    
     private Dictionary<int, LocationManager.MapPack> allMapPacks;
 
     // Events
@@ -47,6 +50,7 @@ public class GameLogic : MonoBehaviour
     public static event System.Action<int> OnGameEnded;
     public static event System.Action<int> OnScoreUpdated;
     public static event System.Action<int, int> OnRoundUpdated; // currentRound, totalRounds
+    public static event System.Action<string> OnMapPackChanged; // mapPackName
     
     // Singleton pattern
     public static GameLogic Instance { get; private set; }
@@ -84,6 +88,15 @@ public class GameLogic : MonoBehaviour
             MapInteractionManager.OnScoreCalculated += OnScoreCalculated;
             MapInteractionManager.OnMapOpened += OnMapOpened;
             MapInteractionManager.OnMapClosed += OnMapClosed;
+        }
+        
+        // Validate MapPack name at startup
+        if (locationManager != null)
+        {
+            if (!ResolveMapPackId())
+            {
+                LogError("Invalid MapPack name in Inspector - please check the MapPack Name field");
+            }
         }
         
         // Initialize game
@@ -201,7 +214,14 @@ public class GameLogic : MonoBehaviour
         // Get random location from location manager
         if (locationManager != null)
         {
-            locationManager.SetCurrentMapPack(mapPackId);
+            // Resolve MapPack name to ID if not already resolved
+            if (resolvedMapPackId == -1 && !ResolveMapPackId())
+            {
+                LogError("Failed to resolve MapPack - cannot start round");
+                return;
+            }
+            
+            locationManager.SetCurrentMapPack(resolvedMapPackId);
             locationManager.SelectRandomLocation();
             var location = locationManager.GetCurrentLocation();
             
@@ -319,7 +339,14 @@ public class GameLogic : MonoBehaviour
     public void changeMap() {
         if (locationManager != null)
         {
-            locationManager.SetCurrentMapPack(mapPackId);
+            // Resolve MapPack name to ID if not already resolved
+            if (resolvedMapPackId == -1 && !ResolveMapPackId())
+            {
+                LogError("Failed to resolve MapPack - cannot change map");
+                return;
+            }
+            
+            locationManager.SetCurrentMapPack(resolvedMapPackId);
             locationManager.SelectRandomLocation(); // TODO: Make it so the same location can't be selected twice in the same session
             LogDebug("Map changed for new round");
         }
@@ -407,12 +434,81 @@ public class GameLogic : MonoBehaviour
     public int GetCurrentRound() => currentRound;
     public int GetTotalRounds() => totalRounds;
     public int GetCurrentScore() => currentScore;
-    public int GetMapPackId() => mapPackId;
+    public int GetMapPackId() => resolvedMapPackId;
+    public string GetMapPackName() => mapPackName;
+    public string[] GetAllMapPackNames() => locationManager?.GetAllMapPackNames() ?? new string[0];
+    public string GetMapPackNameById(int id) => locationManager?.GetMapPackNameById(id) ?? "Unknown";
     public bool IsGameActive() => isGameActive;
     public bool IsRoundActive() => isRoundActive;
     public bool IsGuessing() => isGuessing;
     public bool IsInGame() => inGame;
     public LocationManager GetLocationManager() => locationManager;
+    
+    /// <summary>
+    /// Sets the MapPack by name and resolves it to an ID
+    /// </summary>
+    /// <param name="name">MapPack name</param>
+    /// <returns>True if successful, false if MapPack not found</returns>
+    public bool SetMapPackByName(string name)
+    {
+        if (locationManager == null)
+        {
+            LogError("LocationManager not assigned - cannot set MapPack");
+            return false;
+        }
+        
+        int id = locationManager.GetMapPackIdByName(name);
+        if (id == -1)
+        {
+            LogError($"MapPack '{name}' not found. Available MapPacks: {string.Join(", ", locationManager.GetAllMapPackNames())}");
+            return false;
+        }
+        
+        mapPackName = name;
+        resolvedMapPackId = id;
+        LogDebug($"MapPack set to: {name} (ID: {id})");
+        
+        // Fire MapPack changed event
+        OnMapPackChanged?.Invoke(name);
+        
+        return true;
+    }
+    
+    /// <summary>
+    /// Gets the current MapPack name from the Inspector field
+    /// </summary>
+    /// <returns>Current MapPack name</returns>
+    public string GetCurrentMapPackName() => mapPackName;
+    
+    /// <summary>
+    /// Validates and resolves the current MapPack name to ID
+    /// </summary>
+    /// <returns>True if valid, false otherwise</returns>
+    private bool ResolveMapPackId()
+    {
+        if (locationManager == null)
+        {
+            LogError("LocationManager not assigned - cannot resolve MapPack");
+            return false;
+        }
+        
+        int id = locationManager.GetMapPackIdByName(mapPackName);
+        if (id == -1)
+        {
+            LogError($"MapPack '{mapPackName}' not found. Available MapPacks: {string.Join(", ", locationManager.GetAllMapPackNames())}");
+            return false;
+        }
+        
+        resolvedMapPackId = id;
+        
+        // Fire MapPack changed event (only if this is not the initial startup resolution)
+        if (mapPackName != "all" || resolvedMapPackId != 0) // Avoid firing for default startup
+        {
+            OnMapPackChanged?.Invoke(mapPackName);
+        }
+        
+        return true;
+    }
 
     #endregion
 
