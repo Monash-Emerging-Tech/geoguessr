@@ -25,6 +25,7 @@ Follow the detailed instructions in `README.md` for step-by-step manual configur
 - **`MapInteractionManager.cs`**: Handles Unity-JavaScript communication and map interactions
 - **`MapUIController.cs`**: UI controls for map interaction, scaling, and button management
 - **`GuessButtonManager.cs`**: Manages guess button states and interactions
+- **`ScoreBannerController.cs`**: Dynamic score banner with map pack name display and auto-resizing
 - **`DebugLogScript.cs`**: Displays game state information for debugging
 
 ## Data Flow
@@ -67,7 +68,7 @@ Unity sends marker data → JavaScript renders markers on MazeMap
 
 ### GameLogic
 - `totalRounds`: Number of rounds in the game
-- `mapPackId`: ID of the map pack to use for locations
+- `mapPackName`: Name of the map pack to use for locations (e.g., "all", "europe", "asia")
 - `mapManager`: Reference to MapInteractionManager
 - `locationManager`: Reference to LocationManager
 - `gameUI`: Reference to main game UI GameObject
@@ -76,6 +77,22 @@ Unity sends marker data → JavaScript renders markers on MazeMap
 
 ### LocationManager
 - `jsonResourcePath`: Path to location data JSON file in Resources folder (default: "locationData")
+- **New Features**:
+  - Map pack selection by name instead of ID
+  - Dynamic map pack validation
+  - Enhanced debugging with map pack names
+
+### ScoreBannerController
+- `enableDynamicResizing`: Enable/disable automatic banner resizing
+- `mapPackText`: Text component for displaying map pack name
+- `backgroundRect`: Reference to background RectTransform
+- `containerRect`: Reference to main container RectTransform
+- `mapTextContainerRect`: Reference to map text container RectTransform
+- **Features**:
+  - Automatic banner width adjustment based on map pack name length
+  - Balanced expansion (grows both left and right)
+  - Minimum width enforcement (300px)
+  - Real-time map pack name updates
 
 ## API Reference
 
@@ -97,6 +114,9 @@ gameLogic.submitGuess()               // Submit current guess
 gameLogic.GetCurrentScore()           // Get current score
 gameLogic.GetCurrentRound()           // Get current round
 gameLogic.GetLocationManager()        // Get LocationManager instance
+gameLogic.GetMapPackName()            // Get current map pack name
+gameLogic.GetAllMapPackNames()        // Get all available map pack names
+gameLogic.SetMapPackByName(name)      // Set map pack by name
 
 // MapInteractionManager
 mapManager.ShowMap()                  // Show map
@@ -110,6 +130,16 @@ locationManager.Start()               // Initialize and load data
 locationManager.SelectRandomLocation() // Select random location from current map pack
 locationManager.SetCurrentMapPack(id) // Set current map pack by ID
 locationManager.GetCurrentLocation()  // Get current location
+locationManager.GetCurrentMapPackName() // Get current map pack name
+locationManager.GetAllMapPackNames()  // Get all available map pack names
+locationManager.GetMapPackNameById(id) // Get map pack name by ID
+locationManager.GetMapPackIdByName(name) // Get map pack ID by name
+locationManager.IsValidMapPackName(name) // Check if map pack name is valid
+
+// ScoreBannerController
+scoreBanner.UpdateMapPackDisplay()     // Update map pack name display
+scoreBanner.RefreshMapPackDisplay()    // Refresh and trigger resizing
+scoreBanner.ResetToOriginalSize()      // Reset banner to original size
 ```
 
 ## File Structure

@@ -77,6 +77,16 @@ public class DebugLogScript : MonoBehaviour
                 try { debugText += "\r\nCurrent Score: " + gameLoader.GetCurrentScore(); } catch (System.Exception e) { debugText += "\r\nCurrent Score: ERROR - " + e.Message; }
                 try { debugText += "\r\nRound: " + gameLoader.GetCurrentRound(); } catch (System.Exception e) { debugText += "\r\nRound: ERROR - " + e.Message; }
                 try { debugText += "\r\nMapPackId: " + gameLoader.GetMapPackId(); } catch (System.Exception e) { debugText += "\r\nMapPackId: ERROR - " + e.Message; }
+                try { debugText += "\r\nMapPackName: " + gameLoader.GetMapPackName(); } catch (System.Exception e) { debugText += "\r\nMapPackName: ERROR - " + e.Message; }
+                try 
+                { 
+                    var allMapPacks = gameLoader.GetAllMapPackNames();
+                    debugText += "\r\nAvailable MapPacks: " + (allMapPacks.Length > 0 ? string.Join(", ", allMapPacks) : "None"); 
+                } 
+                catch (System.Exception e) 
+                { 
+                    debugText += "\r\nAvailable MapPacks: ERROR - " + e.Message; 
+                }
                 
                 // Location manager calls - these are more likely to cause issues
                 try 

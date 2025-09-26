@@ -39,6 +39,14 @@
             "x": 0,
             "y": 0,
             "z": 0
+        },
+        {
+            "ID": 6,
+            "Name": "Monash 101 - Woodside Lecture Stairs",
+            "FileName": "360_Monash101_Woodside_Lecture_Stairs",
+            "x": 145.135268,
+            "y": -37.910022,
+            "z": 1
         }
     ],
 
@@ -53,6 +61,11 @@
             "ID": 1,
             "Name": "OG Placeholders",
             "locationIDs": [ 0, 1 ]
+        },
+        {
+            "ID": 2,
+            "Name": "Monash 101",
+            "locationIDs": [ 6 ]
         }
     ]
 }
