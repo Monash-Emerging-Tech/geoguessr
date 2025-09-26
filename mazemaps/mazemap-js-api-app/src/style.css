@@ -1,0 +1,56 @@
+body{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    overflow: hidden;
+    padding: 0px;
+    margin: 0px;
+
+
+    font-size: 1em;
+    font-family: 'Arial', sans-serif;
+    text-rendering: geometricPrecision;
+    -webkit-touch-callout:none;
+    user-select:none;
+
+}
+
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
+input, textarea, select, button{
+    font-family: 'Arial', sans-serif !important;
+    text-rendering: geometricPrecision;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.pageRoot {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.appRoot {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+}
+
+.header {
+    display: flex;
+    align-content: center;
+    flex-direction: column;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+.header h2 {
+    margin-bottom: 0px;
+}
