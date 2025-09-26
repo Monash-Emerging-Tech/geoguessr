@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 
 /***
-* Rotate_Camera.cs, used to handle rotating the camera by clicking and dragging the left mouse button 
+* RotateCamera.cs, used to handle rotating the camera by clicking and dragging the left mouse button 
 * Written by: O_Bolt
 * Last Modified: 15/07/25
 */

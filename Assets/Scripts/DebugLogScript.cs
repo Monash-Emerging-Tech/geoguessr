@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System.Linq;
 using static Unity.Burst.Intrinsics.X86.Avx;
 
 
@@ -23,17 +24,39 @@ public class DebugLogScript : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        Debug.Log("DebugLogScript starting on: " + gameObject.name);
+        
         // Make sure a gamemanager is connected
         gameManager = GameObject.Find("GameLogic");
         if (gameManager != null)
         {
             Debug.Log("Debug Log Found GameManager!");
             gameLoader = gameManager.GetComponent<GameLogic>();
-            text = GetComponent<TMP_Text>();
+            if (gameLoader == null)
+            {
+                Debug.LogError("GameLogic component not found on GameManager!");
+            }
         }
         else
         {
             Debug.LogWarning("GameManager not found!");
+        }
+
+        // Get the TMP_Text component (check both this object and children)
+        text = GetComponent<TMP_Text>();
+        if (text == null)
+        {
+            Debug.Log("TMP_Text not found on this object, checking children...");
+            text = GetComponentInChildren<TMP_Text>();
+        }
+        if (text == null)
+        {
+            Debug.LogError("TMP_Text component not found on " + gameObject.name + " or its children!");
+            Debug.LogError("Available components on this object: " + string.Join(", ", GetComponents<Component>().Select(c => c.GetType().Name)));
+        }
+        else
+        {
+            Debug.Log("Debug Log TMP_Text component found on: " + text.gameObject.name);
         }
 
     }
@@ -42,19 +65,63 @@ public class DebugLogScript : MonoBehaviour
     void Update()
     {
         // Display on the text field provided
-        if (gameManager != null)
+        if (gameManager != null && gameLoader != null && text != null)
         {
-            text.text = "Debug Log:" +
-            "\r\ninGame: " + gameLoader.inGame +
-            "\r\nGuessing: " + gameLoader.isGuessing +
-            "\r\nCurrent Score: " + gameLoader.currentScore +
-            "\r\nRound: " + gameLoader.currentRound +
-            "\r\nMapPackId: " + gameLoader.mapPackId +
-            "\r\nMode: " + gameLoader.GameMode +
-            "\r\nLocation: " + gameLoader.locationManager.currentLocation.Name +
-            "\r\nLocation X: " + gameLoader.locationManager.currentLocation.x +
-            "\r\nLocation Y: " + gameLoader.locationManager.currentLocation.y +
-            "\r\nLocation Z: " + gameLoader.locationManager.currentLocation.z;
+            try
+            {
+                string debugText = "Debug Log:";
+                
+                // Safe method calls with try-catch for each
+                try { debugText += "\r\ninGame: " + gameLoader.IsInGame(); } catch (System.Exception e) { debugText += "\r\ninGame: ERROR - " + e.Message; }
+                try { debugText += "\r\nGuessing: " + gameLoader.IsGuessing(); } catch (System.Exception e) { debugText += "\r\nGuessing: ERROR - " + e.Message; }
+                try { debugText += "\r\nCurrent Score: " + gameLoader.GetCurrentScore(); } catch (System.Exception e) { debugText += "\r\nCurrent Score: ERROR - " + e.Message; }
+                try { debugText += "\r\nRound: " + gameLoader.GetCurrentRound(); } catch (System.Exception e) { debugText += "\r\nRound: ERROR - " + e.Message; }
+                try { debugText += "\r\nMapPackId: " + gameLoader.GetMapPackId(); } catch (System.Exception e) { debugText += "\r\nMapPackId: ERROR - " + e.Message; }
+                
+                // Location manager calls - these are more likely to cause issues
+                try 
+                { 
+                    var locationManager = gameLoader.GetLocationManager();
+                    if (locationManager != null)
+                    {
+                        var currentLocation = locationManager.GetCurrentLocation();
+                        // Check if location is valid (since it's a struct, check for default values)
+                        if (!string.IsNullOrEmpty(currentLocation.Name))
+                        {
+                            debugText += "\r\nLocation: " + currentLocation.Name;
+                            debugText += "\r\nLocation X: " + currentLocation.x;
+                            debugText += "\r\nLocation Y: " + currentLocation.y;
+                            debugText += "\r\nLocation Z: " + currentLocation.z;
+                        }
+                        else
+                        {
+                            debugText += "\r\nLocation: No location set";
+                        }
+                    }
+                    else
+                    {
+                        debugText += "\r\nLocation Manager: NULL";
+                    }
+                } 
+                catch (System.Exception e) 
+                { 
+                    debugText += "\r\nLocation: ERROR - " + e.Message; 
+                }
+                
+                text.text = debugText;
+            }
+            catch (System.Exception e)
+            {
+                text.text = "Debug Log: ERROR - " + e.Message;
+                Debug.LogError("DebugLogScript Update Error: " + e.Message);
+            }
+        }
+        else
+        {
+            if (text != null)
+            {
+                text.text = "Debug Log: Initializing...";
+            }
         }
 
     }

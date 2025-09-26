@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5661988244959880503}
-  - component: {fileID: 487263644213522047}
+  - component: {fileID: 6997019674293776451}
   m_Layer: 0
-  m_Name: GameLogic
+  m_Name: LocationManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -32,7 +32,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &487263644213522047
+--- !u!114 &6997019674293776451
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,14 +41,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2956644974186284610}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea2e0fad3b24fdf4099c344a196561a9, type: 3}
+  m_Script: {fileID: 11500000, guid: ecaa0b3959b050f4f8d7a414162a2e6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  totalRounds: 5
-  mapPackId: 0
-  mapManager: {fileID: 6138010117215400221, guid: 6c321633796206c46afea9dc6da1d211, type: 3}
-  locationManager: {fileID: 6997019674293776451, guid: aadfefe6f0e98e046ae62681acec6879, type: 3}
-  gameUI: {fileID: 0}
-  mapUI: {fileID: 7944101941137652121, guid: 927b5bb8e8123f54fb77764e95f3043e, type: 3}
-  resultsUI: {fileID: 5958895761372245563, guid: 083e984c3bce0f744bc313e92c555986, type: 3}
-  enableDebugLogs: 1
+  jsonResourcePath: locationData

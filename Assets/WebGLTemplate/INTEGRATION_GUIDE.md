@@ -2,14 +2,13 @@
 
 ## Quick Start
 
-### 1. Automatic Setup (Recommended)
-1. Add the `ExampleSceneSetup.cs` script to any GameObject in your scene
-2. In the Inspector, click "Setup Game" or let it run automatically on Start
-3. Click "Validate Setup" to ensure everything is configured correctly
-4. Build for WebGL using the custom template
+### Manual Setup
+Follow the detailed instructions in `README.md` for step-by-step manual configuration. This involves:
 
-### 2. Manual Setup
-Follow the detailed instructions in `README.md` for step-by-step manual configuration.
+1. Adding the required scripts to GameObjects in your scene
+2. Configuring script references and UI elements
+3. Setting up the WebGL template
+4. Building and testing your WebGL application
 
 ## Key Components
 
@@ -24,7 +23,6 @@ Follow the detailed instructions in `README.md` for step-by-step manual configur
 - **`MapInteractionManager.cs`**: Handles Unity-JavaScript communication
 - **`GeoguessrGameManager.cs`**: Main game logic and round management
 - **`MapUIController.cs`**: UI controls for map interaction
-- **`ExampleSceneSetup.cs`**: Automated setup and validation
 
 ## Data Flow
 
@@ -104,8 +102,7 @@ Assets/WebGLTemplate/geoguessrTemplate/
 Assets/Scripts/
 ├── MapInteractionManager.cs    # Unity-JavaScript bridge
 ├── GeoguessrGameManager.cs     # Main game logic
-├── MapUIController.cs          # UI controls
-└── ExampleSceneSetup.cs        # Automated setup
+└── MapUIController.cs          # UI controls
 ```
 
 ## Support

@@ -1,28 +1,22 @@
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework.Constraints;
-using UnityEditor;
 using UnityEngine;
-using System.IO;
-using static LocationManager;
 
-
-
-
-/***
- * 
- * LocationManager, Responsible for handling the data of each Location, 
- * including the current chosen one and the Map Packs\
- * Functionality for choosing and display a location is here as well
- * 
- * Written by O-Bolt
- * Last Modified: 15/07/2025
- * 
- */
-public class LocationManager
+/// <summary>
+/// LocationManager, Responsible for handling location data, map packs, and location selection.
+/// Manages JSON data loading, material assignment, and current location tracking.
+/// 
+/// Written by O-Bolt
+/// Modified by aleu0007
+/// Last Modified: 24/09/2025
+/// </summary>
+public class LocationManager : MonoBehaviour
 {
-
-    // Location Data Class, Locations and Mappacks
+    #region Data Structures
+    
+    /// <summary>
+    /// Container for location and map pack data loaded from JSON
+    /// </summary>
     [System.Serializable]
     public class locationData
     {
@@ -30,7 +24,9 @@ public class LocationManager
         public List<MapPack> MapPacks;
     }
 
-
+    /// <summary>
+    /// Represents a single location with ID, name, coordinates, and material
+    /// </summary>
     [System.Serializable]
     public struct Location
     {
@@ -39,18 +35,18 @@ public class LocationManager
         public int ID;
         public string Name;
         public string FileName;
-
         public float x;
         public float y;
         public float z;
-
-        // Need to add more stuff here when we know how to use it better
 
         [System.NonSerialized]
         // Link to the 360 Image of the Location
         public Material LocationMaterial;
     }
 
+    /// <summary>
+    /// Represents a collection of locations grouped together
+    /// </summary>
     [System.Serializable]
     public struct MapPack
     {
@@ -59,44 +55,70 @@ public class LocationManager
         public List<int> locationIDs;
     }
 
-    // For now we'll just list all locations in one big list, could also do mappacks in the future
-    public Dictionary<int, Location> locationDict;
-    public Dictionary<int, MapPack> mapPackDict;
+    #endregion
 
-    // path to the locationData.json file
-    private string jsonFilePath = "Assets/Resources/locationData.json";
-
+    #region Inspector Variables
     
-    // In game selections
-    public MapPack currentMapPack;
-    public Location currentLocation;
+    [Header("Data Configuration")]
+    [SerializeField] private string jsonResourcePath = "locationData";
+    
+    #endregion
 
+    #region Private Variables
+    
+    private Dictionary<int, Location> locationDict;
+    private Dictionary<int, MapPack> mapPackDict;
+    private MapPack currentMapPack;
+    private Location currentLocation;
+    
+    #endregion
+
+    #region Public Getters
+    
+    public Location GetCurrentLocation() => currentLocation;
+    public MapPack GetCurrentMapPack() => currentMapPack;
+    public Dictionary<int, Location> GetLocationDict() => locationDict;
+    public Dictionary<int, MapPack> GetMapPackDict() => mapPackDict;
+    
+    #endregion
+
+    #region Initialization
+    
+    /// <summary>
+    /// Initializes the LocationManager by loading data from JSON
+    /// </summary>
     public void Start()
     {
-
         LoadData();
-
     }
+    
+    #endregion
 
-
-
-    // Selects a random location and sets to the skybox
-    // Could pass through a mappack in the future?
+    #region Location Management
+    
+    /// <summary>
+    /// Selects a random location from the current map pack and sets it as skybox
+    /// </summary>
     public void SelectRandomLocation()
     {
-        List<Location> locations = getLocationsFromMapPack(currentMapPack);
+        List<Location> locations = GetLocationsFromMapPack(currentMapPack);
         
         if (locations.Count == 0) return;
- 
-        int rdmIdx = Random.Range(0, locations.Count);
-        RenderSettings.skybox = locations[rdmIdx].LocationMaterial;
-        Debug.Log("Location ID: " + locations[rdmIdx].ID + " - " + locationDict[rdmIdx].Name);
-        setCurrentLocation(locations[rdmIdx]);
+
+        int randomIndex = Random.Range(0, locations.Count);
+        RenderSettings.skybox = locations[randomIndex].LocationMaterial;
+        
+        Debug.Log($"Location ID: {locations[randomIndex].ID} - {locationDict[randomIndex].Name}");
+        SetCurrentLocation(locations[randomIndex]);
     }
 
-    public List<Location> getLocationsFromMapPack(MapPack mapPack)
+    /// <summary>
+    /// Gets all locations from a specific map pack
+    /// </summary>
+    /// <param name="mapPack">The map pack to get locations from</param>
+    /// <returns>List of locations in the map pack</returns>
+    public List<Location> GetLocationsFromMapPack(MapPack mapPack)
     {
-
         List<Location> locations = new List<Location>();
 
         if (mapPack.Name == "all" || mapPack.Name == "")
@@ -105,113 +127,141 @@ public class LocationManager
             return locations;
         }
 
-        foreach (int ID in mapPack.locationIDs)
+        foreach (int id in mapPack.locationIDs)
         {
-            locations.Append(locationDict[ID]);
+            locations.Add(locationDict[id]);
         }
 
         return locations;
     }
+    
+    #endregion
 
-
-    //Setters and Getters
-    public void setCurrentLocation(Location location) {
+    #region Setters
+    
+    /// <summary>
+    /// Sets the current location
+    /// </summary>
+    /// <param name="location">The location to set as current</param>
+    public void SetCurrentLocation(Location location)
+    {
         currentLocation = location;
     }
 
-    public void setCurrentMapPack(int Id)
+    /// <summary>
+    /// Sets the current map pack by ID
+    /// </summary>
+    /// <param name="id">The ID of the map pack to set</param>
+    public void SetCurrentMapPack(int id)
     {
-        currentMapPack = mapPackDict[Id];
-    }
-
-
-    public Dictionary<int, MapPack> GetMapPacks() {
-        return mapPackDict;
-    }
-
-    // Creates Locations and Mappacks from the json File
-    private void LoadData() {
-        
-        if (jsonFilePath == "")
+        if (mapPackDict.ContainsKey(id))
         {
-            Debug.LogError("JSON Data File is not assigned in the inspector.");
+            currentMapPack = mapPackDict[id];
+        }
+        else
+        {
+            Debug.LogWarning($"MapPack with ID {id} not found");
+        }
+    }
+    
+    #endregion
+
+    #region Data Loading
+    
+    /// <summary>
+    /// Loads location and map pack data from JSON file and assigns materials
+    /// </summary>
+    private void LoadData()
+    {
+        if (string.IsNullOrEmpty(jsonResourcePath))
+        {
+            Debug.LogError("JSON Data Resource path is not assigned.");
             return;
         }
 
-        string jsonData = File.ReadAllText(jsonFilePath);
+        TextAsset jsonFile = Resources.Load<TextAsset>(jsonResourcePath);
+        if (jsonFile == null)
+        {
+            Debug.LogError($"JSON Data file not found at Resources path: {jsonResourcePath}");
+            return;
+        }
 
-        Debug.Log(jsonData);
+        string jsonData = jsonFile.text;
+        Debug.Log($"Loaded JSON data: {jsonData}");
 
         locationData data = JsonUtility.FromJson<locationData>(jsonData);
         
-        foreach (Location location in data.Locations) {
+        // Initialize dictionaries
+        locationDict = new Dictionary<int, Location>();
+        mapPackDict = new Dictionary<int, MapPack>();
+        
+        // Load locations
+        foreach (Location location in data.Locations)
+        {
             locationDict.Add(location.ID, location);
         }
 
+        // Load map packs
         foreach (MapPack mapPack in data.MapPacks)
         {
             mapPackDict.Add(mapPack.ID, mapPack);
         }
 
+        Debug.Log($"Loaded {locationDict.Count} locations and {mapPackDict.Count} map packs");
 
-        Debug.Log("Count: " + locationDict.Count);
+        // Assign materials to locations
+        AssignLocationMaterials();
+    }
 
-        foreach (Location currentLocation in locationDict.Values)
+    /// <summary>
+    /// Assigns materials to all loaded locations
+    /// </summary>
+    private void AssignLocationMaterials()
+    {
+        foreach (Location location in locationDict.Values.ToList())
         {
-            // Because it's ready only
-            Location location = locationDict[currentLocation.ID];
+            Location updatedLocation = location;
+            updatedLocation.LocationMaterial = Resources.Load<Material>($"Materials/Locations/{location.FileName}");
 
-            location.LocationMaterial = Resources.Load<Material>($"Materials/Locations/{location.FileName}");
-
-            if (location.LocationMaterial == null)
+            if (updatedLocation.LocationMaterial == null)
+            {
                 Debug.LogWarning($"Material not found for location {location.Name}, MaterialName: {location.FileName}");
-
-            locationDict[currentLocation.ID] = location; 
-        }
-
-    }
-
-
-    /*
-     * 
-     * OUTDATED:
-    * 
-    // Validates the data in that was loaded by the json file
-    // All locations and Mappacks need to have the same ID and position in the JSON file for consistency
-    // Makes loading data easier for now anyway, I'm sure we can just allocate memory instead but that would require validating Locations
-    private void CheckAllignment() {
-
-        // Match all the locations to each other
-        int idx = 0;
-        int errors = 0;
-        foreach (Location location in locationList)
-        {
-            if (location.ID != idx)
-            {
-                Debug.Log($"Out of Place Location, ID: {location.ID}, Index in json File: {idx}");
-                errors++;
             }
 
-            idx++;
-        }
-
-        idx = 0;
-        foreach (MapPack mapPack in mapPacks)
-        {
-            if (mapPack.ID != idx)
-            {
-                Debug.Log($"Out of Place Map Pack, ID: {mapPack.ID}, Index in json File: {idx}");
-                errors++;
-            }
-
-            idx++;
-        }
-
-        if (errors == 0)
-        {
-            Debug.Log("All locations and Map packs alligned");
+            locationDict[location.ID] = updatedLocation;
         }
     }
-    */
+    
+    #endregion
 
+    #region Legacy Methods (Deprecated)
+    
+    /// <summary>
+    /// Legacy method - use GetLocationsFromMapPack instead
+    /// </summary>
+    [System.Obsolete("Use GetLocationsFromMapPack instead")]
+    public List<Location> getLocationsFromMapPack(MapPack mapPack)
+    {
+        return GetLocationsFromMapPack(mapPack);
+    }
+
+    /// <summary>
+    /// Legacy method - use SetCurrentLocation instead
+    /// </summary>
+    [System.Obsolete("Use SetCurrentLocation instead")]
+    public void setCurrentLocation(Location location)
+    {
+        SetCurrentLocation(location);
+    }
+
+    /// <summary>
+    /// Legacy method - use SetCurrentMapPack instead
+    /// </summary>
+    [System.Obsolete("Use SetCurrentMapPack instead")]
+    public void setCurrentMapPack(int id)
+    {
+        SetCurrentMapPack(id);
+    }
+    
+    #endregion
 }

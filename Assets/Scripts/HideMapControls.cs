@@ -14,7 +14,7 @@ public class HideMapControls : MonoBehaviour
 
         foreach (Transform child in this.transform)
         {
-            child.gameObject.SetActive(gameLoader.isGuessing);
+            child.gameObject.SetActive(gameLoader.IsGuessing());
         }
     }
 }

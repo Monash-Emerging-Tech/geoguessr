@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="theme-color" content="#000000">
-    <title>MNET Geoguessr - Monash Campus Explorer</title>
+    <title>MNET Geoguessr - Monash Clayton Campus</title>
     
     <!-- MazeMaps CSS -->
     <link rel="stylesheet" href="https://api.mazemap.com/js/v1.0.0/mazemap.min.css">
@@ -106,6 +106,19 @@
             cursor: not-allowed;
         }
 
+        .marker-info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 5;
+            max-width: 300px;
+        }
+
         .score-display {
             position: absolute;
             top: 20px;
@@ -143,6 +156,11 @@
             <div>Score: <span id="current-score">0</span></div>
             <div>Round: <span id="current-round">1</span></div>
         </div>
+        
+        <!-- Marker info display -->
+        <div id="marker-info" class="marker-info" style="display: none;">
+            <div id="marker-details"></div>
+        </div>
     </div>
 
     <!-- Unity WebGL loader script will be inserted here -->
@@ -151,6 +169,7 @@
         var unityInstance = null;
         var mazemapInstance = null;
         var currentGuess = null;
+        var actualLocation = null;
         var isMapActive = false;
 
         // Initialize the application
@@ -258,6 +277,7 @@
                 };
 
                 // Update UI
+                updateMarkerInfo('Guess placed at: ' + coords.lat.toFixed(6) + ', ' + coords.lng.toFixed(6));
                 document.getElementById('submit-guess-btn').disabled = false;
 
                 // Add marker to map
@@ -291,6 +311,7 @@
             }
 
             // Update UI
+            updateMarkerInfo('Guess placed at: ' + coords.lat.toFixed(6) + ', ' + coords.lng.toFixed(6));
             document.getElementById('submit-guess-btn').disabled = false;
 
             // Add marker to map
@@ -345,11 +366,12 @@
             document.getElementById('mazemap-container').classList.add('active');
             document.getElementById('map-overlay').classList.add('active');
             document.getElementById('map-controls').style.display = 'block';
-            document.getElementById('score-display').style.display = 'block';
+            document.getElementById('marker-info').style.display = 'block';
             
             // Reset guess
             currentGuess = null;
             document.getElementById('submit-guess-btn').disabled = true;
+            updateMarkerInfo('Click on the map to place your guess');
         }
 
         // Close map
@@ -358,7 +380,7 @@
             document.getElementById('mazemap-container').classList.remove('active');
             document.getElementById('map-overlay').classList.remove('active');
             document.getElementById('map-controls').style.display = 'none';
-            document.getElementById('score-display').style.display = 'none';
+            document.getElementById('marker-info').style.display = 'none';
             
             // Clear markers
             if (mazemapInstance) {
@@ -380,11 +402,16 @@
                     timestamp: Date.now()
                 });
                 
-                unityInstance.SendMessage('GameLogic', 'submitGuess', jsonData);
+                unityInstance.SendMessage('MapInteractionManager', 'SubmitGuess', jsonData);
                 closeMap();
             } catch (error) {
                 console.error('Error submitting guess:', error);
             }
+        }
+
+        // Update marker info display
+        function updateMarkerInfo(text) {
+            document.getElementById('marker-details').textContent = text;
         }
 
         // Unity communication functions
