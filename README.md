@@ -23,8 +23,9 @@ A Unity-based geoguessr game integrated with Monash University's MazeMaps API. P
 
 #### LocationManager.cs
 - Manages location data from JSON resources
-- Handles map pack selection and random location picking
+- Handles map pack selection by name (e.g., "all", "europe", "asia")
 - Assigns skybox materials for 360° viewing
+- Provides map pack validation and debugging
 - MonoBehaviour-based for Unity integration
 
 #### MapInteractionManager.cs
@@ -43,6 +44,12 @@ A Unity-based geoguessr game integrated with Monash University's MazeMaps API. P
 - Manages guess button states and transitions
 - Handles guess submission workflow
 - Coordinates with MapUIController for UI updates
+
+#### ScoreBannerController.cs
+- Dynamic score banner with automatic resizing
+- Displays map pack name with overflow handling
+- Balanced expansion (grows both left and right)
+- Minimum width enforcement and real-time updates
 
 ## Setup Instructions
 
@@ -115,7 +122,7 @@ A Unity-based geoguessr game integrated with Monash University's MazeMaps API. P
 
 ### GameLogic Settings
 - `totalRounds`: Number of rounds per game
-- `mapPackId`: ID of map pack to use
+- `mapPackName`: Name of map pack to use (e.g., "all", "europe", "asia")
 - `enableDebugLogs`: Enable/disable debug output
 
 ### MapInteractionManager Settings
@@ -126,6 +133,13 @@ A Unity-based geoguessr game integrated with Monash University's MazeMaps API. P
 
 ### LocationManager Settings
 - `jsonResourcePath`: Path to location data in Resources folder
+
+### ScoreBannerController Settings
+- `enableDynamicResizing`: Enable/disable automatic banner resizing
+- `mapPackText`: Text component for map pack name display
+- `backgroundRect`: Background RectTransform reference
+- `containerRect`: Main container RectTransform reference
+- `mapTextContainerRect`: Map text container RectTransform reference
 
 ## Building and Deployment
 

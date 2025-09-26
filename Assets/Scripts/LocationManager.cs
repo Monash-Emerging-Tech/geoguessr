@@ -77,8 +77,57 @@ public class LocationManager : MonoBehaviour
     
     public Location GetCurrentLocation() => currentLocation;
     public MapPack GetCurrentMapPack() => currentMapPack;
+    public string GetCurrentMapPackName() => currentMapPack.Name;
     public Dictionary<int, Location> GetLocationDict() => locationDict;
     public Dictionary<int, MapPack> GetMapPackDict() => mapPackDict;
+    
+    /// <summary>
+    /// Gets all available MapPack names
+    /// </summary>
+    /// <returns>Array of MapPack names</returns>
+    public string[] GetAllMapPackNames()
+    {
+        return mapPackDict.Values.Select(mp => mp.Name).ToArray();
+    }
+    
+    /// <summary>
+    /// Gets MapPack name by ID
+    /// </summary>
+    /// <param name="id">MapPack ID</param>
+    /// <returns>MapPack name or "Unknown" if not found</returns>
+    public string GetMapPackNameById(int id)
+    {
+        return mapPackDict.ContainsKey(id) ? mapPackDict[id].Name : "Unknown";
+    }
+    
+    /// <summary>
+    /// Gets MapPack ID by name
+    /// </summary>
+    /// <param name="name">MapPack name</param>
+    /// <returns>MapPack ID or -1 if not found</returns>
+    public int GetMapPackIdByName(string name)
+    {
+        if (string.IsNullOrEmpty(name)) return -1;
+        
+        foreach (var kvp in mapPackDict)
+        {
+            if (kvp.Value.Name.Equals(name, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return kvp.Key;
+            }
+        }
+        return -1;
+    }
+    
+    /// <summary>
+    /// Validates if a MapPack name exists
+    /// </summary>
+    /// <param name="name">MapPack name to validate</param>
+    /// <returns>True if MapPack exists, false otherwise</returns>
+    public bool IsValidMapPackName(string name)
+    {
+        return GetMapPackIdByName(name) != -1;
+    }
     
     #endregion
 
@@ -157,6 +206,7 @@ public class LocationManager : MonoBehaviour
         if (mapPackDict.ContainsKey(id))
         {
             currentMapPack = mapPackDict[id];
+            Debug.Log($"MapPack set to: {currentMapPack.Name} (ID: {id})");
         }
         else
         {
