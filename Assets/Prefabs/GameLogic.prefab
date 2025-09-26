@@ -41,12 +41,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 2956644974186284610}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc0125397d98c584a99ad54c9e3e2835, type: 3}
+  m_Script: {fileID: 11500000, guid: ea2e0fad3b24fdf4099c344a196561a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inGame: 0
-  currentScore: 0
-  currentRound: 0
-  GameMode: 0
+  totalRounds: 5
   mapPackId: 0
-  jsonFile: {fileID: 4900000, guid: 48bc3805d99a16348aae474b0ef1a41f, type: 3}
+  mapManager: {fileID: 6138010117215400221, guid: 6c321633796206c46afea9dc6da1d211, type: 3}
+  locationManager: {fileID: 6997019674293776451, guid: aadfefe6f0e98e046ae62681acec6879, type: 3}
+  gameUI: {fileID: 0}
+  mapUI: {fileID: 7944101941137652121, guid: 927b5bb8e8123f54fb77764e95f3043e, type: 3}
+  resultsUI: {fileID: 5958895761372245563, guid: 083e984c3bce0f744bc313e92c555986, type: 3}
+  enableDebugLogs: 1

@@ -1,0 +1,26 @@
+[ignore]
+.*/node_modules/eslint-plugin-react/node_modules/resolve/test/resolver/malformed_package_json/.*
+.*/node_modules/rechoir/node_modules/resolve/test/resolver/malformed_package_json/.*
+
+[include]
+./src/.*
+
+[libs]
+
+[lints]
+
+[untyped]
+.*/node_modules/**/.*
+
+[options]
+module.file_ext=.js
+module.file_ext=.json
+module.file_ext=.jsx
+module.file_ext=.css
+
+module.name_mapper='^vendor' ->'<PROJECT_ROOT>/vendor'
+module.name_mapper='^src' ->'<PROJECT_ROOT>/src'
+module.name_mapper='^node_modules' ->'<PROJECT_ROOT>/node_modules'
+module.name_mapper='.*\(.css\)' -> 'CSSModule'
+
+[strict]

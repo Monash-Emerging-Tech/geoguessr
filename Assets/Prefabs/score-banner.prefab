@@ -358,6 +358,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 457296892858598301}
+  - component: {fileID: 1567784022753139080}
   m_Layer: 5
   m_Name: score-banner
   m_TagString: Untagged
@@ -372,7 +373,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5958895761372245563}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: 0.002071584, w: 0.9999979}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -385,12 +386,31 @@ RectTransform:
   - {fileID: 7801507249255813274}
   - {fileID: 4199215697589355473}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0.237}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 816.50006, y: 456.09998}
+  m_AnchoredPosition: {x: 360, y: 199}
   m_SizeDelta: {x: 287, y: 73}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1567784022753139080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5958895761372245563}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58e26cb77961b014a89c46014387049d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scoreText: {fileID: 5428451992874118819}
+  roundText: {fileID: 8811293680572026104}
+  mapPackText: {fileID: 6934930406441541623}
+  scoreFormat: '{0}'
+  roundFormat: '{0}/{1}'
+  mapPackFormat: '{0}'
+  enableDebugLogs: 1
 --- !u!1 &6274857134197512556
 GameObject:
   m_ObjectHideFlags: 0

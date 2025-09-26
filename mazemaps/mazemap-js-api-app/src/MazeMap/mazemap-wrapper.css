@@ -1,0 +1,8 @@
+.mazemapWrapper {
+    display: flex;
+    flex-grow: 1;
+}
+
+.mapRoot {
+    flex-grow: 1;
+}
