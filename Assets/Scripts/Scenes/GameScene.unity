@@ -993,11 +993,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 00668585c194fc24aa8b327e232740d8, type: 3}
---- !u!1 &1199892233 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8677728247119895971, guid: db37043f167d2cf41a54fcbc5c9e8fa1, type: 3}
-  m_PrefabInstance: {fileID: 471117387}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1256462221
 GameObject:
   m_ObjectHideFlags: 0
@@ -1124,11 +1119,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1256462221}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 00000000000000000000000000000000, type: 3}
+  m_Script: {fileID: 11500000, guid: 2a901910773cc9d4fb0c6a1a7350bf7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roundResultPrefab: {fileID: 0}
-  playAgainPrefab: {fileID: 8271798863812296646, guid: 68bea656fb570f243abd1452b4e4f44e, type: 3}
+  roundResultPrefab: {fileID: 3220465306928500970, guid: 0036c548a740e7f41b938cc3aa5307e5, type: 3}
+  playAgainPrefab: {fileID: 3220465306928500970, guid: 68bea656fb570f243abd1452b4e4f44e, type: 3}
   canvasParent: {fileID: 1256462225}
   enableDebugLogs: 1
 --- !u!1 &1304429224
