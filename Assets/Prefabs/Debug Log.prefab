@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6049556330089122038}
   - component: {fileID: 2317656720875071522}
   - component: {fileID: 7363458551988198530}
-  - component: {fileID: 4761321142029574914}
+  - component: {fileID: 1738692073439642827}
   m_Layer: 5
   m_Name: Debug Log
   m_TagString: Untagged
@@ -66,7 +66,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Debug Log:\ninGame: \nCurrent Score:\nRound:\nLocation\n\n"
+  m_text: "Debug Log:\ninGame: \nCurrent Score:\nRound:\nLocation:\n\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -137,7 +137,7 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &4761321142029574914
+--- !u!114 &1738692073439642827
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
