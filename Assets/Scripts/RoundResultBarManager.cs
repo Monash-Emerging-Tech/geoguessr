@@ -1,25 +1,24 @@
 using UnityEngine;
 
 /// <summary>
-/// Manages bottom bar UI elements that appear at the end of rounds and games.
-/// Handles spawning/despawning of round result and play again bars.
+/// Manages the round result bottom bar that appears at the end of each round.
+/// Handles spawning/despawning of the round result bar in the GameScene.
+/// The play again bar is handled separately in the BreakdownScene.
 /// 
 /// Written by Assistant
 /// Last Modified: [Current Date]
 /// </summary>
-public class BottomBarManager : MonoBehaviour
+public class RoundResultBarManager : MonoBehaviour
 {
-    [Header("Bottom Bar Prefabs")]
+    [Header("Round Result Bar")]
     [SerializeField] private GameObject roundResultPrefab;
-    [SerializeField] private GameObject playAgainPrefab;
     
     [Header("UI Configuration")]
     [SerializeField] private Transform canvasParent;
     [SerializeField] private bool enableDebugLogs = true;
     
-    // SpawnPrefab components for each bar type
+    // SpawnPrefab component for the round result bar
     private SpawnPrefab roundResultSpawner;
-    private SpawnPrefab playAgainSpawner;
     
     #region Unity Lifecycle
     
@@ -49,11 +48,10 @@ public class BottomBarManager : MonoBehaviour
         {
             GameLogic.OnRoundStarted += OnRoundStarted;
             GameLogic.OnRoundEnded += OnRoundEnded;
-            GameLogic.OnGameEnded += OnGameEnded;
         }
         else
         {
-            LogError("GameLogic instance not found! Bottom bars will not work properly.");
+            LogError("GameLogic instance not found! Round result bar will not work properly.");
         }
     }
     
@@ -62,7 +60,6 @@ public class BottomBarManager : MonoBehaviour
         // Unsubscribe from events
         GameLogic.OnRoundStarted -= OnRoundStarted;
         GameLogic.OnRoundEnded -= OnRoundEnded;
-        GameLogic.OnGameEnded -= OnGameEnded;
     }
     
     #endregion
@@ -70,12 +67,12 @@ public class BottomBarManager : MonoBehaviour
     #region Event Handlers
     
     /// <summary>
-    /// Called when a new round starts - hide all bottom bars
+    /// Called when a new round starts - hide the round result bar
     /// </summary>
     private void OnRoundStarted(int roundNumber)
     {
-        LogDebug($"Round {roundNumber} started - hiding all bottom bars");
-        HideAllBars();
+        LogDebug($"Round {roundNumber} started - hiding round result bar");
+        HideRoundResultBar();
     }
     
     /// <summary>
@@ -87,15 +84,6 @@ public class BottomBarManager : MonoBehaviour
         ShowRoundResultBar();
     }
     
-    /// <summary>
-    /// Called when the game ends - show play again bar
-    /// </summary>
-    private void OnGameEnded(int finalScore)
-    {
-        LogDebug($"Game ended with final score {finalScore} - showing play again bar");
-        ShowPlayAgainBar();
-    }
-    
     #endregion
     
     #region Public Methods
@@ -105,7 +93,6 @@ public class BottomBarManager : MonoBehaviour
     /// </summary>
     public void ShowRoundResultBar()
     {
-        HideAllBars(); // Hide other bars first
         if (roundResultSpawner != null)
         {
             roundResultSpawner.Spawn();
@@ -117,35 +104,7 @@ public class BottomBarManager : MonoBehaviour
     }
     
     /// <summary>
-    /// Shows the play again bottom bar
-    /// </summary>
-    public void ShowPlayAgainBar()
-    {
-        HideAllBars(); // Hide other bars first
-        if (playAgainSpawner != null)
-        {
-            playAgainSpawner.Spawn();
-        }
-        else
-        {
-            LogError("Play again spawner not set up!");
-        }
-    }
-    
-    /// <summary>
-    /// Hides all bottom bars
-    /// </summary>
-    public void HideAllBars()
-    {
-        if (roundResultSpawner != null)
-            roundResultSpawner.Despawn();
-            
-        if (playAgainSpawner != null)
-            playAgainSpawner.Despawn();
-    }
-    
-    /// <summary>
-    /// Manually hide round result bar
+    /// Hides the round result bar
     /// </summary>
     public void HideRoundResultBar()
     {
@@ -153,21 +112,12 @@ public class BottomBarManager : MonoBehaviour
             roundResultSpawner.Despawn();
     }
     
-    /// <summary>
-    /// Manually hide play again bar
-    /// </summary>
-    public void HidePlayAgainBar()
-    {
-        if (playAgainSpawner != null)
-            playAgainSpawner.Despawn();
-    }
-    
     #endregion
     
     #region Private Methods
     
     /// <summary>
-    /// Sets up the SpawnPrefab components for each bar type
+    /// Sets up the SpawnPrefab component for the round result bar
     /// </summary>
     private void SetupSpawners()
     {
@@ -180,28 +130,11 @@ public class BottomBarManager : MonoBehaviour
             
             // Configure the spawner
             var spawnerScript = roundResultSpawnerObj.GetComponent<SpawnPrefab>();
-            // Note: We'll need to set prefab and parent via reflection or public setters
             SetSpawnerPrefab(spawnerScript, roundResultPrefab, canvasParent);
         }
         else
         {
             LogError("Round result prefab not assigned!");
-        }
-        
-        // Create play again spawner
-        if (playAgainPrefab != null)
-        {
-            GameObject playAgainSpawnerObj = new GameObject("PlayAgainSpawner");
-            playAgainSpawnerObj.transform.SetParent(transform);
-            playAgainSpawner = playAgainSpawnerObj.AddComponent<SpawnPrefab>();
-            
-            // Configure the spawner
-            var spawnerScript = playAgainSpawnerObj.GetComponent<SpawnPrefab>();
-            SetSpawnerPrefab(spawnerScript, playAgainPrefab, canvasParent);
-        }
-        else
-        {
-            LogError("Play again prefab not assigned!");
         }
     }
     
