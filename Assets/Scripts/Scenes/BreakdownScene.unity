@@ -882,22 +882,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1099760876}
     m_Modifications:
-    - target: {fileID: 1588468121685776354, guid: 96b0ad0adcb94ec4ba7952241c5c1e45, type: 3}
-      propertyPath: scoreData
-      value: 
-      objectReference: {fileID: 11400000, guid: b39ae3316ff9c414aac57f600db77404, type: 2}
+    - target: {fileID: 131208814876795926, guid: 96b0ad0adcb94ec4ba7952241c5c1e45, type: 3}
+      propertyPath: m_ShowMaskGraphic
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1588468121685776354, guid: 96b0ad0adcb94ec4ba7952241c5c1e45, type: 3}
       propertyPath: editorText
-      value: 2000
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 2297092543061951722, guid: 96b0ad0adcb94ec4ba7952241c5c1e45, type: 3}
       propertyPath: current
-      value: 2000
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2297092543061951722, guid: 96b0ad0adcb94ec4ba7952241c5c1e45, type: 3}
-      propertyPath: scoreData
-      value: 
-      objectReference: {fileID: 11400000, guid: b39ae3316ff9c414aac57f600db77404, type: 2}
+      propertyPath: maximum
+      value: 50000
+      objectReference: {fileID: 0}
+    - target: {fileID: 3643537474843129062, guid: 96b0ad0adcb94ec4ba7952241c5c1e45, type: 3}
+      propertyPath: m_text
+      value: 200
+      objectReference: {fileID: 0}
     - target: {fileID: 6848842689015710461, guid: 96b0ad0adcb94ec4ba7952241c5c1e45, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
