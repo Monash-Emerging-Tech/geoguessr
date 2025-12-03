@@ -417,10 +417,10 @@ public class GuessButtonManager : MonoBehaviour
     /// <summary>
     /// Called when a guess is submitted through the map (from MapInteractionManager)
     /// </summary>
-    private void OnMapGuessSubmitted(Vector2 guessLocation)
+    private void OnMapGuessSubmitted(MapInteractionManager.MarkerData guessMarker)
     {
         SetState(GuessButtonState.Results);
-        LogDebug("Map guess submitted - Button shows results state");
+        LogDebug($"Map guess submitted at {guessMarker.lat}, {guessMarker.lng}, Level: {guessMarker.zLevelName} - Button shows results state");
     }
     
     #endregion
