@@ -363,10 +363,10 @@ public class GameLogic : MonoBehaviour
     /// <summary>
     /// Called when a guess is submitted
     /// </summary>
-    /// <param name="guessLocation">The guessed location coordinates</param>
-    private void OnGuessSubmitted(Vector2 guessLocation)
+    /// <param name="guessMarker">The guessed location marker data with z-level support</param>
+    private void OnGuessSubmitted(MapInteractionManager.MarkerData guessMarker)
     {
-        LogDebug($"Guess submitted at: {guessLocation}");
+        LogDebug($"Guess submitted at: {guessMarker.lat}, {guessMarker.lng}, Level: {guessMarker.zLevelName}");
         // The score calculation will be handled by OnScoreCalculated
     }
     
