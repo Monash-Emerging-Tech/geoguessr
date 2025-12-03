@@ -345,11 +345,11 @@ public class MapUIController : MonoBehaviour
     // Event handlers
     
     
-    private void OnGuessSubmitted(Vector2 guessLocation)
+    private void OnGuessSubmitted(MapInteractionManager.MarkerData guessMarker)
     {
-        currentGuess = guessLocation;
+        currentGuess = new Vector2(guessMarker.lat, guessMarker.lng);
         UpdateGuessInfo();
-        LogDebug($"Guess submitted at {guessLocation} - UI updated");
+        LogDebug($"Guess submitted at {guessMarker.lat}, {guessMarker.lng}, Level: {guessMarker.zLevelName} - UI updated");
     }
     
     private void OnMapOpened()
