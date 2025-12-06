@@ -15,6 +15,11 @@ public class MapInteractionManager : MonoBehaviour
     [SerializeField] private bool enableMapOnStart = false;
     [SerializeField] private float maxGuessDistance = 1000f; // Maximum distance for scoring in meters
     
+    [Header("Z-Level Settings")]
+    [SerializeField] private int minZLevel = -4; // P4 (Parking Level 4)
+    [SerializeField] private int maxZLevel = 12; // 11th Floor
+    [SerializeField] private int currentZLevel = 0; // Ground level
+    
     [Header("Scoring Settings")]
     [SerializeField] private int maxScore = 5000;
     [SerializeField] private int minScore = 0;
@@ -28,12 +33,17 @@ public class MapInteractionManager : MonoBehaviour
     private Vector2? currentGuessLocation;
     private bool isMapActive = false;
     
+    // Enhanced location data with z-level support
+    private MarkerData currentActualMarker;
+    private MarkerData currentGuessMarker;
+    
     // Events
-    public static event Action<Vector2> OnGuessSubmitted;
+    public static event Action<MarkerData> OnGuessSubmitted; // Enhanced event with z-level support
     public static event Action<int> OnScoreCalculated;
     public static event Action OnMapOpened;
     public static event Action OnMapClosed;
     public static event Action OnPinPlaced;
+    public static event Action<int> OnZLevelChanged; // New z-level event
     
     // Singleton pattern
     public static MapInteractionManager Instance { get; private set; }
@@ -80,7 +90,7 @@ public class MapInteractionManager : MonoBehaviour
         
         // Call JavaScript function to show map
         #if UNITY_WEBGL && !UNITY_EDITOR
-        Application.ExternalCall("showMapFromUnity");
+        Application.ExternalEval("showMapFromUnity()");
         #else
         LogDebug("Map would be shown (WebGL only)");
         #endif
@@ -100,7 +110,7 @@ public class MapInteractionManager : MonoBehaviour
         
         // Call JavaScript function to hide map
         #if UNITY_WEBGL && !UNITY_EDITOR
-        Application.ExternalCall("hideMapFromUnity");
+        Application.ExternalEval("hideMapFromUnity()");
         #else
         LogDebug("Map would be hidden (WebGL only)");
         #endif
@@ -125,12 +135,49 @@ public class MapInteractionManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Sets the actual location with z-level support
+    /// </summary>
+    /// <param name="latitude">Latitude of actual location</param>
+    /// <param name="longitude">Longitude of actual location</param>
+    /// <param name="zLevel">Z-level of actual location</param>
+    public void SetActualLocation(float latitude, float longitude, int zLevel)
+    {
+        currentActualLocation = new Vector2(latitude, longitude);
+        
+        // Create enhanced marker data
+        currentActualMarker = new MarkerData
+        {
+            id = "actual-location",
+            lng = longitude,
+            lat = latitude,
+            zLevel = zLevel,
+            zLevelName = GetZLevelName(zLevel),
+            timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
+            options = new MarkerOptions
+            {
+                imgUrl = "images/fat.svg",
+                imgScale = 1.7f,
+                color = "#9D9DDC",
+                size = 60,
+                innerCircle = false,
+                shape = "marker",
+                zLevel = zLevel
+            },
+            markerType = "actual"
+        };
+        
+        LogDebug($"Actual location set to: {latitude}, {longitude}, Level: {GetZLevelName(zLevel)}");
+    }
+
+    /// <summary>
     /// Resets the current round data
     /// </summary>
     public void ResetRound()
     {
         currentActualLocation = null;
         currentGuessLocation = null;
+        currentActualMarker = null;
+        currentGuessMarker = null;
         LogDebug("Round reset");
     }
 
@@ -139,17 +186,51 @@ public class MapInteractionManager : MonoBehaviour
     #region JavaScript Communication
 
     /// <summary>
-    /// Called from JavaScript when map is clicked
+    /// Called from JavaScript when map is clicked (enhanced version with z-level)
     /// </summary>
-    /// <param name="jsonData">JSON string containing latitude, longitude, and timestamp</param>
+    /// <param name="jsonData">JSON string containing enhanced click data</param>
     public void OnMapClick(string jsonData)
     {
         try
         {
-            var clickData = JsonUtility.FromJson<MapClickData>(jsonData);
-            currentGuessLocation = new Vector2(clickData.latitude, clickData.longitude);
-            
-            LogDebug($"Map clicked at: {clickData.latitude}, {clickData.longitude}");
+            // Try to parse as enhanced data first
+            var enhancedData = JsonUtility.FromJson<EnhancedMapClickData>(jsonData);
+            if (enhancedData != null && !string.IsNullOrEmpty(enhancedData.zLevelName))
+            {
+                // Enhanced data with z-level
+                currentGuessLocation = new Vector2(enhancedData.latitude, enhancedData.longitude);
+                
+                // Create enhanced marker data
+                currentGuessMarker = new MarkerData
+                {
+                    id = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
+                    lng = enhancedData.longitude,
+                    lat = enhancedData.latitude,
+                    zLevel = enhancedData.zLevel,
+                    zLevelName = enhancedData.zLevelName,
+                    timestamp = enhancedData.timestamp.ToString(),
+                    options = new MarkerOptions
+                    {
+                imgUrl = "images/handthing.svg",
+                imgScale = 1.7f,
+                color = "white",
+                        size = 60,
+                        innerCircle = false,
+                        shape = "marker",
+                        zLevel = enhancedData.zLevel
+                    },
+                    markerType = "player"
+                };
+                
+                LogDebug($"Map clicked at: {enhancedData.latitude}, {enhancedData.longitude}, Level: {enhancedData.zLevelName}");
+            }
+            else
+            {
+                // Fallback to legacy data
+                var clickData = JsonUtility.FromJson<MapClickData>(jsonData);
+                currentGuessLocation = new Vector2(clickData.latitude, clickData.longitude);
+                LogDebug($"Map clicked at: {clickData.latitude}, {clickData.longitude} (legacy data)");
+            }
             
             // Trigger pin placed event
             OnPinPlaced?.Invoke();
@@ -168,10 +249,73 @@ public class MapInteractionManager : MonoBehaviour
     {
         try
         {
-            var guessData = JsonUtility.FromJson<MapClickData>(jsonData);
-            currentGuessLocation = new Vector2(guessData.latitude, guessData.longitude);
+            // Try to parse as enhanced data first
+            var enhancedData = JsonUtility.FromJson<EnhancedMapClickData>(jsonData);
+            if (enhancedData != null && !string.IsNullOrEmpty(enhancedData.zLevelName))
+            {
+                // Enhanced data with z-level
+                currentGuessLocation = new Vector2(enhancedData.latitude, enhancedData.longitude);
+                
+                // Create enhanced marker data for guess
+                currentGuessMarker = new MarkerData
+                {
+                    id = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
+                    lng = enhancedData.longitude,
+                    lat = enhancedData.latitude,
+                    zLevel = enhancedData.zLevel,
+                    zLevelName = enhancedData.zLevelName,
+                    timestamp = enhancedData.timestamp.ToString(),
+                    options = new MarkerOptions
+                    {
+                imgUrl = "images/handthing.svg",
+                imgScale = 1.7f,
+                color = "white",
+                        size = 60,
+                        innerCircle = false,
+                        shape = "marker",
+                        zLevel = enhancedData.zLevel
+                    },
+                    markerType = "player"
+                };
+                
+                LogDebug($"Guess submitted at: {enhancedData.latitude}, {enhancedData.longitude}, Level: {enhancedData.zLevelName}");
+            }
+            else
+            {
+                // Fallback to legacy data
+                var guessData = JsonUtility.FromJson<MapClickData>(jsonData);
+                currentGuessLocation = new Vector2(guessData.latitude, guessData.longitude);
+                
+                // Create basic marker data for legacy guess
+                currentGuessMarker = new MarkerData
+                {
+                    id = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
+                    lng = guessData.longitude,
+                    lat = guessData.latitude,
+                    zLevel = currentZLevel, // Use current z-level
+                    zLevelName = GetZLevelName(currentZLevel),
+                    timestamp = guessData.timestamp.ToString(),
+                    options = new MarkerOptions
+                    {
+                        imgUrl = "images/handthing.svg",
+                        imgScale = 1.7f,
+                        color = "white",
+                        size = 60,
+                        innerCircle = false,
+                        shape = "marker",
+                        zLevel = currentZLevel
+                    },
+                    markerType = "player"
+                };
+                
+                LogDebug($"Guess submitted at: {guessData.latitude}, {guessData.longitude} (legacy data)");
+            }
             
-            LogDebug($"Guess submitted at: {guessData.latitude}, {guessData.longitude}");
+            // Trigger enhanced guess submitted event
+            if (currentGuessMarker != null)
+            {
+                OnGuessSubmitted?.Invoke(currentGuessMarker);
+            }
             
             // Calculate score if we have both locations
             if (currentActualLocation.HasValue && currentGuessLocation.HasValue)
@@ -255,7 +399,7 @@ public class MapInteractionManager : MonoBehaviour
     public void UpdateScoreDisplay(int score, int round)
     {
         #if UNITY_WEBGL && !UNITY_EDITOR
-        Application.ExternalCall("updateScoreFromUnity", score.ToString(), round.ToString());
+        Application.ExternalEval($"updateScoreFromUnity({score}, {round})");
         #else
         LogDebug($"Score would be updated: {score}, Round: {round}");
         #endif
@@ -268,7 +412,7 @@ public class MapInteractionManager : MonoBehaviour
     public void ShowLoading(bool show)
     {
         #if UNITY_WEBGL && !UNITY_EDITOR
-        Application.ExternalCall("showLoading", show.ToString().ToLower());
+        Application.ExternalEval($"showLoading({show.ToString().ToLower()})");
         #else
         LogDebug($"Loading would be {(show ? "shown" : "hidden")}");
         #endif
@@ -287,20 +431,12 @@ public class MapInteractionManager : MonoBehaviour
         
         // Add actual location marker
         #if UNITY_WEBGL && !UNITY_EDITOR
-        Application.ExternalCall("addMarkerFromUnity", 
-            currentActualLocation.Value.x.ToString(), 
-            currentActualLocation.Value.y.ToString(), 
-            "Actual Location", 
-            "actual");
+        Application.ExternalEval($"addMarkerFromUnity({currentActualLocation.Value.x}, {currentActualLocation.Value.y}, 'Actual Location', 'actual')");
         #endif
         
         // Add guess location marker (if not already added)
         #if UNITY_WEBGL && !UNITY_EDITOR
-        Application.ExternalCall("addMarkerFromUnity", 
-            currentGuessLocation.Value.x.ToString(), 
-            currentGuessLocation.Value.y.ToString(), 
-            "Your Guess", 
-            "guess");
+        Application.ExternalEval($"addMarkerFromUnity({currentGuessLocation.Value.x}, {currentGuessLocation.Value.y}, 'Your Guess', 'guess')");
         #endif
         
         LogDebug("Both locations displayed on map");
@@ -331,9 +467,146 @@ public class MapInteractionManager : MonoBehaviour
 
     #endregion
 
+    #region Z-Level Management
+
+    /// <summary>
+    /// Converts z-level number to readable name
+    /// </summary>
+    /// <param name="zLevel">Z-level number</param>
+    /// <returns>Readable level name</returns>
+    private string GetZLevelName(int zLevel)
+    {
+        if (zLevel == -4) return "P4 (Parking Level 4)";
+        if (zLevel == -3) return "P3 (Parking Level 3)";
+        if (zLevel == -2) return "P2 (Parking Level 2)";
+        if (zLevel == -1) return "P1 (Parking Level 1)";
+        if (zLevel == 0) return "LG (Lower Ground)";
+        if (zLevel == 1) return "G (Ground)";
+        if (zLevel == 2) return "1 (First Floor)";
+        if (zLevel == 3) return "2 (Second Floor)";
+        if (zLevel == 4) return "3 (Third Floor)";
+        if (zLevel == 5) return "4 (Fourth Floor)";
+        if (zLevel == 6) return "5 (Fifth Floor)";
+        if (zLevel == 7) return "6 (Sixth Floor)";
+        if (zLevel == 8) return "7 (Seventh Floor)";
+        if (zLevel == 9) return "8 (Eighth Floor)";
+        if (zLevel == 10) return "9 (Ninth Floor)";
+        if (zLevel == 11) return "10 (Tenth Floor)";
+        if (zLevel == 12) return "11 (Eleventh Floor)";
+        if (zLevel < -4) return $"B{Math.Abs(zLevel)} (Basement {Math.Abs(zLevel)})";
+        return $"{zLevel} (Level {zLevel})";
+    }
+
+    /// <summary>
+    /// Validates if a z-level is within allowed range
+    /// </summary>
+    /// <param name="zLevel">Z-level to validate</param>
+    /// <returns>True if valid, false otherwise</returns>
+    public bool IsValidZLevel(int zLevel)
+    {
+        return zLevel >= minZLevel && zLevel <= maxZLevel;
+    }
+
+    /// <summary>
+    /// Sets the current z-level
+    /// </summary>
+    /// <param name="zLevel">New z-level</param>
+    public void SetZLevel(int zLevel)
+    {
+        if (IsValidZLevel(zLevel))
+        {
+            currentZLevel = zLevel;
+            OnZLevelChanged?.Invoke(zLevel);
+            LogDebug($"Z-level changed to: {GetZLevelName(zLevel)}");
+        }
+        else
+        {
+            LogWarning($"Invalid z-level: {zLevel}. Must be between {minZLevel} and {maxZLevel}");
+        }
+    }
+
+    /// <summary>
+    /// Gets the current z-level
+    /// </summary>
+    /// <returns>Current z-level</returns>
+    public int GetCurrentZLevel()
+    {
+        return currentZLevel;
+    }
+
+    /// <summary>
+    /// Creates a MarkerData from Vector2 coordinates (for backward compatibility)
+    /// </summary>
+    /// <param name="coordinates">Latitude and longitude coordinates</param>
+    /// <param name="markerType">Type of marker ("player" or "actual")</param>
+    /// <returns>MarkerData with current z-level</returns>
+    public MarkerData CreateMarkerDataFromVector2(Vector2 coordinates, string markerType = "player")
+    {
+        return new MarkerData
+        {
+            id = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
+            lng = coordinates.y, // longitude
+            lat = coordinates.x, // latitude
+            zLevel = currentZLevel,
+            zLevelName = GetZLevelName(currentZLevel),
+            timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
+            options = new MarkerOptions
+            {
+                imgUrl = markerType == "actual" ? "images/fat.svg" : "images/handthing.svg",
+                imgScale = 1.7f,
+                color = markerType == "actual" ? "#9D9DDC" : "white",
+                size = 60,
+                innerCircle = false,
+                shape = "marker",
+                zLevel = currentZLevel
+            },
+            markerType = markerType
+        };
+    }
+
+    #endregion
+
     #region Data Structures
 
-    // Data structure for JSON parsing
+    // Enhanced data structure for JSON parsing with z-level support
+    [System.Serializable]
+    public class EnhancedMapClickData
+    {
+        public float latitude;
+        public float longitude;
+        public int zLevel;
+        public string zLevelName;
+        public long timestamp;
+    }
+
+    // Custom marker options for visual customization
+    [System.Serializable]
+    public class MarkerOptions
+    {
+        public string imgUrl = "";
+        public float imgScale = 1.7f;
+        public string color = "white";
+        public int size = 60;
+        public bool innerCircle = false;
+        public string shape = "marker";
+        public int zLevel = 0;
+    }
+
+    // Complete marker data structure
+    [System.Serializable]
+    public class MarkerData
+    {
+        public string id;
+        public float lng;
+        public float lat;
+        public int zLevel;
+        public string zLevelName;
+        public string timestamp;
+        public MarkerOptions options;
+        public string markerType; // "player" or "actual"
+    }
+
+    // Legacy data structure for backward compatibility
     [System.Serializable]
     private class MapClickData
     {
