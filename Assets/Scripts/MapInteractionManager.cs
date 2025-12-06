@@ -124,25 +124,17 @@ public class MapInteractionManager : MonoBehaviour
     #region Location Management
 
     /// <summary>
-    /// Sets the actual location for the current round
-    /// </summary>
-    /// <param name="latitude">Latitude of actual location</param>
-    /// <param name="longitude">Longitude of actual location</param>
-    public void SetActualLocation(float latitude, float longitude)
-    {
-        currentActualLocation = new Vector2(latitude, longitude);
-        LogDebug($"Actual location set to: {latitude}, {longitude}");
-    }
-
-    /// <summary>
-    /// Sets the actual location with z-level support
+    /// Sets the actual location for the current round with z-level support
     /// </summary>
     /// <param name="latitude">Latitude of actual location</param>
     /// <param name="longitude">Longitude of actual location</param>
     /// <param name="zLevel">Z-level of actual location</param>
-    public void SetActualLocation(float latitude, float longitude, int zLevel)
+    public void SetActualLocation(float latitude, float longitude, float zLevel)
     {
         currentActualLocation = new Vector2(latitude, longitude);
+        
+        // Convert float zLevel to int for marker data
+        int zLevelInt = Mathf.RoundToInt(zLevel);
         
         // Create enhanced marker data
         currentActualMarker = new MarkerData
@@ -150,8 +142,8 @@ public class MapInteractionManager : MonoBehaviour
             id = "actual-location",
             lng = longitude,
             lat = latitude,
-            zLevel = zLevel,
-            zLevelName = GetZLevelName(zLevel),
+            zLevel = zLevelInt,
+            zLevelName = GetZLevelName(zLevelInt),
             timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
             options = new MarkerOptions
             {
@@ -161,12 +153,12 @@ public class MapInteractionManager : MonoBehaviour
                 size = 60,
                 innerCircle = false,
                 shape = "marker",
-                zLevel = zLevel
+                zLevel = zLevelInt
             },
             markerType = "actual"
         };
         
-        LogDebug($"Actual location set to: {latitude}, {longitude}, Level: {GetZLevelName(zLevel)}");
+        LogDebug($"Actual location set to: {latitude}, {longitude}, Level: {GetZLevelName(zLevelInt)}");
     }
 
     /// <summary>
@@ -229,10 +221,33 @@ public class MapInteractionManager : MonoBehaviour
                 // Fallback to legacy data
                 var clickData = JsonUtility.FromJson<MapClickData>(jsonData);
                 currentGuessLocation = new Vector2(clickData.latitude, clickData.longitude);
+                
+                // Create basic marker data for legacy click
+                currentGuessMarker = new MarkerData
+                {
+                    id = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
+                    lng = clickData.longitude,
+                    lat = clickData.latitude,
+                    zLevel = currentZLevel, // Use current z-level
+                    zLevelName = GetZLevelName(currentZLevel),
+                    timestamp = clickData.timestamp.ToString(),
+                    options = new MarkerOptions
+                    {
+                        imgUrl = "images/handthing.svg",
+                        imgScale = 1.7f,
+                        color = "white",
+                        size = 60,
+                        innerCircle = false,
+                        shape = "marker",
+                        zLevel = currentZLevel
+                    },
+                    markerType = "player"
+                };
+                
                 LogDebug($"Map clicked at: {clickData.latitude}, {clickData.longitude} (legacy data)");
             }
             
-            // Trigger pin placed event
+            // Trigger pin placed event to enable the guess button
             OnPinPlaced?.Invoke();
         }
         catch (Exception e)

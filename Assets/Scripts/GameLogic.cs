@@ -230,7 +230,7 @@ public class GameLogic : MonoBehaviour
                 // Set actual location in map manager
                 if (mapManager != null)
                 {
-                    mapManager.SetActualLocation(location.x, location.y);
+                    mapManager.SetActualLocation(location.x, location.y, location.z);
                 }
                 LogDebug($"Round {currentRound} started - Location: {location.Name}");
             }
