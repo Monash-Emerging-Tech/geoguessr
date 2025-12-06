@@ -63,8 +63,6 @@
 
       map.on("click", function (e) {
         createSingleMarker(map, e.lngLat, map.zLevel);
-        // Notify Unity about the map click
-        notifyMapClick(map, e.lngLat, map.zLevel);
       });
     } catch (error) {
       console.error(
@@ -87,8 +85,12 @@
     }
 
     map._clickMarker = new Mazemap.MazeMarker({
-      color: "MazeBlue",
-      size: 36,
+      imgUrl: "assets/img/markers/handthing.svg",
+      imgScale: 1.7,
+      color: "white",
+      size: 60,
+      innerCircle: false,
+      shape: "marker",
       zLevel: zLevel,
     })
       .setLngLat(lngLat)
@@ -126,38 +128,6 @@
     if (zLevel < -4)
       return "B" + Math.abs(zLevel) + " (Basement " + Math.abs(zLevel) + ")";
     return zLevel + " (Level " + zLevel + ")";
-  }
-
-  // --------------------------------------------------------------- MAP CLICK NOTIFICATION
-  function notifyMapClick(map, lngLat, zLevel) {
-    try {
-      // Build JSON payload matching EnhancedMapClickData structure
-      var payload = {
-        latitude: lngLat.lat,
-        longitude: lngLat.lng,
-        zLevel: zLevel,
-        zLevelName: getZLevelName(zLevel),
-        timestamp: Date.now(),
-      };
-
-      // Send to Unity
-      var jsonString = JSON.stringify(payload);
-
-      // Try to find Unity instance (could be unityInstance or gameInstance depending on Unity version)
-      var unityInstance = window.unityInstance || window.gameInstance;
-      if (unityInstance && typeof unityInstance.SendMessage === "function") {
-        unityInstance.SendMessage(
-          "MapInteractionManager", // GameObject name
-          "OnMapClick", // Method name
-          jsonString // JSON string
-        );
-        console.log("Map click notified to Unity:", payload);
-      } else {
-        console.warn("Unity instance not found. Cannot notify map click.");
-      }
-    } catch (error) {
-      console.error("Error notifying map click:", error);
-    }
   }
 
   // --------------------------------------------------------------- SUBMIT GUESS

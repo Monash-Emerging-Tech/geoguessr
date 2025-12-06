@@ -93,7 +93,7 @@ public class GuessButtonManager : MonoBehaviour
         }
         
         // Subscribe to map events
-        MapInteractionManager.OnPinPlaced += OnMapPinPlaced;
+        // Note: OnPinPlaced removed - button state now managed by HTML button
         MapInteractionManager.OnGuessSubmitted += OnMapGuessSubmitted;
         
         // Initialize state to waiting
@@ -126,7 +126,7 @@ public class GuessButtonManager : MonoBehaviour
         }
         
         // Unsubscribe from map events
-        MapInteractionManager.OnPinPlaced -= OnMapPinPlaced;
+        // Note: OnPinPlaced removed - button state now managed by HTML button
         MapInteractionManager.OnGuessSubmitted -= OnMapGuessSubmitted;
     }
     
@@ -404,14 +404,6 @@ public class GuessButtonManager : MonoBehaviour
     {
         SetState(GuessButtonState.Results);
         LogDebug("Round ended - Button shows results state");
-    }
-    
-    /// <summary>
-    /// Called when a pin is placed on the map (from MapInteractionManager)
-    /// </summary>
-    private void OnMapPinPlaced()
-    {
-        OnPinPlaced();
     }
     
     /// <summary>

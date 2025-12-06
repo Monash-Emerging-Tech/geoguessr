@@ -42,7 +42,6 @@ public class MapInteractionManager : MonoBehaviour
     public static event Action<int> OnScoreCalculated;
     public static event Action OnMapOpened;
     public static event Action OnMapClosed;
-    public static event Action OnPinPlaced;
     public static event Action<int> OnZLevelChanged; // New z-level event
     
     // Singleton pattern
@@ -177,85 +176,6 @@ public class MapInteractionManager : MonoBehaviour
 
     #region JavaScript Communication
 
-    /// <summary>
-    /// Called from JavaScript when map is clicked (enhanced version with z-level)
-    /// </summary>
-    /// <param name="jsonData">JSON string containing enhanced click data</param>
-    public void OnMapClick(string jsonData)
-    {
-        try
-        {
-            // Try to parse as enhanced data first
-            var enhancedData = JsonUtility.FromJson<EnhancedMapClickData>(jsonData);
-            if (enhancedData != null && !string.IsNullOrEmpty(enhancedData.zLevelName))
-            {
-                // Enhanced data with z-level
-                currentGuessLocation = new Vector2(enhancedData.latitude, enhancedData.longitude);
-                
-                // Create enhanced marker data
-                currentGuessMarker = new MarkerData
-                {
-                    id = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
-                    lng = enhancedData.longitude,
-                    lat = enhancedData.latitude,
-                    zLevel = enhancedData.zLevel,
-                    zLevelName = enhancedData.zLevelName,
-                    timestamp = enhancedData.timestamp.ToString(),
-                    options = new MarkerOptions
-                    {
-                imgUrl = "images/handthing.svg",
-                imgScale = 1.7f,
-                color = "white",
-                        size = 60,
-                        innerCircle = false,
-                        shape = "marker",
-                        zLevel = enhancedData.zLevel
-                    },
-                    markerType = "player"
-                };
-                
-                LogDebug($"Map clicked at: {enhancedData.latitude}, {enhancedData.longitude}, Level: {enhancedData.zLevelName}");
-            }
-            else
-            {
-                // Fallback to legacy data
-                var clickData = JsonUtility.FromJson<MapClickData>(jsonData);
-                currentGuessLocation = new Vector2(clickData.latitude, clickData.longitude);
-                
-                // Create basic marker data for legacy click
-                currentGuessMarker = new MarkerData
-                {
-                    id = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
-                    lng = clickData.longitude,
-                    lat = clickData.latitude,
-                    zLevel = currentZLevel, // Use current z-level
-                    zLevelName = GetZLevelName(currentZLevel),
-                    timestamp = clickData.timestamp.ToString(),
-                    options = new MarkerOptions
-                    {
-                        imgUrl = "images/handthing.svg",
-                        imgScale = 1.7f,
-                        color = "white",
-                        size = 60,
-                        innerCircle = false,
-                        shape = "marker",
-                        zLevel = currentZLevel
-                    },
-                    markerType = "player"
-                };
-                
-                LogDebug($"Map clicked at: {clickData.latitude}, {clickData.longitude} (legacy data)");
-            }
-            
-            // Trigger pin placed event to enable the guess button
-            OnPinPlaced?.Invoke();
-        }
-        catch (Exception e)
-        {
-            LogError($"Error parsing map click data: {e.Message}");
-        }
-    }
-    
     /// <summary>
     /// Called from JavaScript when guess is submitted
     /// </summary>
