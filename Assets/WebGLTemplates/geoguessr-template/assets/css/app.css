@@ -1,3 +1,22 @@
+/* Font Face Definitions */
+@font-face {
+  font-family: 'OffBit101';
+  src: url('../../assets/fonts/WOFF2/OffBit-101.woff2') format('woff2'),
+       url('../../assets/fonts/WOFF/OffBit-101.woff') format('woff'),
+       url('../../assets/fonts/TTF/OffBit-101.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'OffBit101Bold';
+  src: url('../../assets/fonts/WOFF2/OffBit-101Bold.woff2') format('woff2'),
+       url('../../assets/fonts/WOFF/OffBit-101Bold.woff') format('woff'),
+       url('../../assets/fonts/TTF/OffBit-101Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
 /* Layout helpers */
 html, body { height: 100%; }
 
@@ -76,7 +95,8 @@ html, body { height: 100%; }
   margin-top: 8px;
   border: 0;
   border-radius: 4px;
-  font-size: 16px;
+  font-family: 'OffBit101Bold';
+  font-size: 24px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -86,22 +106,22 @@ html, body { height: 100%; }
 
 /* Button states */
 .mm-guess-btn:disabled {
-  background-color: rgba(220, 53, 69, 0.5); /* Red with opacity */
-  color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(211, 31, 64, 0.5); /* Red with reduced opacity */
+  color: #FFFFFF;
   cursor: not-allowed;
 }
 
 .mm-guess-btn:not(:disabled) {
-  background-color: #007bff; /* Blue */
+  background-color: #1E04A9; /* Blue */
   color: white;
 }
 
 .mm-guess-btn:not(:disabled):hover {
-  background-color: #0056b3; /* Darker blue on hover */
+  background-color: #6D6CCB; /* Darker blue on hover */
 }
 
 .mm-guess-btn:not(:disabled):active {
-  background-color: #004085; /* Even darker on click */
+  background-color: rgb(3, 43, 85); /* Even darker on click */
 }
 
 

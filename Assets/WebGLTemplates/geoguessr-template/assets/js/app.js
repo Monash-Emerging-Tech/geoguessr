@@ -85,13 +85,13 @@
     }
 
     map._clickMarker = new Mazemap.MazeMarker({
-      imgUrl: "assets/img/markers/handthing.svg",
+      color: "MazeBlue",
+      size: 36,
+      zLevel: zLevel,
+      imgUrl: "../assets/img/markers/handthing.png",
       imgScale: 1.7,
       color: "white",
-      size: 60,
       innerCircle: false,
-      shape: "marker",
-      zLevel: zLevel,
     })
       .setLngLat(lngLat)
       .addTo(map);
@@ -210,10 +210,10 @@
 
     if (hasMarker) {
       button.disabled = false;
-      button.textContent = "Guess";
+      button.textContent = "GUESS";
     } else {
       button.disabled = true;
-      button.textContent = "Place your pin on the map";
+      button.textContent = "PLACE YOUR PIN ON THE MAP";
     }
   }
 
