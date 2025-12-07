@@ -174,7 +174,6 @@
         longitude: lngLat.lng,
         zLevel: zLevel,
         zLevelName: getZLevelName(zLevel),
-        timestamp: Date.now(),
       };
 
       // Send to Unity
