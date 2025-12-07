@@ -353,25 +353,32 @@ public class MapInteractionManager : MonoBehaviour
         #endif
     }
 
-    #endregion
-
-    #region Map Markers
-
     /// <summary>
-    /// Shows both actual and guess locations on the map
+    /// Sends actual location data to JavaScript with x, y, z coordinates
     /// </summary>
-    private void ShowBothLocations()
+    /// <param name="latitude">Latitude (x coordinate)</param>
+    /// <param name="longitude">Longitude (y coordinate)</param>
+    /// <param name="zLevel">Z-level (z coordinate)</param>
+    public void SendActualLocationToJavaScript(float latitude, float longitude, int zLevel)
     {
-        if (!currentActualLocation.HasValue || !currentGuessLocation.HasValue) return;
+        // Create payload data structure (same format as receiving)
+        var locationPayload = new LocationPayload
+        {
+            latitude = latitude,
+            longitude = longitude,
+            zLevel = zLevel,
+            zLevelName = GetZLevelName(zLevel)
+        };
         
-        // Add actual location marker
-        #if UNITY_WEBGL && !UNITY_EDITOR
-        Application.ExternalEval($"addMarkerFromUnity({currentActualLocation.Value.x}, {currentActualLocation.Value.y}, 'Actual Location', 'actual')");
-        #endif
+        // Serialize to JSON
+        string jsonPayload = JsonUtility.ToJson(locationPayload);
         
-        // Add guess location marker (if not already added)
         #if UNITY_WEBGL && !UNITY_EDITOR
-        Application.ExternalEval($"addMarkerFromUnity({currentGuessLocation.Value.x}, {currentGuessLocation.Value.y}, 'Your Guess', 'guess')");
+        // Escape single quotes and backslashes for JavaScript string literal
+        string escapedJson = jsonPayload.Replace("\\", "\\\\").Replace("'", "\\'");
+        Application.ExternalEval($"addActualLocationFromUnity('{escapedJson}')");
+        #else
+        LogDebug($"Actual location would be sent to JavaScript: ({latitude}, {longitude}), Level: {GetZLevelName(zLevel)}");
         #endif
         
         LogDebug("Both locations displayed on map");
@@ -548,6 +555,16 @@ public class MapInteractionManager : MonoBehaviour
         public float latitude;
         public float longitude;
         public long timestamp;
+    }
+
+    // Data structure for sending/receiving location payload data (same format for both directions)
+    [System.Serializable]
+    public class LocationPayload
+    {
+        public float latitude;
+        public float longitude;
+        public int zLevel;
+        public string zLevelName;
     }
 
     #endregion

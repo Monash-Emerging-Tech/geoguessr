@@ -203,6 +203,71 @@
   // Expose submitGuess to global scope so it can be called from Unity or buttons
   window.submitGuess = submitGuess;
 
+  // --------------------------------------------------------------- UNITY ACTUAL LOCATION INTEGRATION
+  /**
+   * Receives actual location data from Unity and adds it to the map
+   * @param {string} jsonPayload - JSON string containing actual location data with x, y, z coordinates
+   * Format: {"latitude": float, "longitude": float, "zLevel": int, "zLevelName": string}
+   */
+  function addActualLocationFromUnity(jsonPayload) {
+    try {
+      var map = window.mazeMapInstance;
+      if (!map) {
+        console.error(
+          "Map instance not available for addActualLocationFromUnity"
+        );
+        return;
+      }
+
+      // Parse JSON payload
+      var locationData = JSON.parse(jsonPayload);
+      var lat = locationData.latitude;
+      var lng = locationData.longitude;
+      var zLevel = locationData.zLevel || 0;
+
+      // Remove any existing actual location marker
+      if (map._actualLocationMarker) {
+        map._actualLocationMarker.remove();
+      }
+
+      // Create actual location marker (purple/blue)
+      var markerOptions = {
+        zLevel: zLevel,
+        innerCircle: false,
+        color: "#9D9DDC",
+        imgUrl: "../assets/img/markers/fat.png",
+        imgScale: 1.7,
+        size: 60,
+      };
+
+      // Create and add marker to map
+      var marker = new Mazemap.MazeMarker(markerOptions)
+        .setLngLat({ lng: lng, lat: lat })
+        .addTo(map);
+
+      // Store marker reference
+      map._actualLocationMarker = marker;
+
+      console.log("Actual location added from Unity:", {
+        coordinates: { lat: lat, lng: lng },
+        zLevel: zLevel,
+        zLevelName: locationData.zLevelName,
+      });
+
+      // Optionally center map on marker when placed
+      map.flyTo({
+        center: [lng, lat],
+        zoom: map.getZoom(),
+      });
+    } catch (error) {
+      console.error("Error adding actual location from Unity:", error);
+      console.error("Payload received:", jsonPayload);
+    }
+  }
+
+  // Expose to global scope for Unity to call
+  window.addActualLocationFromUnity = addActualLocationFromUnity;
+
   // --------------------------------------------------------------- GUESS BUTTON MANAGEMENT
   function updateGuessButtonState(hasMarker) {
     var button = document.getElementById("guess-button");
