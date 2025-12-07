@@ -65,12 +65,8 @@ public class GameLogic : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
             
-            // Initialize location manager
-            if (locationManager != null)
-            {
-                locationManager.Start();
-                allMapPacks = locationManager.GetMapPackDict();
-            }
+            // Don't initialize location manager here - let Unity call Start() naturally
+            // This ensures proper initialization order
         }
         else
         {
@@ -90,13 +86,74 @@ public class GameLogic : MonoBehaviour
             MapInteractionManager.OnMapClosed += OnMapClosed;
         }
         
-        // Validate MapPack name at startup
+        // Try to find LocationManager if not assigned
+        if (locationManager == null)
+        {
+            LogWarning("LocationManager not assigned in Inspector. Attempting to find it in scene...");
+            locationManager = FindObjectOfType<LocationManager>();
+            if (locationManager == null)
+            {
+                LogError("LocationManager not found in scene! Please ensure LocationManager component exists and is enabled.");
+                return;
+            }
+            else
+            {
+                LogDebug("LocationManager found in scene.");
+            }
+        }
+        
+        // Ensure LocationManager is initialized
         if (locationManager != null)
         {
-            if (!ResolveMapPackId())
+            // Force initialization if not already done
+            if (!locationManager.IsInitialized())
             {
-                LogError("Invalid MapPack name in Inspector - please check the MapPack Name field");
+                LogWarning("LocationManager not yet initialized. Attempting to initialize...");
+                // Try to call Start manually if it hasn't been called
+                locationManager.Start();
+                
+                // Check again after manual initialization
+                if (!locationManager.IsInitialized())
+                {
+                    LogWarning("LocationManager still not initialized. Will retry in next frame.");
+                    // Use coroutine to wait for LocationManager to initialize
+                    StartCoroutine(WaitForLocationManagerAndResolveMapPack());
+                }
+                else
+                {
+                    // Get map pack dictionary after LocationManager has initialized
+                    allMapPacks = locationManager.GetMapPackDict();
+                    
+                    // Validate MapPack name at startup
+                    if (!ResolveMapPackId())
+                    {
+                        LogError($"Invalid MapPack name '{mapPackName}' in Inspector - please check the MapPack Name field");
+                    }
+                    else
+                    {
+                        LogDebug($"GameLogic: MapPack resolved successfully - '{mapPackName}' -> ID: {resolvedMapPackId}");
+                    }
+                }
             }
+            else
+            {
+                // Get map pack dictionary after LocationManager has initialized
+                allMapPacks = locationManager.GetMapPackDict();
+                
+                // Validate MapPack name at startup
+                if (!ResolveMapPackId())
+                {
+                    LogError($"Invalid MapPack name '{mapPackName}' in Inspector - please check the MapPack Name field");
+                }
+                else
+                {
+                    LogDebug($"GameLogic: MapPack resolved successfully - '{mapPackName}' -> ID: {resolvedMapPackId}");
+                }
+            }
+        }
+        else
+        {
+            LogError("LocationManager not assigned and could not be found in scene!");
         }
         
         // Check current scene and hide map if we're in MenuScene
@@ -166,15 +223,30 @@ public class GameLogic : MonoBehaviour
         // Show map and initialize game when GameScene is loaded
         else if (scene.name == "GameScene")
         {
+            LogDebug("GameScene loaded - Initializing game...");
+            
+            // Initialize game state
+            isGameActive = true;
             inGame = true;
-            currentRound = 0;
+            currentRound = 1;  // Start at round 1, not 0
             currentScore = 0;
             isGuessing = true;
+            isRoundActive = false;  // Ensure round is not active so nextRound can proceed
             
             // Show map for GameScene
             if (mapManager != null)
             {
                 mapManager.ShowMap();
+            }
+            
+            // Ensure map pack is resolved before starting round
+            if (locationManager != null && resolvedMapPackId == -1)
+            {
+                if (!ResolveMapPackId())
+                {
+                    LogError("Failed to resolve MapPack in OnSceneLoaded - cannot start game");
+                    return;
+                }
             }
             
             // Start the first round (which will also show the map)
@@ -256,6 +328,9 @@ public class GameLogic : MonoBehaviour
             }
             
             locationManager.SetCurrentMapPack(resolvedMapPackId);
+            var currentMapPack = locationManager.GetCurrentMapPack();
+            LogDebug($"MapPack set to: {currentMapPack.Name} (ID: {resolvedMapPackId})");
+            
             locationManager.SelectRandomLocation();
             var location = locationManager.GetCurrentLocation();
             
@@ -264,9 +339,9 @@ public class GameLogic : MonoBehaviour
                 // Set actual location in map manager
                 if (mapManager != null)
                 {
-                    mapManager.SetActualLocation(location.x, location.y, location.z);
+                    mapManager.SetActualLocation(location.lat, location.lng, location.zLevel);
                 }
-                LogDebug($"Round {currentRound} started - Location: {location.Name}");
+                LogDebug($"Round {currentRound} started - Location: {location.Name} | Coordinates: lat={location.lat}, lng={location.lng}, zLevel={location.zLevel}");
             }
         }
         
@@ -381,8 +456,15 @@ public class GameLogic : MonoBehaviour
             }
             
             locationManager.SetCurrentMapPack(resolvedMapPackId);
+            var currentMapPack = locationManager.GetCurrentMapPack();
+            LogDebug($"MapPack set to: {currentMapPack.Name} (ID: {resolvedMapPackId})");
+            
             locationManager.SelectRandomLocation(); // TODO: Make it so the same location can't be selected twice in the same session
-            LogDebug("Map changed for new round");
+            var location = locationManager.GetCurrentLocation();
+            if (!string.IsNullOrEmpty(location.Name))
+            {
+                LogDebug($"Map changed - Location: {location.Name} | Coordinates: lat={location.lat}, lng={location.lng}, zLevel={location.zLevel}");
+            }
         }
         else
         {
@@ -526,14 +608,17 @@ public class GameLogic : MonoBehaviour
             return false;
         }
         
+        LogDebug($"GameLogic: Resolving MapPack name '{mapPackName}' to ID...");
         int id = locationManager.GetMapPackIdByName(mapPackName);
         if (id == -1)
         {
-            LogError($"MapPack '{mapPackName}' not found. Available MapPacks: {string.Join(", ", locationManager.GetAllMapPackNames())}");
+            string[] availableMapPacks = locationManager.GetAllMapPackNames();
+            LogError($"GameLogic: MapPack '{mapPackName}' not found. Available MapPacks: {string.Join(", ", availableMapPacks)}");
             return false;
         }
         
         resolvedMapPackId = id;
+        LogDebug($"GameLogic: MapPack '{mapPackName}' resolved to ID: {id}");
         
         // Fire MapPack changed event (only if this is not the initial startup resolution)
         if (mapPackName != "all" || resolvedMapPackId != 0) // Avoid firing for default startup
@@ -542,6 +627,42 @@ public class GameLogic : MonoBehaviour
         }
         
         return true;
+    }
+
+    /// <summary>
+    /// Coroutine to wait for LocationManager to initialize before resolving map pack
+    /// </summary>
+    private IEnumerator WaitForLocationManagerAndResolveMapPack()
+    {
+        int maxWaitFrames = 60; // Wait up to 1 second at 60fps
+        int frameCount = 0;
+        
+        while (!locationManager.IsInitialized() && frameCount < maxWaitFrames)
+        {
+            yield return null; // Wait one frame
+            frameCount++;
+        }
+        
+        if (locationManager.IsInitialized())
+        {
+            LogDebug("LocationManager initialized - resolving map pack...");
+            // Get map pack dictionary after LocationManager has initialized
+            allMapPacks = locationManager.GetMapPackDict();
+            
+            // Validate MapPack name at startup
+            if (!ResolveMapPackId())
+            {
+                LogError($"Invalid MapPack name '{mapPackName}' in Inspector - please check the MapPack Name field");
+            }
+            else
+            {
+                LogDebug($"GameLogic: MapPack resolved successfully - '{mapPackName}' -> ID: {resolvedMapPackId}");
+            }
+        }
+        else
+        {
+            LogError("LocationManager failed to initialize after waiting. Check LocationManager component.");
+        }
     }
 
     #endregion
