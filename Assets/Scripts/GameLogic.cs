@@ -17,7 +17,7 @@ public class GameLogic : MonoBehaviour
     [Header("Game Settings")]
     [SerializeField] private int totalRounds = 5;
     // [SerializeField] private int gameMode = 0; // TODO
-    [SerializeField] private string mapPackName = "all";
+    [SerializeField] private string mapPackName = "Monash 101";
     
     [Header("Map Integration")]
     [SerializeField] private MapInteractionManager mapManager;
@@ -99,8 +99,22 @@ public class GameLogic : MonoBehaviour
             }
         }
         
-        // Initialize game
-        InitializeGame();
+        // Check current scene and hide map if we're in MenuScene
+        Scene currentScene = SceneManager.GetActiveScene();
+        if (currentScene.name == "MenuScene")
+        {
+            if (mapManager != null)
+            {
+                mapManager.HideMap();
+            }
+            LogDebug("Started in MenuScene - Map hidden");
+        }
+        
+        // Initialize game (only if not in MenuScene)
+        if (currentScene.name != "MenuScene")
+        {
+            InitializeGame();
+        }
     }
     
     private void OnDestroy()
@@ -134,20 +148,40 @@ public class GameLogic : MonoBehaviour
     }
 
     /// <summary>
-    /// Called when a scene is loaded - initializes game if it's the GameScene
+    /// Called when a scene is loaded - manages map visibility and game initialization
     /// </summary>
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // If the scenes is the GameScene, we should now change the Map and let the game start
-        if (scene.name == "GameScene") {
+        Debug.Log("Scene loaded: " + scene.name);
+        
+        // Hide map when MenuScene is loaded
+        if (scene.name == "MenuScene")
+        {
+            if (mapManager != null)
+            {
+                mapManager.HideMap();
+            }
+            LogDebug("MenuScene loaded - Map hidden");
+        }
+        // Show map and initialize game when GameScene is loaded
+        else if (scene.name == "GameScene")
+        {
             inGame = true;
             currentRound = 0;
             currentScore = 0;
             isGuessing = true;
+            
+            // Show map for GameScene
+            if (mapManager != null)
+            {
+                mapManager.ShowMap();
+            }
+            
+            // Start the first round (which will also show the map)
             nextRound();
+            
+            LogDebug("GameScene loaded - Map shown, game initialized");
         }
-        
-        Debug.Log("Scene name: " + scene.name);
     }
 
     #endregion
@@ -363,10 +397,10 @@ public class GameLogic : MonoBehaviour
     /// <summary>
     /// Called when a guess is submitted
     /// </summary>
-    /// <param name="guessMarker">The guessed location marker data with z-level support</param>
-    private void OnGuessSubmitted(MapInteractionManager.MarkerData guessMarker)
+    /// <param name="guessLocation">The guessed location data with z-level support</param>
+    private void OnGuessSubmitted(MapInteractionManager.LocationData guessLocation)
     {
-        LogDebug($"Guess submitted at: {guessMarker.lat}, {guessMarker.lng}, Level: {guessMarker.zLevelName}");
+        LogDebug($"Guess submitted at: {guessLocation.lat}, {guessLocation.lng}, Level: {guessLocation.zLevelName}");
         // The score calculation will be handled by OnScoreCalculated
     }
     

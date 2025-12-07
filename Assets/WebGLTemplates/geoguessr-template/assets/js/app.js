@@ -179,20 +179,32 @@
       // Send to Unity
       var jsonString = JSON.stringify(payload);
 
-      // Try to find Unity instance (could be unityInstance or gameInstance depending on Unity version)
-      var unityInstance = window.unityInstance || window.gameInstance;
-      if (unityInstance && typeof unityInstance.SendMessage === "function") {
-        unityInstance.SendMessage(
-          "MapInteractionManager", // GameObject name
-          "SubmitGuess", // Method name
-          jsonString // JSON string
-        );
-        console.log("Guess submitted to Unity:", payload);
+      // Get Unity instance using helper function
+      var unityInstance = getUnityInstance();
 
-        // Disable button after submission (will be re-enabled when new marker is placed)
-        updateGuessButtonState(false);
+      if (unityInstance && typeof unityInstance.SendMessage === "function") {
+        try {
+          unityInstance.SendMessage(
+            "MapInteractionManager", // GameObject name
+            "SubmitGuess", // Method name
+            jsonString // JSON string
+          );
+          console.log("Guess submitted to Unity:", payload);
+
+          // Disable button after submission (will be re-enabled when new marker is placed)
+          updateGuessButtonState(false);
+        } catch (error) {
+          console.error("Error sending message to Unity:", error);
+        }
       } else {
         console.error("Unity instance not found. Cannot submit guess.");
+        console.error("Debug info:", {
+          unityInstance: typeof window.unityInstance,
+          gameInstance: typeof window.gameInstance,
+          canvas: document.querySelector("#unity-canvas")
+            ? "found"
+            : "not found",
+        });
       }
     } catch (error) {
       console.error("Error submitting guess:", error);
@@ -201,6 +213,33 @@
 
   // Expose submitGuess to global scope so it can be called from Unity or buttons
   window.submitGuess = submitGuess;
+
+  // --------------------------------------------------------------- UNITY INSTANCE HELPER
+  /**
+   * Gets the Unity instance, trying multiple methods
+   * @returns {Object|null} Unity instance or null if not found
+   */
+  function getUnityInstance() {
+    // Try multiple methods to find Unity instance
+    if (
+      window.unityInstance &&
+      typeof window.unityInstance.SendMessage === "function"
+    ) {
+      return window.unityInstance;
+    }
+    if (
+      window.gameInstance &&
+      typeof window.gameInstance.SendMessage === "function"
+    ) {
+      return window.gameInstance;
+    }
+    // Try to find it in the canvas element
+    var canvas = document.querySelector("#unity-canvas");
+    if (canvas && canvas._unityInstance) {
+      return canvas._unityInstance;
+    }
+    return null;
+  }
 
   // --------------------------------------------------------------- UNITY ACTUAL LOCATION INTEGRATION
   /**
@@ -266,6 +305,37 @@
 
   // Expose to global scope for Unity to call
   window.addActualLocationFromUnity = addActualLocationFromUnity;
+
+  // --------------------------------------------------------------- UNITY MAP VISIBILITY CONTROL
+  /**
+   * Shows the maze map UI (called from Unity)
+   */
+  function showMapFromUnity() {
+    var mapUI = document.getElementById("maze-map-ui");
+    if (mapUI) {
+      mapUI.style.display = "block";
+      console.log("Map UI shown from Unity");
+    } else {
+      console.error("maze-map-ui element not found");
+    }
+  }
+
+  /**
+   * Hides the maze map UI (called from Unity)
+   */
+  function hideMapFromUnity() {
+    var mapUI = document.getElementById("maze-map-ui");
+    if (mapUI) {
+      mapUI.style.display = "none";
+      console.log("Map UI hidden from Unity");
+    } else {
+      console.error("maze-map-ui element not found");
+    }
+  }
+
+  // Expose to global scope for Unity to call
+  window.showMapFromUnity = showMapFromUnity;
+  window.hideMapFromUnity = hideMapFromUnity;
 
   // --------------------------------------------------------------- GUESS BUTTON MANAGEMENT
   function updateGuessButtonState(hasMarker) {

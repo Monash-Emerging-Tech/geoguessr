@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 
+
 /// <summary>
 /// Manages interactions between Unity and the MazeMap JavaScript API
 /// Handles map clicks, scoring, and marker placement
@@ -64,7 +65,7 @@ public class MapInteractionManager : MonoBehaviour
     {
         if (enableMapOnStart)
         {
-            ShowMap();
+            HideMap();
         }
         
         LogDebug("MapInteractionManager initialized");
@@ -181,12 +182,15 @@ public class MapInteractionManager : MonoBehaviour
             LogDebug($"Guess submitted at: {payload.latitude}, {payload.longitude}, Level: {payload.zLevelName}");
             
             // Trigger guess submitted event
-            OnGuessSubmitted?.Invoke(currentGuessLocation.Value);
+            if (currentGuessLocation != null)
+            {
+                OnGuessSubmitted?.Invoke(currentGuessLocation);
+            }
             
             // Calculate score if we have both locations
-            if (currentActualLocation.HasValue && currentGuessLocation.HasValue)
+            if (currentActualLocation != null && currentGuessLocation != null)
             {
-                int score = CalculateScore(currentActualLocation.Value, currentGuessLocation.Value);
+                int score = CalculateScore(currentActualLocation, currentGuessLocation);
                 OnScoreCalculated?.Invoke(score);
                 
                 // Show actual location on map
@@ -237,12 +241,12 @@ public class MapInteractionManager : MonoBehaviour
     /// </summary>
     public void ShowBothLocations()
     {
-        if (currentActualLocation.HasValue)
+        if (currentActualLocation != null)
         {
             SendActualLocationToJavaScript(
-                currentActualLocation.Value.lat,
-                currentActualLocation.Value.lng,
-                currentActualLocation.Value.zLevel
+                currentActualLocation.lat,
+                currentActualLocation.lng,
+                currentActualLocation.zLevel
             );
         }
         
