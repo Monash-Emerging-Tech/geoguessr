@@ -314,6 +314,9 @@
     var mapUI = document.getElementById("maze-map-ui");
     if (mapUI) {
       mapUI.style.display = "block";
+      // Ensure guess button width matches widget when shown
+      syncGuessButtonWidth();
+      requestAnimationFrame(syncGuessButtonWidth);
       console.log("Map UI shown from Unity");
     } else {
       console.error("maze-map-ui element not found");
@@ -377,6 +380,10 @@
 
     // Sync width initially and whenever widget size changes
     syncGuessButtonWidth();
+    // Retry after layout settles
+    requestAnimationFrame(syncGuessButtonWidth);
+    setTimeout(syncGuessButtonWidth, 100);
+    setTimeout(syncGuessButtonWidth, 300);
 
     // Watch for widget size changes
     var widget = document.getElementById("maze-map-widget");
@@ -386,8 +393,16 @@
       });
       observer.observe(widget, {
         attributes: true,
-        attributeFilter: ["class"],
+        attributeFilter: ["class", "style"],
       });
+
+      // ResizeObserver for actual size changes
+      if (typeof ResizeObserver !== "undefined") {
+        var resizeObserver = new ResizeObserver(function () {
+          syncGuessButtonWidth();
+        });
+        resizeObserver.observe(widget);
+      }
 
       // Also watch for resize events
       window.addEventListener("resize", syncGuessButtonWidth);

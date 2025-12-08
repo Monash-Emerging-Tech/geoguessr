@@ -30,7 +30,6 @@ public class DebugLogScript : MonoBehaviour
         gameManager = GameObject.Find("GameLogic");
         if (gameManager != null)
         {
-            Debug.Log("Debug Log Found GameManager!");
             gameLoader = gameManager.GetComponent<GameLogic>();
             if (gameLoader == null)
             {

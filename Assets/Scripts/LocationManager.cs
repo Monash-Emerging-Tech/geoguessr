@@ -165,13 +165,7 @@ public class LocationManager : MonoBehaviour
     {
         Debug.Log("LocationManager: Initializing...");
         LoadData();
-        Debug.Log($"LocationManager: Initialization complete. Loaded {locationDict?.Count ?? 0} locations and {mapPackDict?.Count ?? 0} map packs.");
-        
-        // Log available map packs
-        if (mapPackDict != null && mapPackDict.Count > 0)
-        {
-            Debug.Log($"LocationManager: Available MapPacks: {string.Join(", ", mapPackDict.Values.Select(mp => $"{mp.Name} (ID: {mp.ID})"))}");
-        }
+        Debug.Log($"LocationManager: Init complete. Loaded {locationDict?.Count ?? 0} locations, {mapPackDict?.Count ?? 0} map packs.");
     }
     
     #endregion
@@ -189,7 +183,6 @@ public class LocationManager : MonoBehaviour
             return;
         }
         
-        Debug.Log($"LocationManager: Selecting random location from map pack '{currentMapPack.Name}' (ID: {currentMapPack.ID})");
         List<Location> locations = GetLocationsFromMapPack(currentMapPack);
         
         if (locations.Count == 0)
@@ -204,19 +197,15 @@ public class LocationManager : MonoBehaviour
         // Check if material is loaded before setting skybox
         if (selectedLocation.LocationMaterial == null)
         {
-            Debug.LogError($"LocationManager: Cannot set skybox - material is NULL for location '{selectedLocation.Name}' (ID: {selectedLocation.ID}), FileName: '{selectedLocation.FileName}'. Material may not have been loaded correctly.");
+            Debug.LogError($"LocationManager: Material missing for '{selectedLocation.Name}' (ID:{selectedLocation.ID}), FileName:'{selectedLocation.FileName}'");
         }
         else
         {
-            Debug.Log($"LocationManager: Setting skybox to material: {selectedLocation.LocationMaterial.name}");
             RenderSettings.skybox = selectedLocation.LocationMaterial;
-            
-            // Force skybox update
             DynamicGI.UpdateEnvironment();
-            Debug.Log("LocationManager: Skybox set and environment updated");
         }
         
-        Debug.Log($"LocationManager: Selected location - ID: {selectedLocation.ID}, Name: {selectedLocation.Name} | Coordinates: lat={selectedLocation.lat}, lng={selectedLocation.lng}, zLevel={selectedLocation.zLevel}");
+        Debug.Log($"LocationManager: Location selected - ID:{selectedLocation.ID}, Name:{selectedLocation.Name}, lat:{selectedLocation.lat}, lng:{selectedLocation.lng}, z:{selectedLocation.zLevel}");
         SetCurrentLocation(selectedLocation);
     }
 
@@ -264,7 +253,7 @@ public class LocationManager : MonoBehaviour
     {
         if (mapPackDict == null || mapPackDict.Count == 0)
         {
-            Debug.LogError("LocationManager: Cannot set map pack - map pack dictionary is not initialized. Call Start() first.");
+            Debug.LogError("LocationManager: Cannot set map pack - map pack dictionary not initialized.");
             return;
         }
         
@@ -272,11 +261,11 @@ public class LocationManager : MonoBehaviour
         {
             currentMapPack = mapPackDict[id];
             int locationCount = GetLocationsFromMapPack(currentMapPack).Count;
-            Debug.Log($"LocationManager: MapPack set to '{currentMapPack.Name}' (ID: {id}) with {locationCount} locations");
+            Debug.Log($"LocationManager: MapPack set '{currentMapPack.Name}' (ID:{id}) locations:{locationCount}");
         }
         else
         {
-            Debug.LogWarning($"LocationManager: MapPack with ID {id} not found. Available IDs: {string.Join(", ", mapPackDict.Keys)}");
+            Debug.LogWarning($"LocationManager: MapPack ID {id} not found. Available IDs: {string.Join(", ", mapPackDict.Keys)}");
         }
     }
     
@@ -289,8 +278,6 @@ public class LocationManager : MonoBehaviour
     /// </summary>
     private void LoadData()
     {
-        Debug.Log("LocationManager: LoadData() called");
-        
         if (string.IsNullOrEmpty(jsonResourcePath))
         {
             Debug.LogError("LocationManager: JSON Data Resource path is not assigned.");
@@ -344,19 +331,13 @@ public class LocationManager : MonoBehaviour
             locationDict.Add(location.ID, location);
         }
 
-        // Load map packs
-        Debug.Log($"LocationManager: Loading {data.MapPacks.Count} map packs...");
         foreach (MapPack mapPack in data.MapPacks)
         {
             mapPackDict.Add(mapPack.ID, mapPack);
         }
 
-        Debug.Log($"LocationManager: Successfully loaded {locationDict.Count} locations and {mapPackDict.Count} map packs");
-
         // Assign materials to locations
         AssignLocationMaterials();
-        
-        Debug.Log("LocationManager: LoadData() completed successfully");
     }
 
     /// <summary>
@@ -364,42 +345,32 @@ public class LocationManager : MonoBehaviour
     /// </summary>
     private void AssignLocationMaterials()
     {
-        Debug.Log("LocationManager: Starting material assignment...");
-        int successCount = 0;
         int failureCount = 0;
-        
-        // List all available materials in Resources/Materials/Locations for debugging
-        Material[] allMaterials = Resources.LoadAll<Material>("Materials/Locations");
-        Debug.Log($"LocationManager: Found {allMaterials.Length} materials in Resources/Materials/Locations:");
-        foreach (Material mat in allMaterials)
-        {
-            Debug.Log($"  - {mat.name}");
-        }
         
         foreach (Location location in locationDict.Values.ToList())
         {
             Location updatedLocation = location;
             string materialPath = $"Materials/Locations/{location.FileName}";
-            Debug.Log($"LocationManager: Attempting to load material from path: '{materialPath}' for location '{location.Name}' (ID: {location.ID})");
             
             updatedLocation.LocationMaterial = Resources.Load<Material>(materialPath);
 
             if (updatedLocation.LocationMaterial == null)
             {
-                Debug.LogError($"LocationManager: Material not found for location '{location.Name}' (ID: {location.ID}), MaterialName: '{location.FileName}', Path: '{materialPath}'");
-                Debug.LogError($"LocationManager: Available materials: {string.Join(", ", allMaterials.Select(m => m.name))}");
+                Debug.LogError($"LocationManager: Material not found for location '{location.Name}' (ID: {location.ID}), FileName: '{location.FileName}', Path: '{materialPath}'");
                 failureCount++;
-            }
-            else
-            {
-                Debug.Log($"LocationManager: Successfully loaded material '{updatedLocation.LocationMaterial.name}' for location '{location.Name}' (ID: {location.ID})");
-                successCount++;
             }
 
             locationDict[location.ID] = updatedLocation;
         }
         
-        Debug.Log($"LocationManager: Material assignment complete - {successCount} successful, {failureCount} failed");
+        if (failureCount > 0)
+        {
+            Debug.LogError($"LocationManager: Material assignment complete with {failureCount} failures");
+        }
+        else
+        {
+            Debug.Log("LocationManager: Material assignment complete with no failures");
+        }
     }
     
     #endregion

@@ -15,32 +15,32 @@ public class MapInteractionManager : MonoBehaviour
     [Header("Map Settings")]
     [SerializeField] private bool enableMapOnStart = false;
     [SerializeField] private float maxGuessDistance = 1000f; // Maximum distance for scoring in meters
-    
+
     [Header("Z-Level Settings")]
     [SerializeField] private int minZLevel = -4; // P4 (Parking Level 4)
     [SerializeField] private int maxZLevel = 12; // 11th Floor
     [SerializeField] private int currentZLevel = 0; // Ground level
-    
+
     [Header("Scoring Settings")]
     [SerializeField] private int maxScore = 5000;
     [SerializeField] private int minScore = 0;
     [SerializeField] private AnimationCurve scoreCurve = AnimationCurve.EaseInOut(0, 1, 1, 0);
-    
+
     [Header("Debug")]
     [SerializeField] private bool enableDebugLogs = true;
-    
+
     // Current game state
     private LocationData? currentActualLocation;
     private LocationData? currentGuessLocation;
     private bool isMapActive = false;
-    
+
     // Events
     public static event Action<LocationData> OnGuessSubmitted; // Event with location data
     public static event Action<int> OnScoreCalculated;
     public static event Action OnMapOpened;
     public static event Action OnMapClosed;
     public static event Action<int> OnZLevelChanged; // New z-level event
-    
+
     // Singleton pattern
     public static MapInteractionManager Instance { get; private set; }
 
@@ -60,14 +60,14 @@ public class MapInteractionManager : MonoBehaviour
             return;
         }
     }
-    
+
     private void Start()
     {
         if (enableMapOnStart)
         {
             HideMap();
         }
-        
+
         LogDebug("MapInteractionManager initialized");
     }
 
@@ -81,36 +81,36 @@ public class MapInteractionManager : MonoBehaviour
     public void ShowMap()
     {
         if (isMapActive) return;
-        
+
         isMapActive = true;
-        
+
         // Call JavaScript function to show map
-        #if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL && !UNITY_EDITOR
         Application.ExternalEval("showMapFromUnity()");
-        #else
+#else
         LogDebug("Map would be shown (WebGL only)");
-        #endif
-        
+#endif
+
         OnMapOpened?.Invoke();
         LogDebug("Map opened");
     }
-    
+
     /// <summary>
     /// Hides the map interface
     /// </summary>
     public void HideMap()
     {
         if (!isMapActive) return;
-        
+
         isMapActive = false;
-        
+
         // Call JavaScript function to hide map
-        #if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL && !UNITY_EDITOR
         Application.ExternalEval("hideMapFromUnity()");
-        #else
+#else
         LogDebug("Map would be hidden (WebGL only)");
-        #endif
-        
+#endif
+
         OnMapClosed?.Invoke();
         LogDebug("Map closed");
     }
@@ -135,8 +135,8 @@ public class MapInteractionManager : MonoBehaviour
             zLevel = zLevelInt,
             zLevelName = GetZLevelName(zLevelInt)
         };
-        
-        LogDebug($"Actual location set to: {latitude}, {longitude}, Level: {GetZLevelName(zLevelInt)}");
+
+        LogDebug($"Actual location set to: {latitude}, {longitude}, Level: {zLevelInt} - {GetZLevelName(zLevelInt)} (Instance ID: {this.GetInstanceID()})");
     }
 
     /// <summary>
@@ -144,6 +144,7 @@ public class MapInteractionManager : MonoBehaviour
     /// </summary>
     public void ResetRound()
     {
+        LogDebug($"ResetRound called on instance: {this.GetInstanceID()}");
         currentActualLocation = null;
         currentGuessLocation = null;
         LogDebug("Round reset");
@@ -162,6 +163,14 @@ public class MapInteractionManager : MonoBehaviour
     {
         try
         {
+            LogDebug($"SubmitGuess called on instance: {this.GetInstanceID()}, currentActualLocation is null: {currentActualLocation == null}");
+
+            if (currentActualLocation == null)
+            {
+                LogWarning($"Cannot calculate score: actual location not set before guess. Ignoring guess. (Instance ID: {this.GetInstanceID()})");
+                return;
+            }
+
             // Parse the payload from JavaScript
             var payload = JsonUtility.FromJson<LocationPayload>(jsonData);
             if (payload == null)
@@ -169,7 +178,7 @@ public class MapInteractionManager : MonoBehaviour
                 LogError("Failed to parse guess payload from JavaScript");
                 return;
             }
-            
+
             // Store guess location data
             currentGuessLocation = new LocationData
             {
@@ -178,27 +187,27 @@ public class MapInteractionManager : MonoBehaviour
                 zLevel = payload.zLevel,
                 zLevelName = payload.zLevelName
             };
-            
-            LogDebug($"Guess submitted at: {payload.latitude}, {payload.longitude}, Level: {payload.zLevelName}");
-            
+
+            LogDebug($"Guess submitted at: {payload.latitude}, {payload.longitude}, Level: {payload.zLevel} - {payload.zLevelName}");
+
             // Trigger guess submitted event
             if (currentGuessLocation != null)
             {
                 OnGuessSubmitted?.Invoke(currentGuessLocation);
             }
-            
-            // Calculate score if we have both locations
-            if (currentActualLocation != null && currentGuessLocation != null)
+
+            // Calculate score (we already ensured actual is present)
+            if (currentGuessLocation != null)
             {
                 int score = CalculateScore(currentActualLocation, currentGuessLocation);
                 OnScoreCalculated?.Invoke(score);
-                
+
                 // Show actual location on map
                 ShowBothLocations();
             }
             else
             {
-                LogWarning("Cannot calculate score: missing actual or guess location");
+                LogWarning("Cannot calculate score: guess location missing");
             }
         }
         catch (Exception e)
@@ -223,17 +232,17 @@ public class MapInteractionManager : MonoBehaviour
             zLevel = zLevel,
             zLevelName = GetZLevelName(zLevel)
         };
-        
+
         // Serialize to JSON
         string jsonPayload = JsonUtility.ToJson(locationPayload);
-        
-        #if UNITY_WEBGL && !UNITY_EDITOR
+
+#if UNITY_WEBGL && !UNITY_EDITOR
         // Escape single quotes and backslashes for JavaScript string literal
         string escapedJson = jsonPayload.Replace("\\", "\\\\").Replace("'", "\\'");
         Application.ExternalEval($"addActualLocationFromUnity('{escapedJson}')");
-        #else
+#else
         LogDebug($"Actual location would be sent to JavaScript: ({latitude}, {longitude}), Level: {GetZLevelName(zLevel)}");
-        #endif
+#endif
     }
 
     /// <summary>
@@ -249,7 +258,7 @@ public class MapInteractionManager : MonoBehaviour
                 currentActualLocation.zLevel
             );
         }
-        
+
         LogDebug("Actual location sent to JavaScript for display");
     }
 
@@ -266,25 +275,25 @@ public class MapInteractionManager : MonoBehaviour
     private int CalculateScore(LocationData actual, LocationData guess)
     {
         float distance = CalculateDistance(actual, guess);
-        
+
         // If guess is beyond max distance, return minimum score
         if (distance > maxGuessDistance)
         {
             LogDebug($"Distance: {distance:F2}m exceeds max distance {maxGuessDistance}m - Score: {minScore}");
             return minScore;
         }
-        
+
         // Linear scoring: maxScore minus proportional distance
         float scoreRatio = 1f - (distance / maxGuessDistance);
         int score = Mathf.RoundToInt(maxScore * scoreRatio);
-        
+
         // Ensure score doesn't go below minimum
         score = Mathf.Max(minScore, score);
-        
+
         LogDebug($"Distance: {distance:F2}m, Max Distance: {maxGuessDistance}m, Score: {score}");
         return score;
     }
-    
+
     /// <summary>
     /// Calculates distance between two coordinates using simple approximation
     /// Accurate enough for campus distances (under 5km)
@@ -299,7 +308,7 @@ public class MapInteractionManager : MonoBehaviour
         // 1 degree longitude ~ 111,000 * cos(latitude) meters
         float latDiff = (coord2.lat - coord1.lat) * 111000f;
         float lngDiff = (coord2.lng - coord1.lng) * 111000f * Mathf.Cos(coord1.lat * Mathf.Deg2Rad);
-        
+
         return Mathf.Sqrt(latDiff * latDiff + lngDiff * lngDiff);
     }
 
@@ -314,26 +323,26 @@ public class MapInteractionManager : MonoBehaviour
     /// <param name="round">Current round</param>
     public void UpdateScoreDisplay(int score, int round)
     {
-        #if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL && !UNITY_EDITOR
         Application.ExternalEval($"updateScoreFromUnity({score}, {round})");
-        #else
+#else
         LogDebug($"Score would be updated: {score}, Round: {round}");
-        #endif
+#endif
     }
-    
+
     /// <summary>
     /// Shows loading indicator
     /// </summary>
     /// <param name="show">Whether to show or hide loading</param>
     public void ShowLoading(bool show)
     {
-        #if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL && !UNITY_EDITOR
         Application.ExternalEval($"showLoading({show.ToString().ToLower()})");
-        #else
+#else
         LogDebug($"Loading would be {(show ? "shown" : "hidden")}");
-        #endif
+#endif
     }
-    
+
     #endregion
 
     #region Debug Logging
@@ -346,12 +355,12 @@ public class MapInteractionManager : MonoBehaviour
             Debug.Log($"[MapInteractionManager] {message}");
         }
     }
-    
+
     private void LogWarning(string message)
     {
         Debug.LogWarning($"[MapInteractionManager] {message}");
     }
-    
+
     private void LogError(string message)
     {
         Debug.LogError($"[MapInteractionManager] {message}");
