@@ -40,7 +40,7 @@ public class GameLogic : MonoBehaviour
     private bool isRoundActive = false;
     
     // MapPack management
-    private int resolvedMapPackId = -1;
+    private int resolvedMapPackId = 2; // Default to Monash 101
     
     private Dictionary<int, LocationManager.MapPack> allMapPacks;
 
@@ -608,7 +608,8 @@ public class GameLogic : MonoBehaviour
             return false;
         }
         
-        LogDebug($"GameLogic: Resolving MapPack name '{mapPackName}' to ID...");
+        // Log the actual value being used
+        LogDebug($"GameLogic: Resolving MapPack name '{mapPackName}' to ID... (mapPackName field value: '{mapPackName}')");
         int id = locationManager.GetMapPackIdByName(mapPackName);
         if (id == -1)
         {
