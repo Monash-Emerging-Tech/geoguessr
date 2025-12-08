@@ -199,9 +199,23 @@ public class LocationManager : MonoBehaviour
         }
 
         int randomIndex = Random.Range(0, locations.Count);
-        RenderSettings.skybox = locations[randomIndex].LocationMaterial;
-        
         var selectedLocation = locations[randomIndex];
+        
+        // Check if material is loaded before setting skybox
+        if (selectedLocation.LocationMaterial == null)
+        {
+            Debug.LogError($"LocationManager: Cannot set skybox - material is NULL for location '{selectedLocation.Name}' (ID: {selectedLocation.ID}), FileName: '{selectedLocation.FileName}'. Material may not have been loaded correctly.");
+        }
+        else
+        {
+            Debug.Log($"LocationManager: Setting skybox to material: {selectedLocation.LocationMaterial.name}");
+            RenderSettings.skybox = selectedLocation.LocationMaterial;
+            
+            // Force skybox update
+            DynamicGI.UpdateEnvironment();
+            Debug.Log("LocationManager: Skybox set and environment updated");
+        }
+        
         Debug.Log($"LocationManager: Selected location - ID: {selectedLocation.ID}, Name: {selectedLocation.Name} | Coordinates: lat={selectedLocation.lat}, lng={selectedLocation.lng}, zLevel={selectedLocation.zLevel}");
         SetCurrentLocation(selectedLocation);
     }
@@ -350,18 +364,42 @@ public class LocationManager : MonoBehaviour
     /// </summary>
     private void AssignLocationMaterials()
     {
+        Debug.Log("LocationManager: Starting material assignment...");
+        int successCount = 0;
+        int failureCount = 0;
+        
+        // List all available materials in Resources/Materials/Locations for debugging
+        Material[] allMaterials = Resources.LoadAll<Material>("Materials/Locations");
+        Debug.Log($"LocationManager: Found {allMaterials.Length} materials in Resources/Materials/Locations:");
+        foreach (Material mat in allMaterials)
+        {
+            Debug.Log($"  - {mat.name}");
+        }
+        
         foreach (Location location in locationDict.Values.ToList())
         {
             Location updatedLocation = location;
-            updatedLocation.LocationMaterial = Resources.Load<Material>($"Materials/Locations/{location.FileName}");
+            string materialPath = $"Materials/Locations/{location.FileName}";
+            Debug.Log($"LocationManager: Attempting to load material from path: '{materialPath}' for location '{location.Name}' (ID: {location.ID})");
+            
+            updatedLocation.LocationMaterial = Resources.Load<Material>(materialPath);
 
             if (updatedLocation.LocationMaterial == null)
             {
-                Debug.LogWarning($"Material not found for location {location.Name}, MaterialName: {location.FileName}");
+                Debug.LogError($"LocationManager: Material not found for location '{location.Name}' (ID: {location.ID}), MaterialName: '{location.FileName}', Path: '{materialPath}'");
+                Debug.LogError($"LocationManager: Available materials: {string.Join(", ", allMaterials.Select(m => m.name))}");
+                failureCount++;
+            }
+            else
+            {
+                Debug.Log($"LocationManager: Successfully loaded material '{updatedLocation.LocationMaterial.name}' for location '{location.Name}' (ID: {location.ID})");
+                successCount++;
             }
 
             locationDict[location.ID] = updatedLocation;
         }
+        
+        Debug.Log($"LocationManager: Material assignment complete - {successCount} successful, {failureCount} failed");
     }
     
     #endregion
