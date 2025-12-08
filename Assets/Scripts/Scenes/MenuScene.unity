@@ -156,7 +156,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 484.11, y: -82.10989}
+  m_AnchoredPosition: {x: 485, y: -82}
   m_SizeDelta: {x: 92.27, y: 92.27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &107782702
@@ -2353,7 +2353,7 @@ Animator:
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
+  m_AnimatePhysics: 1
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
@@ -2371,9 +2371,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0dda8dbdc5007394e90e23b99676e656, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  canvasToShow: {fileID: 571580930}
   cameraMove: {fileID: 1641014335}
   cameraAnimator: {fileID: 1641014333}
+  canvasToShow: {fileID: 571580930}
   uiPanel: {fileID: 107782701}
   slideDuration: 0.4
   overshootAmount: 50
@@ -2389,8 +2389,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83712c3698155734e9d586a2fec25b4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rotationStrength: 5
-  smoothTime: 0.2
 --- !u!1001 &1793966438
 PrefabInstance:
   m_ObjectHideFlags: 0
