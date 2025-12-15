@@ -93,7 +93,7 @@ public class GuessButtonManager : MonoBehaviour
         }
         
         // Subscribe to map events
-        MapInteractionManager.OnPinPlaced += OnMapPinPlaced;
+        // Note: OnPinPlaced removed - button state now managed by HTML button
         MapInteractionManager.OnGuessSubmitted += OnMapGuessSubmitted;
         
         // Initialize state to waiting
@@ -126,7 +126,7 @@ public class GuessButtonManager : MonoBehaviour
         }
         
         // Unsubscribe from map events
-        MapInteractionManager.OnPinPlaced -= OnMapPinPlaced;
+        // Note: OnPinPlaced removed - button state now managed by HTML button
         MapInteractionManager.OnGuessSubmitted -= OnMapGuessSubmitted;
     }
     
@@ -407,20 +407,12 @@ public class GuessButtonManager : MonoBehaviour
     }
     
     /// <summary>
-    /// Called when a pin is placed on the map (from MapInteractionManager)
-    /// </summary>
-    private void OnMapPinPlaced()
-    {
-        OnPinPlaced();
-    }
-    
-    /// <summary>
     /// Called when a guess is submitted through the map (from MapInteractionManager)
     /// </summary>
-    private void OnMapGuessSubmitted(MapInteractionManager.MarkerData guessMarker)
+    private void OnMapGuessSubmitted(MapInteractionManager.LocationData guessLocation)
     {
         SetState(GuessButtonState.Results);
-        LogDebug($"Map guess submitted at {guessMarker.lat}, {guessMarker.lng}, Level: {guessMarker.zLevelName} - Button shows results state");
+        LogDebug($"Map guess submitted at {guessLocation.lat}, {guessLocation.lng}, Level: {guessLocation.zLevelName} - Button shows results state");
     }
     
     #endregion

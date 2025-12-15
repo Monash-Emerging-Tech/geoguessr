@@ -24,27 +24,6 @@ function App() {
     });
     
     setMap(mazemapInstance);
-    
-    // Create the persistent actual marker
-    const actualMarker = {
-      id: 'actual-location',
-      lng: 145.1350097844131,
-      lat: -37.90989590647034,
-      zLevel: 1,
-      zLevelName: "G (Ground)",
-      timestamp: new Date().toLocaleTimeString(),
-      options: {
-        imgUrl: 'images/fat.svg',
-        imgScale: 1.7,
-        color: '#9D9DDC',
-        size: 60,
-        innerCircle: false,
-        shape: 'marker',
-        zLevel: 1
-      }
-    };
-    setActualMarker(actualMarker);
-  }, []);
 
   // Add the actual marker to the map only after guess is made
   useEffect(() => {
