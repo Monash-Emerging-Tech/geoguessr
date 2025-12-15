@@ -18,7 +18,6 @@ public class MapTestingScript : MonoBehaviour
     [SerializeField] private float testLongitude2 = 144.9700f;
     
     [Header("Test Buttons (Optional)")]
-    [SerializeField] private Button simulateMapClickButton;
     [SerializeField] private Button simulateGuessSubmitButton;
     [SerializeField] private Button simulateSecondLocationButton;
     
@@ -26,7 +25,6 @@ public class MapTestingScript : MonoBehaviour
     [SerializeField] private TextMeshProUGUI debugText;
     
     [Header("Keyboard Shortcuts")]
-    [SerializeField] private KeyCode mapClickKey = KeyCode.M;
     [SerializeField] private KeyCode guessSubmitKey = KeyCode.G;
     [SerializeField] private KeyCode secondLocationKey = KeyCode.N;
     [SerializeField] private KeyCode resetRoundKey = KeyCode.R;
@@ -39,21 +37,14 @@ public class MapTestingScript : MonoBehaviour
     void Start()
     {
         // Setup button listeners if buttons are assigned
-        if (simulateMapClickButton != null)
-            simulateMapClickButton.onClick.AddListener(SimulateMapClick);
-            
         if (simulateGuessSubmitButton != null)
             simulateGuessSubmitButton.onClick.AddListener(SimulateGuessSubmit);
             
         if (simulateSecondLocationButton != null)
-            simulateSecondLocationButton.onClick.AddListener(() => {
-                useFirstLocation = !useFirstLocation;
-                SimulateMapClick();
-            });
+            simulateSecondLocationButton.onClick.AddListener(ToggleTestLocation);
         
         LogDebug("MapTestingScript initialized");
         LogDebug("Keyboard shortcuts:");
-        LogDebug($"  {mapClickKey} - Simulate map click");
         LogDebug($"  {guessSubmitKey} - Simulate guess submit");
         LogDebug($"  {secondLocationKey} - Toggle between test locations");
         LogDebug($"  {resetRoundKey} - Reset round (if GameLogic available)");
@@ -64,11 +55,6 @@ public class MapTestingScript : MonoBehaviour
     void Update()
     {
         // Keyboard shortcuts for testing
-        if (Input.GetKeyDown(mapClickKey))
-        {
-            SimulateMapClick();
-        }
-        
         if (Input.GetKeyDown(guessSubmitKey))
         {
             SimulateGuessSubmit();
@@ -85,27 +71,6 @@ public class MapTestingScript : MonoBehaviour
         {
             ResetRound();
         }
-    }
-    
-    /// <summary>
-    /// Simulates a map click with test coordinates
-    /// </summary>
-    public void SimulateMapClick()
-    {
-        if (MapInteractionManager.Instance == null)
-        {
-            LogError("MapInteractionManager.Instance is null! Make sure MapInteractionManager is assigned to a GameObject.");
-            return;
-        }
-        
-        float lat = useFirstLocation ? testLatitude : testLatitude2;
-        float lng = useFirstLocation ? testLongitude : testLongitude2;
-        
-        string jsonData = $"{{\"latitude\": {lat}, \"longitude\": {lng}, \"timestamp\": {System.DateTimeOffset.Now.ToUnixTimeSeconds()}}}";
-        
-        MapInteractionManager.Instance.OnMapClick(jsonData);
-        LogDebug($"Simulated map click at: {lat}, {lng}");
-        UpdateDebugDisplay();
     }
     
     /// <summary>
@@ -167,7 +132,7 @@ public class MapTestingScript : MonoBehaviour
             
             debugText.text = $"Map Testing Controls\n\n" +
                            $"Current: {location}\n" +
-                           $"Shortcuts: {mapClickKey}, {guessSubmitKey}, {secondLocationKey}, {resetRoundKey}" +
+                           $"Shortcuts: {guessSubmitKey}, {secondLocationKey}, {resetRoundKey}" +
                            gameState;
         }
     }
@@ -220,22 +185,6 @@ public class MapTestingScript : MonoBehaviour
     #endregion
     
     #region Public API for External Testing
-    
-    /// <summary>
-    /// Simulates a map click with custom coordinates
-    /// </summary>
-    public void TestMapClick(float latitude, float longitude)
-    {
-        if (MapInteractionManager.Instance == null)
-        {
-            LogError("MapInteractionManager.Instance is null!");
-            return;
-        }
-        
-        string jsonData = $"{{\"latitude\": {latitude}, \"longitude\": {longitude}, \"timestamp\": {System.DateTimeOffset.Now.ToUnixTimeSeconds()}}}";
-        MapInteractionManager.Instance.OnMapClick(jsonData);
-        LogDebug($"Custom map click simulated at: {latitude}, {longitude}");
-    }
     
     /// <summary>
     /// Simulates guess submission with custom coordinates
