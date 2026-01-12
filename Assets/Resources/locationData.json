@@ -1,71 +1,70 @@
 {
-    "Locations": [
-        {
-            "ID": 0,
-            "Name": "Placeholder 0",
-            "FileName": "360_PlaceHolder",
-            "x": 0,
-            "y": 0,
-            "z": 0
-        },
-        {
-            "ID": 1,
-            "Name": "Placeholder 1",
-            "FileName": "360_PlaceHolder_1",
-            "x": 0,
-            "y": 0,
-            "z": 0
-        },
-        {
-            "ID": 3,
-            "Name": "Placeholder 3",
-            "FileName": "360_PlaceHolder_1 2",
-            "x": 0,
-            "y": 0,
-            "z": 0
-        },
-        {
-            "ID": 4,
-            "Name": "Placeholder 4",
-            "FileName": "360_PlaceHolder_1 3",
-            "x": 0,
-            "y": 0,
-            "z": 0
-        },
-        {
-            "ID": 5,
-            "Name": "Placeholder 5",
-            "FileName": "360_PlaceHolder_1 4",
-            "x": 0,
-            "y": 0,
-            "z": 0
-        },
-        {
-            "ID": 6,
-            "Name": "Monash 101 - Woodside Lecture Stairs",
-            "FileName": "360_Monash101_Woodside_Lecture_Stairs",
-            "x": 145.135268,
-            "y": -37.910022,
-            "z": 1
-        }
-    ],
+  "Locations": [
+    {
+      "ID": 0,
+      "Name": "Placeholder 0",
+      "FileName": "360_PlaceHolder",
+      "lat": 0,
+      "lng": 0,
+      "zLevel": 0
+    },
+    {
+      "ID": 1,
+      "Name": "Placeholder 1",
+      "FileName": "360_PlaceHolder_1",
+      "lat": 0,
+      "lng": 0,
+      "zLevel": 0
+    },
+    {
+      "ID": 3,
+      "Name": "Placeholder 3",
+      "FileName": "360_PlaceHolder_1 2",
+      "lat": 0,
+      "lng": 0,
+      "zLevel": 0
+    },
+    {
+      "ID": 4,
+      "Name": "Placeholder 4",
+      "FileName": "360_PlaceHolder_1 3",
+      "lat": 0,
+      "lng": 0,
+      "zLevel": 0
+    },
+    {
+      "ID": 5,
+      "Name": "Placeholder 5",
+      "FileName": "360_PlaceHolder_1 4",
+      "lat": 0,
+      "lng": 0,
+      "zLevel": 0
+    },
+    {
+      "ID": 6,
+      "Name": "Monash 101 - Woodside Lecture Stairs",
+      "FileName": "360_Monash101_Woodside_Lecture_Stairs",
+      "lat": -37.910022,
+      "lng": 145.135268,
+      "zLevel": 1
+    }
+  ],
 
-
-    "MapPacks": [
-        {
-            "ID": 0,
-            "Name": "all",
-            "locationIDs": [] 
-        },
-        {
-            "ID": 1,
-            "Name": "OG Placeholders",
-            "locationIDs": [ 0, 1 ]
-        },
-        {
-            "ID": 2,
-            "Name": "Monash 101",
-            "locationIDs": [ 6 ]
-        }
-    ]
+  "MapPacks": [
+    {
+      "ID": 0,
+      "Name": "all",
+      "locationIDs": []
+    },
+    {
+      "ID": 1,
+      "Name": "OG Placeholders",
+      "locationIDs": [0, 1]
+    },
+    {
+      "ID": 2,
+      "Name": "Monash 101",
+      "locationIDs": [6]
+    }
+  ]
 }
