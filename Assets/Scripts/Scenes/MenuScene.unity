@@ -1951,8 +1951,6 @@ GameObject:
   - component: {fileID: 1641014330}
   - component: {fileID: 1641014329}
   - component: {fileID: 1641014332}
-  - component: {fileID: 1641014333}
-  - component: {fileID: 1641014334}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -2027,8 +2025,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1641014328}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.05758307, y: 0.21492681, z: -0.0126953125, w: 0.97484845}
-  m_LocalPosition: {x: -22.263817, y: 2.0362628, z: -6.636301}
+  m_LocalRotation: {x: -0, y: 0.6276158, z: -0, w: 0.77852327}
+  m_LocalPosition: {x: -39.62, y: 1, z: -8.25}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2078,43 +2076,6 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
---- !u!95 &1641014333
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1641014328}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: b91acbdfb53758c479eff9d582288785, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
---- !u!114 &1641014334
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1641014328}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0dda8dbdc5007394e90e23b99676e656, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canvasToShow: {fileID: 571580930}
-  moveStrength: 1
-  smoothTime: 0.3
 --- !u!1001 &1793966438
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2605,10 +2566,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 487263644213522047, guid: 00668585c194fc24aa8b327e232740d8, type: 3}
-      propertyPath: mapPackName
-      value: Monash 101
-      objectReference: {fileID: 0}
     - target: {fileID: 2956644974186284610, guid: 00668585c194fc24aa8b327e232740d8, type: 3}
       propertyPath: m_Name
       value: GameLogic

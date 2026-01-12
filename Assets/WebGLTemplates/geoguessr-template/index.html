@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>MNET Monash Geoguessr</title>
+    <title>%UNITY_WEBGL_NAME%</title>
 
      <!-- MazeMaps CSS -->
      <link rel="stylesheet" href="https://api.mazemap.com/js/v2.2.1/mazemap.min.css">
@@ -20,26 +20,21 @@
       <!-- unity canvas -->
       <canvas id="unity-canvas" width="%UNITY_WIDTH%" height="%UNITY_HEIGHT%" tabindex="-1" style="width: 100%; height: 100%; max-width: 100%; max-height: 100%; object-fit: contain; background: #231F20; display: block;"></canvas>
 
-      <!-- Maze Map widget controls -->
-      <div id="maze-map-ui" style="position: absolute; bottom: 20px; right: 20px; display: none;">
-        <div class="mm-controls">
-          <button class="mm-btn mm-expand" aria-label="Expand"></button>
-          <button class="mm-btn mm-minimise" aria-label="Minimise"></button>
-          <button class="mm-btn mm-pin" aria-label="Pin"></button>
-        </div>
+    <!-- Maze Map widget controls -->
+	  <div id="maze-map-ui" style="position: absolute; bottom: 60px; right: 20px;">
+		<div class="mm-controls">
+		  <button class="mm-btn mm-expand" aria-label="Expand"></button>
+		  <button class="mm-btn mm-minimise" aria-label="Minimise"></button>
+		  <button class="mm-btn mm-pin" aria-label="Pin"></button>
+		</div>
 
-        <!-- Maze Map widget -->
-        <div id="maze-map-widget" class="maze-map-widget mm-size-s">
-          <div id="maze-maps-container" class="mazemap-container">
-          <div id="map"></div>
-          </div>
-        </div>
-        
-        <!-- Guess Button -->
-        <button id="guess-button" class="mm-guess-btn" disabled>
-          PLACE YOUR PIN ON THE MAP
-        </button>
-	    </div>
+		<!-- Maze Map widget -->
+		<div id="maze-map-widget" class="maze-map-widget mm-size-s">
+		  <div id="maze-maps-container" class="mazemap-container">
+			<div id="map"></div>
+		  </div>
+		</div>
+	  </div>
     </div>
     <script src="%UNITY_WEBGL_LOADER_URL%"></script>
     <script>
@@ -80,13 +75,6 @@
         productVersion: "%PRODUCT_VERSION%",
         // matchWebGLToCanvasSize: false,
         // devicePixelRatio: 1,
-      }).then(function(unityInstance) {
-        // Store Unity instance globally for access from other scripts
-        window.unityInstance = unityInstance;
-        window.gameInstance = unityInstance; // Also store as gameInstance for compatibility
-        console.log("Unity instance created and stored globally");
-      }).catch(function(message) {
-        console.error("Unity instance creation failed:", message);
       });
     </script>
     <!-- App JS -->

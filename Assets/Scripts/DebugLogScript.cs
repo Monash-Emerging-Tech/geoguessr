@@ -30,6 +30,7 @@ public class DebugLogScript : MonoBehaviour
         gameManager = GameObject.Find("GameLogic");
         if (gameManager != null)
         {
+            Debug.Log("Debug Log Found GameManager!");
             gameLoader = gameManager.GetComponent<GameLogic>();
             if (gameLoader == null)
             {
@@ -98,9 +99,9 @@ public class DebugLogScript : MonoBehaviour
                         if (!string.IsNullOrEmpty(currentLocation.Name))
                         {
                             debugText += "\r\nLocation: " + currentLocation.Name;
-                            debugText += "\r\nLocation Lat: " + currentLocation.lat;
-                            debugText += "\r\nLocation Lng: " + currentLocation.lng;
-                            debugText += "\r\nLocation Z-Level: " + currentLocation.zLevel;
+                            debugText += "\r\nLocation X: " + currentLocation.x;
+                            debugText += "\r\nLocation Y: " + currentLocation.y;
+                            debugText += "\r\nLocation Z: " + currentLocation.z;
                         }
                         else
                         {

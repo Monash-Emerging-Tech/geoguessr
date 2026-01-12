@@ -16,16 +16,14 @@ This custom WebGL template integrates MazeMaps for campus-based geoguessr gamepl
 ### 1. Unity Project Setup
 
 1. **Add Scripts to Project**:
-
    - Copy the provided C# scripts to your `Assets/Scripts/` folder:
      - `MapInteractionManager.cs` - Handles Unity-JavaScript communication
-     - `GameLogic.cs` - Main game logic and round management
+     - `GeoguessrGameManager.cs` - Main game logic and round management
      - `MapUIController.cs` - UI controls for map interaction
 
 2. **Configure WebGL Build Settings**:
-
-   - Go to `File > Build Profiles`
-   - Select `WebGL (aka Web)` platform
+   - Go to `File > Build Settings`
+   - Select `WebGL` platform
    - Click `Player Settings`
    - In `Publishing Settings`, set:
      - `Compression Format`: `Disabled` (for easier debugging)
@@ -43,18 +41,16 @@ This custom WebGL template integrates MazeMaps for campus-based geoguessr gamepl
 ### 2. Scene Setup
 
 1. **Create Game Objects**:
-
    - Create an empty GameObject named "MapInteractionManager"
    - Add the `MapInteractionManager` script to it
-   - Create an empty GameObject named "GameLogic"
-   - Add the `GameLogic` script to it
+   - Create an empty GameObject named "GeoguessrGameManager"
+   - Add the `GeoguessrGameManager` script to it
    - Create an empty GameObject named "MapUIController"
    - Add the `MapUIController` script to it
 
 2. **Configure Script References**:
-
-   - In `GameLogic`, assign the `MapInteractionManager` reference
-   - In `GameLogic`, assign the `LocationManager` reference (if you have one)
+   - In `GeoguessrGameManager`, assign the `MapInteractionManager` reference
+   - In `GeoguessrGameManager`, assign the `LocationManager` reference (if you have one)
    - In `MapUIController`, assign UI element references (buttons, text components)
 
 3. **UI Setup**:
@@ -69,25 +65,18 @@ This custom WebGL template integrates MazeMaps for campus-based geoguessr gamepl
 ### 3. Build and Deploy
 
 1. **Build WebGL**:
-
    - Go to `File > Build Settings`
-   - Click `Build` and select your output directory (probably make a folder called geoguessr_build)
+   - Click `Build` and select your output directory
    - Wait for the build to complete
 
 2. **Test Locally**:
-
    - Serve the built files using a local web server (required for WebGL)
    - You can use Python: `python -m http.server 8000` in the build directory
    - Or use any other local server solution
-   - In your browser of choice navigate to `http://localhost:8000/` (if using python)
-   - Ready to test, open developer tools using F12 and check the console for any errors
-   - You can apply changes directly to the index.html and app.js files in the geoguessr_build folder
-   - IMPORTANT any changes you'd like applied need to be copied over to the corresponding index.html / app.js file in
-     WebGLTemplates/geoguessr-template in the Assets folder of the unity project
-   - If changes can't be seen live in your browser, do a hard refresh to clear the cache (Ctrl + Shift + R)
 
 3. **Deploy**:
-   - TODO write this section
+   - Upload the built files to your web server
+   - Ensure the server supports the required MIME types for WebGL
 
 ## Usage
 
@@ -119,7 +108,7 @@ addMarkerFromUnity(latitude, longitude, label, type);
 updateScoreFromUnity(score, round);
 
 // Show/hide loading indicator
-showLoading(true / false);
+showLoading(true/false);
 ```
 
 ### Unity C# API
@@ -133,10 +122,10 @@ mapManager.HideMap();
 mapManager.SetActualLocation(lat, lng);
 mapManager.UpdateScoreDisplay(score, round);
 
-// GameLogic
-GameLogic.StartRound();
-GameLogic.EndRound();
-GameLogic.RestartGame();
+// GeoguessrGameManager
+gameManager.StartRound();
+gameManager.EndRound();
+gameManager.RestartGame();
 ```
 
 ## Configuration
@@ -149,10 +138,11 @@ GameLogic.RestartGame();
 - `scoreCurve`: Animation curve for score calculation
 - `enableDebugLogs`: Enable debug logging
 
-### GameLogic Settings
+### GeoguessrGameManager Settings
 
-- `Total Rounds`: Number of rounds in the game
-- `Map Pack Name`: Map Pack used for a game
+- `totalRounds`: Number of rounds in the game
+- `roundTimeLimit`: Time limit per round (seconds)
+- `enableTimer`: Whether to show timer
 - `enableDebugLogs`: Enable debug logging
 
 ## Troubleshooting
@@ -160,19 +150,16 @@ GameLogic.RestartGame();
 ### Common Issues
 
 1. **Map Not Loading**:
-
    - Check internet connection (MazeMaps requires online access)
    - Verify MazeMaps API is accessible
    - Check browser console for JavaScript errors
 
 2. **Unity-JavaScript Communication Not Working**:
-
    - Ensure WebGL build is used (not Editor)
    - Check that function names match exactly
    - Verify Unity instance is properly initialized
 
 3. **Markers Not Appearing**:
-
    - Check that coordinates are valid
    - Verify MazeMap instance is loaded
    - Check browser console for errors
@@ -198,7 +185,7 @@ Assets/WebGLTemplate/geoguessrTemplate/
 
 Assets/Scripts/
 ├── MapInteractionManager.cs    # Unity-JavaScript bridge
-├── GameLogic.cs     # Main game logic
+├── GeoguessrGameManager.cs     # Main game logic
 └── MapUIController.cs          # UI controls
 ```
 
