@@ -35,9 +35,9 @@ public class LocationManager : MonoBehaviour
         public int ID;
         public string Name;
         public string FileName;
-        public float lat;  // Latitude (replaces x)
-        public float lng;  // Longitude (replaces y)
-        public int zLevel; // Z-level (replaces z)
+        public float x;
+        public float y;
+        public float z;
 
         [System.NonSerialized]
         // Link to the 360 Image of the Location
@@ -75,15 +75,6 @@ public class LocationManager : MonoBehaviour
 
     #region Public Getters
     
-    /// <summary>
-    /// Checks if LocationManager has been initialized with data
-    /// </summary>
-    /// <returns>True if initialized, false otherwise</returns>
-    public bool IsInitialized()
-    {
-        return mapPackDict != null && locationDict != null;
-    }
-    
     public Location GetCurrentLocation() => currentLocation;
     public MapPack GetCurrentMapPack() => currentMapPack;
     public string GetCurrentMapPackName() => currentMapPack.Name;
@@ -96,11 +87,6 @@ public class LocationManager : MonoBehaviour
     /// <returns>Array of MapPack names</returns>
     public string[] GetAllMapPackNames()
     {
-        if (mapPackDict == null)
-        {
-            Debug.LogError("LocationManager: GetAllMapPackNames() called before initialization. MapPack dictionary is null.");
-            return new string[0];
-        }
         return mapPackDict.Values.Select(mp => mp.Name).ToArray();
     }
     
@@ -111,11 +97,6 @@ public class LocationManager : MonoBehaviour
     /// <returns>MapPack name or "Unknown" if not found</returns>
     public string GetMapPackNameById(int id)
     {
-        if (mapPackDict == null)
-        {
-            Debug.LogError("LocationManager: GetMapPackNameById() called before initialization. MapPack dictionary is null.");
-            return "Unknown";
-        }
         return mapPackDict.ContainsKey(id) ? mapPackDict[id].Name : "Unknown";
     }
     
@@ -127,12 +108,6 @@ public class LocationManager : MonoBehaviour
     public int GetMapPackIdByName(string name)
     {
         if (string.IsNullOrEmpty(name)) return -1;
-        
-        if (mapPackDict == null)
-        {
-            Debug.LogError("LocationManager: GetMapPackIdByName() called before initialization. MapPack dictionary is null.");
-            return -1;
-        }
         
         foreach (var kvp in mapPackDict)
         {
@@ -163,9 +138,7 @@ public class LocationManager : MonoBehaviour
     /// </summary>
     public void Start()
     {
-        Debug.Log("LocationManager: Initializing...");
         LoadData();
-        Debug.Log($"LocationManager: Init complete. Loaded {locationDict?.Count ?? 0} locations, {mapPackDict?.Count ?? 0} map packs.");
     }
     
     #endregion
@@ -177,36 +150,15 @@ public class LocationManager : MonoBehaviour
     /// </summary>
     public void SelectRandomLocation()
     {
-        if (string.IsNullOrEmpty(currentMapPack.Name))
-        {
-            Debug.LogWarning("LocationManager: Cannot select random location - no map pack is set. Call SetCurrentMapPack() first.");
-            return;
-        }
-        
         List<Location> locations = GetLocationsFromMapPack(currentMapPack);
         
-        if (locations.Count == 0)
-        {
-            Debug.LogWarning($"LocationManager: No locations found in map pack '{currentMapPack.Name}'");
-            return;
-        }
+        if (locations.Count == 0) return;
 
         int randomIndex = Random.Range(0, locations.Count);
-        var selectedLocation = locations[randomIndex];
+        RenderSettings.skybox = locations[randomIndex].LocationMaterial;
         
-        // Check if material is loaded before setting skybox
-        if (selectedLocation.LocationMaterial == null)
-        {
-            Debug.LogError($"LocationManager: Material missing for '{selectedLocation.Name}' (ID:{selectedLocation.ID}), FileName:'{selectedLocation.FileName}'");
-        }
-        else
-        {
-            RenderSettings.skybox = selectedLocation.LocationMaterial;
-            DynamicGI.UpdateEnvironment();
-        }
-        
-        Debug.Log($"LocationManager: Location selected - ID:{selectedLocation.ID}, Name:{selectedLocation.Name}, lat:{selectedLocation.lat}, lng:{selectedLocation.lng}, z:{selectedLocation.zLevel}");
-        SetCurrentLocation(selectedLocation);
+        Debug.Log($"Location ID: {locations[randomIndex].ID} - {locationDict[randomIndex].Name}");
+        SetCurrentLocation(locations[randomIndex]);
     }
 
     /// <summary>
@@ -251,21 +203,14 @@ public class LocationManager : MonoBehaviour
     /// <param name="id">The ID of the map pack to set</param>
     public void SetCurrentMapPack(int id)
     {
-        if (mapPackDict == null || mapPackDict.Count == 0)
-        {
-            Debug.LogError("LocationManager: Cannot set map pack - map pack dictionary not initialized.");
-            return;
-        }
-        
         if (mapPackDict.ContainsKey(id))
         {
             currentMapPack = mapPackDict[id];
-            int locationCount = GetLocationsFromMapPack(currentMapPack).Count;
-            Debug.Log($"LocationManager: MapPack set '{currentMapPack.Name}' (ID:{id}) locations:{locationCount}");
+            Debug.Log($"MapPack set to: {currentMapPack.Name} (ID: {id})");
         }
         else
         {
-            Debug.LogWarning($"LocationManager: MapPack ID {id} not found. Available IDs: {string.Join(", ", mapPackDict.Keys)}");
+            Debug.LogWarning($"MapPack with ID {id} not found");
         }
     }
     
@@ -280,61 +225,39 @@ public class LocationManager : MonoBehaviour
     {
         if (string.IsNullOrEmpty(jsonResourcePath))
         {
-            Debug.LogError("LocationManager: JSON Data Resource path is not assigned.");
+            Debug.LogError("JSON Data Resource path is not assigned.");
             return;
         }
 
-        Debug.Log($"LocationManager: Loading JSON from Resources path: {jsonResourcePath}");
         TextAsset jsonFile = Resources.Load<TextAsset>(jsonResourcePath);
         if (jsonFile == null)
         {
-            Debug.LogError($"LocationManager: JSON Data file not found at Resources path: {jsonResourcePath}");
+            Debug.LogError($"JSON Data file not found at Resources path: {jsonResourcePath}");
             return;
         }
 
         string jsonData = jsonFile.text;
-        if (string.IsNullOrEmpty(jsonData))
-        {
-            Debug.LogError("LocationManager: JSON file is empty!");
-            return;
-        }
-        
-        Debug.Log($"LocationManager: JSON data loaded, length: {jsonData.Length} characters");
+        Debug.Log($"Loaded JSON data: {jsonData}");
 
         locationData data = JsonUtility.FromJson<locationData>(jsonData);
-        if (data == null)
-        {
-            Debug.LogError("LocationManager: Failed to parse JSON data!");
-            return;
-        }
-        
-        if (data.Locations == null)
-        {
-            Debug.LogError("LocationManager: JSON data has null Locations array!");
-            return;
-        }
-        
-        if (data.MapPacks == null)
-        {
-            Debug.LogError("LocationManager: JSON data has null MapPacks array!");
-            return;
-        }
         
         // Initialize dictionaries
         locationDict = new Dictionary<int, Location>();
         mapPackDict = new Dictionary<int, MapPack>();
         
         // Load locations
-        Debug.Log($"LocationManager: Loading {data.Locations.Count} locations...");
         foreach (Location location in data.Locations)
         {
             locationDict.Add(location.ID, location);
         }
 
+        // Load map packs
         foreach (MapPack mapPack in data.MapPacks)
         {
             mapPackDict.Add(mapPack.ID, mapPack);
         }
+
+        Debug.Log($"Loaded {locationDict.Count} locations and {mapPackDict.Count} map packs");
 
         // Assign materials to locations
         AssignLocationMaterials();
@@ -345,31 +268,17 @@ public class LocationManager : MonoBehaviour
     /// </summary>
     private void AssignLocationMaterials()
     {
-        int failureCount = 0;
-        
         foreach (Location location in locationDict.Values.ToList())
         {
             Location updatedLocation = location;
-            string materialPath = $"Materials/Locations/{location.FileName}";
-            
-            updatedLocation.LocationMaterial = Resources.Load<Material>(materialPath);
+            updatedLocation.LocationMaterial = Resources.Load<Material>($"Materials/Locations/{location.FileName}");
 
             if (updatedLocation.LocationMaterial == null)
             {
-                Debug.LogError($"LocationManager: Material not found for location '{location.Name}' (ID: {location.ID}), FileName: '{location.FileName}', Path: '{materialPath}'");
-                failureCount++;
+                Debug.LogWarning($"Material not found for location {location.Name}, MaterialName: {location.FileName}");
             }
 
             locationDict[location.ID] = updatedLocation;
-        }
-        
-        if (failureCount > 0)
-        {
-            Debug.LogError($"LocationManager: Material assignment complete with {failureCount} failures");
-        }
-        else
-        {
-            Debug.Log("LocationManager: Material assignment complete with no failures");
         }
     }
     
