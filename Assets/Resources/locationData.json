@@ -17,7 +17,7 @@
             "z": 2
         },
         {
-            "ID": 3,
+            "ID": 2,
             "Name": "Outside Living - Hargrave-Andrew Library Outside",
             "FileName": "360_OL_HAL_Outside",
             "x": 145.132195,
@@ -25,7 +25,7 @@
             "z": 1
         },
         {
-            "ID": 4,
+            "ID": 3,
             "Name": "Outside Living - Hump Lawn Chairs",
             "FileName": "360_OL_HumpLawnChairs",
             "x": 145.132319,
@@ -33,7 +33,7 @@
             "z": 1
         },
         {
-            "ID": 5,
+            "ID": 4,
             "Name": "Outside Living - Joe's Pizzeria'",
             "FileName": "360_OL_JoePizza",
             "x": 145.135821,
@@ -41,7 +41,7 @@
             "z": 1
         },
         {
-            "ID": 6,
+            "ID": 5,
             "Name": "Monash 101 - Building 94 Lecture Stairs",
             "FileName": "360_OL_KennethHuntBBQ",
             "x": 145.135268,
@@ -49,7 +49,7 @@
             "z": 1
         },
         {
-            "ID": 7,
+            "ID": 6,
             "Name": "Outside Living - Campus Park East",
             "FileName": "360_OL_CampusParkEast",
             "x": 145.136202,
@@ -57,7 +57,7 @@
             "z": 1
         },
         {
-            "ID": 8,
+            "ID": 7,
             "Name": "Outside Living - Campus Centre North, Ground Floor Outside",
             "FileName": "360_OL_CC_N_G_O",
             "x": 145.132844,
@@ -65,7 +65,7 @@
             "z": 1
         },
         {
-            "ID": 9,
+            "ID": 8,
             "Name": "Outside Living - Kenneth Hunt Lawn BBQs",
             "FileName": "360_OL_KennethHuntBBQ",
             "x": 145.133133,
@@ -143,7 +143,7 @@
         {
             "ID": 3,
             "Name": "Outside Living",
-            "locationIDs": [ 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ]
+            "locationIDs": [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
         }
     ]
 }

@@ -218,6 +218,8 @@ public class LocationManager : MonoBehaviour
     {
         List<Location> locations = new List<Location>();
 
+        Debug.Log("Called");
+
         if (mapPack.Name == "all" || mapPack.Name == "")
         {
             locations = locationDict.Values.ToList();
@@ -226,6 +228,8 @@ public class LocationManager : MonoBehaviour
 
         foreach (int id in mapPack.locationIDs)
         {
+            Debug.Log(mapPack.Name);
+            Debug.Log(mapPack.locationIDs);
             locations.Add(locationDict[id]);
         }
 
