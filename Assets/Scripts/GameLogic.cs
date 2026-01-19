@@ -18,6 +18,7 @@ public class GameLogic : MonoBehaviour
     [SerializeField] private int totalRounds = 5;
     // [SerializeField] private int gameMode = 0; // TODO
     [SerializeField] private string mapPackName = "all";
+    [SerializeField]private ScoreDataScriptableObject scoreData; // Scriptable Object to hold score data
     
     [Header("Map Integration")]
     [SerializeField] private MapInteractionManager mapManager;
@@ -30,6 +31,7 @@ public class GameLogic : MonoBehaviour
     
     [Header("Debug")]
     [SerializeField] private bool enableDebugLogs = true;
+
     
     // Game state
     private int currentScore = 0;
@@ -380,6 +382,13 @@ public class GameLogic : MonoBehaviour
         OnScoreUpdated?.Invoke(currentScore);
         LogDebug($"Score calculated: {score}, Total: {currentScore}");
         
+        //Set current score to shared asset
+        if (scoreData != null)
+        {
+            scoreData.SetScore(currentScore);
+        }
+
+        OnScoreUpdated?.Invoke(currentScore);
         // End the round
         EndRound();
     }
