@@ -428,7 +428,9 @@ public class GameLogic : MonoBehaviour
     /// </summary>
     private IEnumerator NextRoundDelay()
     {
-        yield return new WaitForSeconds(2f); // 2 second delay between rounds
+        yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space)); // Wait for Space to go to next Round
+
+        // yield return new WaitForSeconds(2f); // 1 second delay 
 
         currentRound++;
         OnRoundUpdated?.Invoke(currentRound, totalRounds);
