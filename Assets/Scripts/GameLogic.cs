@@ -40,7 +40,7 @@ public class GameLogic : MonoBehaviour
     private bool isRoundActive = false;
 
     // MapPack management
-    private int resolvedMapPackId = 3; // Default to Monash 101
+    private int resolvedMapPackId = 2; // Default to Monash 101
 
     private Dictionary<int, LocationManager.MapPack> allMapPacks;
 
@@ -91,7 +91,7 @@ public class GameLogic : MonoBehaviour
         if (locationManager == null)
         {
             LogWarning("LocationManager not assigned in Inspector. Attempting to find it in scene...");
-            locationManager = FindObjectOfType<LocationManager>();
+            locationManager = FindAnyObjectByType<LocationManager>();
             if (locationManager == null)
             {
                 LogError("LocationManager not found in scene! Please ensure LocationManager component exists and is enabled.");
@@ -199,7 +199,7 @@ public class GameLogic : MonoBehaviour
     {
         if (mapManager == null)
         {
-            mapManager = FindObjectOfType<MapInteractionManager>();
+            mapManager = FindAnyObjectByType<MapInteractionManager>();
             if (mapManager == null)
             {
                 LogError("MapInteractionManager not found in scene!");
