@@ -17,8 +17,8 @@ public class GameLogic : MonoBehaviour
     [Header("Game Settings")]
     [SerializeField] private int totalRounds = 5;
     // [SerializeField] private int gameMode = 0; // TODO
-    [SerializeField] private string mapPackName = "Monash 101";
-    [SerializeField] private ScoreDataScriptableObject scoreData;
+    [SerializeField] private string mapPackName = "all";
+    [SerializeField] private ScoreDataScriptableObject scoreData; // Scriptable Object to hold score data
 
     [Header("Map Integration")]
     [SerializeField] private MapInteractionManager mapManager;
