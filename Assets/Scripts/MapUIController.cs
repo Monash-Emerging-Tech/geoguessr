@@ -49,10 +49,12 @@ public class MapUIController : MonoBehaviour
     
     [Header("Debug")]
     [SerializeField] private bool enableDebugLogs = true;
-    
+
     // State
+    #nullable enable
     private MapInteractionManager.LocationData? currentGuess = null;
-    
+    #nullable disable
+
     // Scaling state
     private Vector3 targetScale;
     private float targetWidth;

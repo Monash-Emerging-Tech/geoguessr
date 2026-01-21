@@ -4086,7 +4086,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 487263644213522047, guid: 00668585c194fc24aa8b327e232740d8, type: 3}
       propertyPath: mapPackName
-      value: Monash 101
+      value: Outside Living
       objectReference: {fileID: 0}
     - target: {fileID: 2956644974186284610, guid: 00668585c194fc24aa8b327e232740d8, type: 3}
       propertyPath: m_Name

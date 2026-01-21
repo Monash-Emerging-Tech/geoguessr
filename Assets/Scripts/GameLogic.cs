@@ -91,7 +91,7 @@ public class GameLogic : MonoBehaviour
         if (locationManager == null)
         {
             LogWarning("LocationManager not assigned in Inspector. Attempting to find it in scene...");
-            locationManager = FindObjectOfType<LocationManager>();
+            locationManager = FindAnyObjectByType<LocationManager>();
             if (locationManager == null)
             {
                 LogError("LocationManager not found in scene! Please ensure LocationManager component exists and is enabled.");
@@ -199,7 +199,7 @@ public class GameLogic : MonoBehaviour
     {
         if (mapManager == null)
         {
-            mapManager = FindObjectOfType<MapInteractionManager>();
+            mapManager = FindAnyObjectByType<MapInteractionManager>();
             if (mapManager == null)
             {
                 LogError("MapInteractionManager not found in scene!");
@@ -411,16 +411,9 @@ public class GameLogic : MonoBehaviour
         OnRoundEnded?.Invoke(currentScore);
         LogDebug($"Round {currentRound} ended - Score: {currentScore}");
 
-        // Check if game is complete
-        if (currentRound >= totalRounds)
-        {
-            EndGame();
-        }
-        else
-        {
-            // Start next round after delay
-            StartCoroutine(NextRoundDelay());
-        }
+        // Start next round after delay
+        StartCoroutine(NextRoundDelay());
+  
     }
 
     /// <summary>
@@ -428,7 +421,15 @@ public class GameLogic : MonoBehaviour
     /// </summary>
     private IEnumerator NextRoundDelay()
     {
-        yield return new WaitForSeconds(2f); // 2 second delay between rounds
+        yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space)); // Wait for Space to go to next Round
+
+        // yield return new WaitForSeconds(2f); // 1 second delay 
+        
+        // Check if game is complete
+        if (currentRound >= totalRounds)
+        {
+            EndGame();
+        }
 
         currentRound++;
         OnRoundUpdated?.Invoke(currentRound, totalRounds);
@@ -454,6 +455,7 @@ public class GameLogic : MonoBehaviour
         LogDebug($"Game ended - Final Score: {currentScore}");
 
         // Show results or return to menu
+        SceneManager.LoadScene("BreakdownScene");
         ShowResults();
     }
 

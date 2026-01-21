@@ -30,10 +30,12 @@ public class MapInteractionManager : MonoBehaviour
     [SerializeField] private bool enableDebugLogs = true;
 
     // Current game state
+    #nullable enable
     private LocationData? currentActualLocation;
     private LocationData? currentGuessLocation;
     private bool isMapActive = false;
 
+    #nullable disable
     // Events
     public static event Action<LocationData> OnGuessSubmitted; // Event with location data
     public static event Action<int> OnScoreCalculated;
