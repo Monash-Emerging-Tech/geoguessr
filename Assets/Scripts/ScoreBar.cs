@@ -13,23 +13,25 @@ using UnityEngine.UI;
 public class ScoreBar : MonoBehaviour
 {   
     public int maximum;
-    public int current;
+    
     public Image mask;
+    // [SerializeField] private string editorText = "Default Text";
+    [SerializeField] private ScoreDataScriptableObject scoreData;
+
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        GetCurrenFill();
-    }
+    void Awake() => Refresh();
+    void OnValidate() => Refresh();             // so it updates in the Editor
 
-    void GetCurrenFill() 
+    private void Refresh()
     {
+        int current = (scoreData != null)? scoreData.CurrentScore: 0;
         float fillAmount = (float)current/(float)maximum;
         mask.fillAmount = fillAmount;
-    }
+    }    
 }
