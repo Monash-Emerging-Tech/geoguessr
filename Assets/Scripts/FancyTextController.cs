@@ -56,7 +56,7 @@ public class FancyTextController : MonoBehaviour
         }
 
         //setting the editor text to the score from the scriptable object
-        string editorText = (scoreData != null)? scoreData.CurrentScore.ToString(): "0";
+        string editorText = (scoreData != null)? scoreData.CurrentScore.ToString(): "N/A";
 
         // Update all text fields
         foreach (var tmp in textFields)
