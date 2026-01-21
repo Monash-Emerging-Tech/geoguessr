@@ -218,6 +218,7 @@ public class LocationManager : MonoBehaviour
     {
         List<Location> locations = new List<Location>();
 
+
         if (mapPack.Name == "all" || mapPack.Name == "")
         {
             locations = locationDict.Values.ToList();
