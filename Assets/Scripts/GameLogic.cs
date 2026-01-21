@@ -536,6 +536,7 @@ public class GameLogic : MonoBehaviour
         OnScoreUpdated?.Invoke(currentScore);
         LogDebug($"Score calculated: {score}, Total: {currentScore}");
         
+        LogDebug($"ScoreData reference: {scoreData}");
         //Set current score to shared asset
         if (scoreData != null)
         {
