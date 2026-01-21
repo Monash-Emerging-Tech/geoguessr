@@ -18,6 +18,7 @@ public class GameLogic : MonoBehaviour
     [SerializeField] private int totalRounds = 5;
     // [SerializeField] private int gameMode = 0; // TODO
     [SerializeField] private string mapPackName = "Monash 101";
+    [SerializeField] private ScoreDataScriptableObject scoreData;
 
     [Header("Map Integration")]
     [SerializeField] private MapInteractionManager mapManager;
@@ -535,6 +536,7 @@ public class GameLogic : MonoBehaviour
         OnScoreUpdated?.Invoke(currentScore);
         LogDebug($"Score calculated: {score}, Total: {currentScore}");
         
+        LogDebug($"ScoreData reference: {scoreData}");
         //Set current score to shared asset
         if (scoreData != null)
         {
