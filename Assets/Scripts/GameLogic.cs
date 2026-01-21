@@ -411,16 +411,9 @@ public class GameLogic : MonoBehaviour
         OnRoundEnded?.Invoke(currentScore);
         LogDebug($"Round {currentRound} ended - Score: {currentScore}");
 
-        // Check if game is complete
-        if (currentRound >= totalRounds)
-        {
-            EndGame();
-        }
-        else
-        {
-            // Start next round after delay
-            StartCoroutine(NextRoundDelay());
-        }
+        // Start next round after delay
+        StartCoroutine(NextRoundDelay());
+  
     }
 
     /// <summary>
@@ -431,6 +424,12 @@ public class GameLogic : MonoBehaviour
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space)); // Wait for Space to go to next Round
 
         // yield return new WaitForSeconds(2f); // 1 second delay 
+        
+        // Check if game is complete
+        if (currentRound >= totalRounds)
+        {
+            EndGame();
+        }
 
         currentRound++;
         OnRoundUpdated?.Invoke(currentRound, totalRounds);
@@ -456,6 +455,7 @@ public class GameLogic : MonoBehaviour
         LogDebug($"Game ended - Final Score: {currentScore}");
 
         // Show results or return to menu
+        SceneManager.LoadScene("BreakdownScene");
         ShowResults();
     }
 
