@@ -23,15 +23,16 @@ public class GameLogic : MonoBehaviour
     [Header("Map Integration")]
     [SerializeField] private MapInteractionManager mapManager;
     [SerializeField] private LocationManager locationManager;
-    
+
     [Header("UI References")]
     [SerializeField] private GameObject gameUI;
     [SerializeField] private GameObject mapUI;
     [SerializeField] private GameObject resultsUI;
-    
+
     [Header("Debug")]
     [SerializeField] private bool enableDebugLogs = true;
-    
+
+
     // Game state
     private int currentScore = 0;
     private int currentRound = 1;
@@ -39,10 +40,10 @@ public class GameLogic : MonoBehaviour
     private bool isGuessing = false;
     private bool isGameActive = false;
     private bool isRoundActive = false;
-    
+
     // MapPack management
-    private int resolvedMapPackId = -1;
-    
+    private int resolvedMapPackId = 2; // Default to Monash 101
+
     private Dictionary<int, LocationManager.MapPack> allMapPacks;
 
     // Events
@@ -52,7 +53,7 @@ public class GameLogic : MonoBehaviour
     public static event System.Action<int> OnScoreUpdated;
     public static event System.Action<int, int> OnRoundUpdated; // currentRound, totalRounds
     public static event System.Action<string> OnMapPackChanged; // mapPackName
-    
+
     // Singleton pattern
     public static GameLogic Instance { get; private set; }
 
@@ -65,13 +66,9 @@ public class GameLogic : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            
-            // Initialize location manager
-            if (locationManager != null)
-            {
-                locationManager.Start();
-                allMapPacks = locationManager.GetMapPackDict();
-            }
+
+            // Don't initialize location manager here - let Unity call Start() naturally
+            // This ensures proper initialization order
         }
         else
         {
@@ -79,10 +76,11 @@ public class GameLogic : MonoBehaviour
             return;
         }
     }
-    
+
     private void Start()
     {
         // Subscribe to map events
+        EnsureMapManager();
         if (mapManager != null)
         {
             MapInteractionManager.OnGuessSubmitted += OnGuessSubmitted;
@@ -110,16 +108,75 @@ public class GameLogic : MonoBehaviour
         // Ensure LocationManager is initialized
         if (locationManager != null)
         {
-            if (!ResolveMapPackId())
+            // Force initialization if not already done
+            if (!locationManager.IsInitialized())
             {
-                LogError("Invalid MapPack name in Inspector - please check the MapPack Name field");
+                LogWarning("LocationManager not yet initialized. Attempting to initialize...");
+                // Try to call Start manually if it hasn't been called
+                locationManager.Start();
+
+                // Check again after manual initialization
+                if (!locationManager.IsInitialized())
+                {
+                    LogWarning("LocationManager still not initialized. Will retry in next frame.");
+                    // Use coroutine to wait for LocationManager to initialize
+                    StartCoroutine(WaitForLocationManagerAndResolveMapPack());
+                }
+                else
+                {
+                    // Get map pack dictionary after LocationManager has initialized
+                    allMapPacks = locationManager.GetMapPackDict();
+
+                    // Validate MapPack name at startup
+                    if (!ResolveMapPackId())
+                    {
+                        LogError($"Invalid MapPack name '{mapPackName}' in Inspector - please check the MapPack Name field");
+                    }
+                    else
+                    {
+                        LogDebug($"GameLogic: MapPack resolved successfully - '{mapPackName}' -> ID: {resolvedMapPackId}");
+                    }
+                }
+            }
+            else
+            {
+                // Get map pack dictionary after LocationManager has initialized
+                allMapPacks = locationManager.GetMapPackDict();
+
+                // Validate MapPack name at startup
+                if (!ResolveMapPackId())
+                {
+                    LogError($"Invalid MapPack name '{mapPackName}' in Inspector - please check the MapPack Name field");
+                }
+                else
+                {
+                    LogDebug($"GameLogic: MapPack resolved successfully - '{mapPackName}' -> ID: {resolvedMapPackId}");
+                }
             }
         }
-        
-        // Initialize game
-        InitializeGame();
+        else
+        {
+            LogError("LocationManager not assigned and could not be found in scene!");
+        }
+
+        // Check current scene and hide map if we're in MenuScene
+        Scene currentScene = SceneManager.GetActiveScene();
+        if (currentScene.name == "MenuScene")
+        {
+            if (MapInteractionManager.Instance != null)
+            {
+                MapInteractionManager.Instance.HideMap();
+            }
+            LogDebug("Started in MenuScene - Map hidden");
+        }
+
+        // Initialize game (only if not in MenuScene)
+        if (currentScene.name != "MenuScene")
+        {
+            InitializeGame();
+        }
     }
-    
+
     private void OnDestroy()
     {
         // Unsubscribe from events
@@ -167,20 +224,52 @@ public class GameLogic : MonoBehaviour
     }
 
     /// <summary>
-    /// Called when a scene is loaded - initializes game if it's the GameScene
+    /// Called when a scene is loaded - manages map visibility and game initialization
     /// </summary>
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // If the scenes is the GameScene, we should now change the Map and let the game start
-        if (scene.name == "GameScene") {
+        Debug.Log("Scene loaded: " + scene.name);
+
+        // Hide map when MenuScene is loaded
+        if (scene.name == "MenuScene")
+        {
+            if (MapInteractionManager.Instance != null)
+            {
+                MapInteractionManager.Instance.HideMap();
+            }
+            LogDebug("MenuScene loaded - Map hidden");
+        }
+        // Show map and initialize game when GameScene is loaded
+        else if (scene.name == "GameScene")
+        {
+            LogDebug("GameScene loaded - Initializing game...");
+
+            // Ensure MapInteractionManager is available
+            EnsureMapManager();
+
+            // Initialize game state
+            isGameActive = true;
             inGame = true;
-            currentRound = 0;
+            currentRound = 1;  // Start at round 1, not 0
             currentScore = 0;
             isGuessing = true;
+            isRoundActive = false;  // Ensure round is not active so nextRound can proceed
+
+            // Ensure map pack is resolved before starting round
+            if (locationManager != null && resolvedMapPackId == -1)
+            {
+                if (!ResolveMapPackId())
+                {
+                    LogError("Failed to resolve MapPack in OnSceneLoaded - cannot start game");
+                    return;
+                }
+            }
+
+            // Start the first round (which will also show the map)
             nextRound();
+
+            LogDebug("GameScene loaded - Map shown, game initialized");
         }
-        
-        Debug.Log("Scene name: " + scene.name);
     }
 
     #endregion
@@ -196,9 +285,9 @@ public class GameLogic : MonoBehaviour
         currentScore = 0;
         isGameActive = true;
         inGame = true;
-        
+
         LogDebug("Game initialized");
-        
+
         // Start first round
         nextRound();
     }
@@ -213,19 +302,19 @@ public class GameLogic : MonoBehaviour
         isGameActive = true;
         isRoundActive = false;
         inGame = true;
-        
-        // Reset map manager
-        if (mapManager != null)
+
+        // Reset map manager - use singleton to ensure consistency
+        if (MapInteractionManager.Instance != null)
         {
-            mapManager.ResetRound();
+            MapInteractionManager.Instance.ResetRound();
         }
-        
+
         // Hide results UI
         if (resultsUI != null)
         {
             resultsUI.SetActive(false);
         }
-        
+
         LogDebug("Game restarted");
         nextRound();
     }
@@ -239,11 +328,21 @@ public class GameLogic : MonoBehaviour
     /// </summary>
     public void nextRound()
     {
-        if (!isGameActive || isRoundActive) return;
-        
+        if (!isGameActive)
+        {
+            LogDebug("nextRound() exiting: game not active");
+            return;
+        }
+        if (isRoundActive)
+        {
+            LogDebug("nextRound() exiting: round already active");
+            return;
+        }
+
         isRoundActive = true;
         isGuessing = true;
-        
+        LogDebug($"nextRound() called | isGameActive:{isGameActive} isRoundActive:{isRoundActive} currentRound:{currentRound}");
+
         // Get random location from location manager
         if (locationManager != null)
         {
@@ -253,28 +352,43 @@ public class GameLogic : MonoBehaviour
                 LogError("Failed to resolve MapPack - cannot start round");
                 return;
             }
-            
+
             locationManager.SetCurrentMapPack(resolvedMapPackId);
+            var currentMapPack = locationManager.GetCurrentMapPack();
+            LogDebug($"MapPack set to: {currentMapPack.Name} (ID: {resolvedMapPackId})");
+
             locationManager.SelectRandomLocation();
             var location = locationManager.GetCurrentLocation();
-            
+
             if (!string.IsNullOrEmpty(location.Name))
             {
-                // Set actual location in map manager
+                // Ensure map manager reference is valid before setting actual location
+                if (mapManager == null)
+                {
+                    EnsureMapManager();
+                }
+
                 if (mapManager != null)
                 {
-                    mapManager.SetActualLocation(location.x, location.y);
+                    LogDebug("nextRound(): calling SetActualLocation");
+                    // Use singleton instance to ensure SubmitGuess (called from JS) operates on the same instance
+                    MapInteractionManager.Instance.SetActualLocation(location.lat, location.lng, location.zLevel);
                 }
-                LogDebug($"Round {currentRound} started - Location: {location.Name}");
+                else
+                {
+                    LogError("MapInteractionManager not found when setting actual location; score will be unavailable.");
+                }
+
+                LogDebug($"Round {currentRound} started - Location: {location.Name} | Coordinates: lat={location.lat}, lng={location.lng}, zLevel={location.zLevel}");
             }
         }
-        
-        // Show map
-        if (mapManager != null)
+
+        // Show map after actual location is set
+        if (MapInteractionManager.Instance != null)
         {
-            mapManager.ShowMap();
+            MapInteractionManager.Instance.ShowMap();
         }
-        
+
         OnRoundStarted?.Invoke(currentRound);
         OnRoundUpdated?.Invoke(currentRound, totalRounds);
         LogDebug($"Round {currentRound} started");
@@ -286,22 +400,22 @@ public class GameLogic : MonoBehaviour
     public void EndRound()
     {
         if (!isRoundActive) return;
-        
+
         isRoundActive = false;
         isGuessing = false;
-        
-        // Hide map
-        if (mapManager != null)
+
+        // Hide map - use singleton to ensure consistency
+        if (MapInteractionManager.Instance != null)
         {
-            mapManager.HideMap();
+            MapInteractionManager.Instance.HideMap();
         }
-        
+
         OnRoundEnded?.Invoke(currentScore);
         LogDebug($"Round {currentRound} ended - Score: {currentScore}");
 
         // Start next round after delay
         StartCoroutine(NextRoundDelay());
-  
+
     }
 
     /// <summary>
@@ -312,7 +426,7 @@ public class GameLogic : MonoBehaviour
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space)); // Wait for Space to go to next Round
 
         // yield return new WaitForSeconds(2f); // 1 second delay 
-        
+
         // Check if game is complete
         if (currentRound >= totalRounds)
         {
@@ -332,16 +446,16 @@ public class GameLogic : MonoBehaviour
         isGameActive = false;
         isRoundActive = false;
         inGame = false;
-        
+
         // Hide map
-        if (mapManager != null)
+        if (MapInteractionManager.Instance != null)
         {
-            mapManager.HideMap();
+            MapInteractionManager.Instance.HideMap();
         }
-        
+
         OnGameEnded?.Invoke(currentScore);
         LogDebug($"Game ended - Final Score: {currentScore}");
-        
+
         // Show results or return to menu
         SceneManager.LoadScene("BreakdownScene");
         ShowResults();
@@ -371,7 +485,8 @@ public class GameLogic : MonoBehaviour
     /// <summary>
     /// changes the map shown to the player at the start of a new round
     /// </summary>
-    public void changeMap() {
+    public void changeMap()
+    {
         if (locationManager != null)
         {
             // Resolve MapPack name to ID if not already resolved
@@ -380,10 +495,17 @@ public class GameLogic : MonoBehaviour
                 LogError("Failed to resolve MapPack - cannot change map");
                 return;
             }
-            
+
             locationManager.SetCurrentMapPack(resolvedMapPackId);
+            var currentMapPack = locationManager.GetCurrentMapPack();
+            LogDebug($"MapPack set to: {currentMapPack.Name} (ID: {resolvedMapPackId})");
+
             locationManager.SelectRandomLocation(); // TODO: Make it so the same location can't be selected twice in the same session
-            LogDebug("Map changed for new round");
+            var location = locationManager.GetCurrentLocation();
+            if (!string.IsNullOrEmpty(location.Name))
+            {
+                LogDebug($"Map changed - Location: {location.Name} | Coordinates: lat={location.lat}, lng={location.lng}, zLevel={location.zLevel}");
+            }
         }
         else
         {
@@ -398,13 +520,13 @@ public class GameLogic : MonoBehaviour
     /// <summary>
     /// Called when a guess is submitted
     /// </summary>
-    /// <param name="guessMarker">The guessed location marker data with z-level support</param>
-    private void OnGuessSubmitted(MapInteractionManager.MarkerData guessMarker)
+    /// <param name="guessLocation">The guessed location data with z-level support</param>
+    private void OnGuessSubmitted(MapInteractionManager.LocationData guessLocation)
     {
-        LogDebug($"Guess submitted at: {guessMarker.lat}, {guessMarker.lng}, Level: {guessMarker.zLevelName}");
+        LogDebug($"Guess submitted at: {guessLocation.lat}, {guessLocation.lng}, Level: {guessLocation.zLevelName}");
         // The score calculation will be handled by OnScoreCalculated
     }
-    
+
     /// <summary>
     /// Called when score is calculated
     /// </summary>
@@ -414,7 +536,7 @@ public class GameLogic : MonoBehaviour
         currentScore += score;
         OnScoreUpdated?.Invoke(currentScore);
         LogDebug($"Score calculated: {score}, Total: {currentScore}");
-        
+
         LogDebug($"ScoreData reference: {scoreData}");
         //Set current score to shared asset
         if (scoreData != null)
@@ -426,7 +548,7 @@ public class GameLogic : MonoBehaviour
         // End the round
         EndRound();
     }
-    
+
     /// <summary>
     /// Called when map is opened
     /// </summary>
@@ -435,7 +557,7 @@ public class GameLogic : MonoBehaviour
         LogDebug("Map opened");
         // Update UI to show map is active
     }
-    
+
     /// <summary>
     /// Called when map is closed
     /// </summary>
@@ -455,17 +577,17 @@ public class GameLogic : MonoBehaviour
     private void ShowResults()
     {
         // Update score display
-        if (mapManager != null)
+        if (MapInteractionManager.Instance != null)
         {
-            mapManager.UpdateScoreDisplay(currentScore, currentRound);
+            MapInteractionManager.Instance.UpdateScoreDisplay(currentScore, currentRound);
         }
-        
+
         // Show results UI if available
         if (resultsUI != null)
         {
             resultsUI.SetActive(true);
         }
-        
+
         LogDebug("Results displayed");
     }
 
@@ -486,7 +608,7 @@ public class GameLogic : MonoBehaviour
     public bool IsGuessing() => isGuessing;
     public bool IsInGame() => inGame;
     public LocationManager GetLocationManager() => locationManager;
-    
+
     /// <summary>
     /// Sets the MapPack by name and resolves it to an ID
     /// </summary>
@@ -499,30 +621,30 @@ public class GameLogic : MonoBehaviour
             LogError("LocationManager not assigned - cannot set MapPack");
             return false;
         }
-        
+
         int id = locationManager.GetMapPackIdByName(name);
         if (id == -1)
         {
             LogError($"MapPack '{name}' not found. Available MapPacks: {string.Join(", ", locationManager.GetAllMapPackNames())}");
             return false;
         }
-        
+
         mapPackName = name;
         resolvedMapPackId = id;
         LogDebug($"MapPack set to: {name} (ID: {id})");
-        
+
         // Fire MapPack changed event
         OnMapPackChanged?.Invoke(name);
-        
+
         return true;
     }
-    
+
     /// <summary>
     /// Gets the current MapPack name from the Inspector field
     /// </summary>
     /// <returns>Current MapPack name</returns>
     public string GetCurrentMapPackName() => mapPackName;
-    
+
     /// <summary>
     /// Validates and resolves the current MapPack name to ID
     /// </summary>
@@ -534,23 +656,63 @@ public class GameLogic : MonoBehaviour
             LogError("LocationManager not assigned - cannot resolve MapPack");
             return false;
         }
-        
+
+        // Log the actual value being used
+        LogDebug($"GameLogic: Resolving MapPack name '{mapPackName}' to ID... (mapPackName field value: '{mapPackName}')");
         int id = locationManager.GetMapPackIdByName(mapPackName);
         if (id == -1)
         {
-            LogError($"MapPack '{mapPackName}' not found. Available MapPacks: {string.Join(", ", locationManager.GetAllMapPackNames())}");
+            string[] availableMapPacks = locationManager.GetAllMapPackNames();
+            LogError($"GameLogic: MapPack '{mapPackName}' not found. Available MapPacks: {string.Join(", ", availableMapPacks)}");
             return false;
         }
-        
+
         resolvedMapPackId = id;
-        
+        LogDebug($"GameLogic: MapPack '{mapPackName}' resolved to ID: {id}");
+
         // Fire MapPack changed event (only if this is not the initial startup resolution)
         if (mapPackName != "all" || resolvedMapPackId != 0) // Avoid firing for default startup
         {
             OnMapPackChanged?.Invoke(mapPackName);
         }
-        
+
         return true;
+    }
+
+    /// <summary>
+    /// Coroutine to wait for LocationManager to initialize before resolving map pack
+    /// </summary>
+    private IEnumerator WaitForLocationManagerAndResolveMapPack()
+    {
+        int maxWaitFrames = 60; // Wait up to 1 second at 60fps
+        int frameCount = 0;
+
+        while (!locationManager.IsInitialized() && frameCount < maxWaitFrames)
+        {
+            yield return null; // Wait one frame
+            frameCount++;
+        }
+
+        if (locationManager.IsInitialized())
+        {
+            LogDebug("LocationManager initialized - resolving map pack...");
+            // Get map pack dictionary after LocationManager has initialized
+            allMapPacks = locationManager.GetMapPackDict();
+
+            // Validate MapPack name at startup
+            if (!ResolveMapPackId())
+            {
+                LogError($"Invalid MapPack name '{mapPackName}' in Inspector - please check the MapPack Name field");
+            }
+            else
+            {
+                LogDebug($"GameLogic: MapPack resolved successfully - '{mapPackName}' -> ID: {resolvedMapPackId}");
+            }
+        }
+        else
+        {
+            LogError("LocationManager failed to initialize after waiting. Check LocationManager component.");
+        }
     }
 
     #endregion
@@ -565,12 +727,12 @@ public class GameLogic : MonoBehaviour
             Debug.Log($"[GameLogic] {message}");
         }
     }
-    
+
     private void LogWarning(string message)
     {
         Debug.LogWarning($"[GameLogic] {message}");
     }
-    
+
     private void LogError(string message)
     {
         Debug.LogError($"[GameLogic] {message}");
