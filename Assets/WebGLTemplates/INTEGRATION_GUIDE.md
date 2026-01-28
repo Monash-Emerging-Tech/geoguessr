@@ -46,6 +46,7 @@ Unity sends marker data → JavaScript renders markers on MazeMap
 
 ### After Building
 - [ ] WebGL build loads without errors
+- [ ] Map opens when "Open Map" clicked
 - [ ] Map clicks register and send coordinates to Unity
 - [ ] Markers appear on map for guess and actual locations
 - [ ] Score calculation works correctly
@@ -53,7 +54,7 @@ Unity sends marker data → JavaScript renders markers on MazeMap
 
 ### Common Issues
 1. **Map not loading**: Check internet connection and MazeMaps API access
-2. **Unity-JS communication failing**: Verify WebGL build and function names (particular the template used)
+2. **Unity-JS communication failing**: Verify WebGL build and function names
 3. **Markers not appearing**: Check coordinate format and map instance
 4. **Scoring issues**: Ensure actual location is set before guess submission
 
