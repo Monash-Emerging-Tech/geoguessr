@@ -3,7 +3,6 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
-
 /// <summary>
 /// Controls the UI elements related to map interaction
 /// Handles map scaling, animation, button controls, and guess information
@@ -331,10 +330,10 @@ public class MapUIController : MonoBehaviour
     {
         if (guessInfoText != null)
         {
-            if (currentGuess != null)
+            if (currentGuess.HasValue)
             {
                 guessInfoText.text = string.Format(guessFormat, 
-                    currentGuess.lat, currentGuess.lng);
+                    currentGuess.Value.x, currentGuess.Value.y);
                 guessInfoText.gameObject.SetActive(true);
             }
             else
@@ -348,11 +347,11 @@ public class MapUIController : MonoBehaviour
     // Event handlers
     
     
-    private void OnGuessSubmitted(MapInteractionManager.LocationData guessLocation)
+    private void OnGuessSubmitted(MapInteractionManager.MarkerData guessMarker)
     {
-        currentGuess = guessLocation;
+        currentGuess = new Vector2(guessMarker.lat, guessMarker.lng);
         UpdateGuessInfo();
-        LogDebug($"Guess submitted at {guessLocation.lat}, {guessLocation.lng}, Level: {guessLocation.zLevelName} - UI updated");
+        LogDebug($"Guess submitted at {guessMarker.lat}, {guessMarker.lng}, Level: {guessMarker.zLevelName} - UI updated");
     }
     
     private void OnMapOpened()
