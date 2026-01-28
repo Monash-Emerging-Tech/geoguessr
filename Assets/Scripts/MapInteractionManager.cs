@@ -14,27 +14,29 @@ public class MapInteractionManager : MonoBehaviour
     [Header("Map Settings")]
     [SerializeField] private bool enableMapOnStart = false;
     [SerializeField] private float maxGuessDistance = 1000f; // Maximum distance for scoring in meters
-    
+
     [Header("Z-Level Settings")]
     [SerializeField] private int minZLevel = -4; // P4 (Parking Level 4)
     [SerializeField] private int maxZLevel = 12; // 11th Floor
     [SerializeField] private int currentZLevel = 0; // Ground level
-    
+
     [Header("Scoring Settings")]
     [SerializeField] private int maxScore = 5000;
     [SerializeField] private int minScore = 0;
     [SerializeField] private AnimationCurve scoreCurve = AnimationCurve.EaseInOut(0, 1, 1, 0);
-    
+
     [Header("Debug")]
     [SerializeField] private bool enableDebugLogs = true;
-    
+
     // Current game state
-    #nullable enable
-    private LocationData? currentActualLocation;
-    private LocationData? currentGuessLocation;
+#nullable enable
+    private Vector2? currentActualLocation;
+    private Vector2? currentGuessLocation;
+    private MarkerData? currentGuessMarker;
+    private MarkerData? currentActualMarker;
     private bool isMapActive = false;
 
-    #nullable disable
+#nullable disable
     // Events
     public static event Action<MarkerData> OnGuessSubmitted; // Enhanced event with z-level support
     public static event Action<int> OnScoreCalculated;
@@ -42,7 +44,7 @@ public class MapInteractionManager : MonoBehaviour
     public static event Action OnMapClosed;
     public static event Action OnPinPlaced;
     public static event Action<int> OnZLevelChanged; // New z-level event
-    
+
     // Singleton pattern
     public static MapInteractionManager Instance { get; private set; }
 
@@ -62,14 +64,14 @@ public class MapInteractionManager : MonoBehaviour
             return;
         }
     }
-    
+
     private void Start()
     {
         if (enableMapOnStart)
         {
             ShowMap();
         }
-        
+
         LogDebug("MapInteractionManager initialized");
     }
 
@@ -83,36 +85,36 @@ public class MapInteractionManager : MonoBehaviour
     public void ShowMap()
     {
         if (isMapActive) return;
-        
+
         isMapActive = true;
-        
+
         // Call JavaScript function to show map
-        #if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL && !UNITY_EDITOR
         Application.ExternalEval("showMapFromUnity()");
-        #else
+#else
         LogDebug("Map would be shown (WebGL only)");
-        #endif
-        
+#endif
+
         OnMapOpened?.Invoke();
         LogDebug("Map opened");
     }
-    
+
     /// <summary>
     /// Hides the map interface
     /// </summary>
     public void HideMap()
     {
         if (!isMapActive) return;
-        
+
         isMapActive = false;
-        
+
         // Call JavaScript function to hide map
-        #if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL && !UNITY_EDITOR
         Application.ExternalEval("hideMapFromUnity()");
-        #else
+#else
         LogDebug("Map would be hidden (WebGL only)");
-        #endif
-        
+#endif
+
         OnMapClosed?.Invoke();
         LogDebug("Map closed");
     }
@@ -141,7 +143,7 @@ public class MapInteractionManager : MonoBehaviour
     public void SetActualLocation(float latitude, float longitude, int zLevel)
     {
         currentActualLocation = new Vector2(latitude, longitude);
-        
+
         // Create enhanced marker data
         currentActualMarker = new MarkerData
         {
@@ -163,7 +165,7 @@ public class MapInteractionManager : MonoBehaviour
             },
             markerType = "actual"
         };
-        
+
         LogDebug($"Actual location set to: {latitude}, {longitude}, Level: {GetZLevelName(zLevel)}");
     }
 
@@ -197,7 +199,7 @@ public class MapInteractionManager : MonoBehaviour
             {
                 // Enhanced data with z-level
                 currentGuessLocation = new Vector2(enhancedData.latitude, enhancedData.longitude);
-                
+
                 // Create enhanced marker data
                 currentGuessMarker = new MarkerData
                 {
@@ -209,9 +211,9 @@ public class MapInteractionManager : MonoBehaviour
                     timestamp = enhancedData.timestamp.ToString(),
                     options = new MarkerOptions
                     {
-                imgUrl = "images/handthing.svg",
-                imgScale = 1.7f,
-                color = "white",
+                        imgUrl = "images/handthing.svg",
+                        imgScale = 1.7f,
+                        color = "white",
                         size = 60,
                         innerCircle = false,
                         shape = "marker",
@@ -219,7 +221,7 @@ public class MapInteractionManager : MonoBehaviour
                     },
                     markerType = "player"
                 };
-                
+
                 LogDebug($"Map clicked at: {enhancedData.latitude}, {enhancedData.longitude}, Level: {enhancedData.zLevelName}");
             }
             else
@@ -229,7 +231,7 @@ public class MapInteractionManager : MonoBehaviour
                 currentGuessLocation = new Vector2(clickData.latitude, clickData.longitude);
                 LogDebug($"Map clicked at: {clickData.latitude}, {clickData.longitude} (legacy data)");
             }
-            
+
             // Trigger pin placed event
             OnPinPlaced?.Invoke();
         }
@@ -238,7 +240,7 @@ public class MapInteractionManager : MonoBehaviour
             LogError($"Error parsing map click data: {e.Message}");
         }
     }
-    
+
     /// <summary>
     /// Called from JavaScript when guess is submitted
     /// </summary>
@@ -253,7 +255,7 @@ public class MapInteractionManager : MonoBehaviour
             {
                 // Enhanced data with z-level
                 currentGuessLocation = new Vector2(enhancedData.latitude, enhancedData.longitude);
-                
+
                 // Create enhanced marker data for guess
                 currentGuessMarker = new MarkerData
                 {
@@ -265,9 +267,9 @@ public class MapInteractionManager : MonoBehaviour
                     timestamp = enhancedData.timestamp.ToString(),
                     options = new MarkerOptions
                     {
-                imgUrl = "images/handthing.svg",
-                imgScale = 1.7f,
-                color = "white",
+                        imgUrl = "images/handthing.svg",
+                        imgScale = 1.7f,
+                        color = "white",
                         size = 60,
                         innerCircle = false,
                         shape = "marker",
@@ -275,7 +277,7 @@ public class MapInteractionManager : MonoBehaviour
                     },
                     markerType = "player"
                 };
-                
+
                 LogDebug($"Guess submitted at: {enhancedData.latitude}, {enhancedData.longitude}, Level: {enhancedData.zLevelName}");
             }
             else
@@ -283,7 +285,7 @@ public class MapInteractionManager : MonoBehaviour
                 // Fallback to legacy data
                 var guessData = JsonUtility.FromJson<MapClickData>(jsonData);
                 currentGuessLocation = new Vector2(guessData.latitude, guessData.longitude);
-                
+
                 // Create basic marker data for legacy guess
                 currentGuessMarker = new MarkerData
                 {
@@ -305,22 +307,22 @@ public class MapInteractionManager : MonoBehaviour
                     },
                     markerType = "player"
                 };
-                
+
                 LogDebug($"Guess submitted at: {guessData.latitude}, {guessData.longitude} (legacy data)");
             }
-            
+
             // Trigger enhanced guess submitted event
             if (currentGuessMarker != null)
             {
                 OnGuessSubmitted?.Invoke(currentGuessMarker);
             }
-            
+
             // Calculate score if we have both locations
             if (currentActualLocation.HasValue && currentGuessLocation.HasValue)
             {
                 int score = CalculateScore(currentActualLocation.Value, currentGuessLocation.Value);
                 OnScoreCalculated?.Invoke(score);
-                
+
                 // Show both locations on map
                 ShowBothLocations();
             }
@@ -348,25 +350,25 @@ public class MapInteractionManager : MonoBehaviour
     private int CalculateScore(Vector2 actual, Vector2 guess)
     {
         float distance = CalculateDistance(actual, guess);
-        
+
         // If guess is beyond max distance, return minimum score
         if (distance > maxGuessDistance)
         {
             LogDebug($"Distance: {distance:F2}m exceeds max distance {maxGuessDistance}m - Score: {minScore}");
             return minScore;
         }
-        
+
         // Linear scoring: maxScore minus proportional distance
         float scoreRatio = 1f - (distance / maxGuessDistance);
         int score = Mathf.RoundToInt(maxScore * scoreRatio);
-        
+
         // Ensure score doesn't go below minimum
         score = Mathf.Max(minScore, score);
-        
+
         LogDebug($"Distance: {distance:F2}m, Max Distance: {maxGuessDistance}m, Score: {score}");
         return score;
     }
-    
+
     /// <summary>
     /// Calculates distance between two coordinates using simple approximation
     /// Accurate enough for campus distances (under 5km)
@@ -381,7 +383,7 @@ public class MapInteractionManager : MonoBehaviour
         // 1 degree longitude ~ 111,000 * cos(latitude) meters
         float latDiff = (coord2.x - coord1.x) * 111000f;
         float lngDiff = (coord2.y - coord1.y) * 111000f * Mathf.Cos(coord1.x * Mathf.Deg2Rad);
-        
+
         return Mathf.Sqrt(latDiff * latDiff + lngDiff * lngDiff);
     }
 
@@ -396,24 +398,24 @@ public class MapInteractionManager : MonoBehaviour
     /// <param name="round">Current round</param>
     public void UpdateScoreDisplay(int score, int round)
     {
-        #if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL && !UNITY_EDITOR
         Application.ExternalEval($"updateScoreFromUnity({score}, {round})");
-        #else
+#else
         LogDebug($"Score would be updated: {score}, Round: {round}");
-        #endif
+#endif
     }
-    
+
     /// <summary>
     /// Shows loading indicator
     /// </summary>
     /// <param name="show">Whether to show or hide loading</param>
     public void ShowLoading(bool show)
     {
-        #if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL && !UNITY_EDITOR
         Application.ExternalEval($"showLoading({show.ToString().ToLower()})");
-        #else
+#else
         LogDebug($"Loading would be {(show ? "shown" : "hidden")}");
-        #endif
+#endif
     }
 
     #endregion
@@ -426,17 +428,17 @@ public class MapInteractionManager : MonoBehaviour
     private void ShowBothLocations()
     {
         if (!currentActualLocation.HasValue || !currentGuessLocation.HasValue) return;
-        
+
         // Add actual location marker
-        #if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL && !UNITY_EDITOR
         Application.ExternalEval($"addMarkerFromUnity({currentActualLocation.Value.x}, {currentActualLocation.Value.y}, 'Actual Location', 'actual')");
-        #endif
-        
+#endif
+
         // Add guess location marker (if not already added)
-        #if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL && !UNITY_EDITOR
         Application.ExternalEval($"addMarkerFromUnity({currentGuessLocation.Value.x}, {currentGuessLocation.Value.y}, 'Your Guess', 'guess')");
-        #endif
-        
+#endif
+
         LogDebug("Both locations displayed on map");
     }
 
@@ -452,12 +454,12 @@ public class MapInteractionManager : MonoBehaviour
             Debug.Log($"[MapInteractionManager] {message}");
         }
     }
-    
+
     private void LogWarning(string message)
     {
         Debug.LogWarning($"[MapInteractionManager] {message}");
     }
-    
+
     private void LogError(string message)
     {
         Debug.LogError($"[MapInteractionManager] {message}");
