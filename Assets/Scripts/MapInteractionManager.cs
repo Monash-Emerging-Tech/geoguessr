@@ -29,14 +29,12 @@ public class MapInteractionManager : MonoBehaviour
     [SerializeField] private bool enableDebugLogs = true;
     
     // Current game state
-    private Vector2? currentActualLocation;
-    private Vector2? currentGuessLocation;
+    #nullable enable
+    private LocationData? currentActualLocation;
+    private LocationData? currentGuessLocation;
     private bool isMapActive = false;
-    
-    // Enhanced location data with z-level support
-    private MarkerData currentActualMarker;
-    private MarkerData currentGuessMarker;
-    
+
+    #nullable disable
     // Events
     public static event Action<MarkerData> OnGuessSubmitted; // Enhanced event with z-level support
     public static event Action<int> OnScoreCalculated;

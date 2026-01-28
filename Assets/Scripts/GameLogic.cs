@@ -17,8 +17,9 @@ public class GameLogic : MonoBehaviour
     [Header("Game Settings")]
     [SerializeField] private int totalRounds = 5;
     // [SerializeField] private int gameMode = 0; // TODO
-    [SerializeField] private string mapPackName = "all";
-    
+    [SerializeField] private string mapPackName = "Monash 101";
+    [SerializeField] private ScoreDataScriptableObject scoreData;
+
     [Header("Map Integration")]
     [SerializeField] private MapInteractionManager mapManager;
     [SerializeField] private LocationManager locationManager;
@@ -89,8 +90,24 @@ public class GameLogic : MonoBehaviour
             MapInteractionManager.OnMapOpened += OnMapOpened;
             MapInteractionManager.OnMapClosed += OnMapClosed;
         }
-        
-        // Validate MapPack name at startup
+
+        // Try to find LocationManager if not assigned
+        if (locationManager == null)
+        {
+            LogWarning("LocationManager not assigned in Inspector. Attempting to find it in scene...");
+            locationManager = FindAnyObjectByType<LocationManager>();
+            if (locationManager == null)
+            {
+                LogError("LocationManager not found in scene! Please ensure LocationManager component exists and is enabled.");
+                return;
+            }
+            else
+            {
+                LogDebug("LocationManager found in scene.");
+            }
+        }
+
+        // Ensure LocationManager is initialized
         if (locationManager != null)
         {
             if (!ResolveMapPackId())
@@ -122,6 +139,22 @@ public class GameLogic : MonoBehaviour
     }
 
     #endregion
+
+    private void EnsureMapManager()
+    {
+        if (mapManager == null)
+        {
+            mapManager = FindAnyObjectByType<MapInteractionManager>();
+            if (mapManager == null)
+            {
+                LogError("MapInteractionManager not found in scene!");
+            }
+            else
+            {
+                LogDebug("MapInteractionManager found in scene.");
+            }
+        }
+    }
 
     #region Scene Management
 
@@ -265,17 +298,10 @@ public class GameLogic : MonoBehaviour
         
         OnRoundEnded?.Invoke(currentScore);
         LogDebug($"Round {currentRound} ended - Score: {currentScore}");
-        
-        // Check if game is complete
-        if (currentRound >= totalRounds)
-        {
-            EndGame();
-        }
-        else
-        {
-            // Start next round after delay
-            StartCoroutine(NextRoundDelay());
-        }
+
+        // Start next round after delay
+        StartCoroutine(NextRoundDelay());
+  
     }
 
     /// <summary>
@@ -283,8 +309,16 @@ public class GameLogic : MonoBehaviour
     /// </summary>
     private IEnumerator NextRoundDelay()
     {
-        yield return new WaitForSeconds(2f); // 2 second delay between rounds
+        yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space)); // Wait for Space to go to next Round
+
+        // yield return new WaitForSeconds(2f); // 1 second delay 
         
+        // Check if game is complete
+        if (currentRound >= totalRounds)
+        {
+            EndGame();
+        }
+
         currentRound++;
         OnRoundUpdated?.Invoke(currentRound, totalRounds);
         nextRound();
@@ -309,6 +343,7 @@ public class GameLogic : MonoBehaviour
         LogDebug($"Game ended - Final Score: {currentScore}");
         
         // Show results or return to menu
+        SceneManager.LoadScene("BreakdownScene");
         ShowResults();
     }
 
@@ -380,6 +415,14 @@ public class GameLogic : MonoBehaviour
         OnScoreUpdated?.Invoke(currentScore);
         LogDebug($"Score calculated: {score}, Total: {currentScore}");
         
+        LogDebug($"ScoreData reference: {scoreData}");
+        //Set current score to shared asset
+        if (scoreData != null)
+        {
+            scoreData.SetScore(currentScore);
+        }
+
+        OnScoreUpdated?.Invoke(currentScore);
         // End the round
         EndRound();
     }

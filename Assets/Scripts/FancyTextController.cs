@@ -12,7 +12,8 @@ using TMPro;
 public class FancyTextController : MonoBehaviour
 {   
     [SerializeField] private TextMeshProUGUI[] textFields;
-    [SerializeField] private string editorText = "Default Text";
+    // [SerializeField] private string editorText = "Default Text";
+    [SerializeField] private ScoreDataScriptableObject scoreData;
 
     private void OnValidate()
     {
@@ -20,8 +21,10 @@ public class FancyTextController : MonoBehaviour
         UpdateTextFields();
     }
 
-    public void Awake()
+    public void Awake()    
     {
+              
+        
         // Automatically find text fields if not assigned
         if (textFields == null || textFields.Length == 0)
         {
@@ -33,16 +36,16 @@ public class FancyTextController : MonoBehaviour
     }
 
     [ContextMenu("Update Texts")]
-    public void SetEditorText()
-    {
-        UpdateTextFields();
-    }
+    // public void SetEditorText()
+    // {
+    //     UpdateTextFields();
+    // }
 
-    public void SetText(string newText)
-    {
-        editorText = newText;
-        UpdateTextFields();
-    }
+    // public void SetText(string newText)
+    // {
+    //     editorText = newText;
+    //     UpdateTextFields();
+    // }
 
     private void UpdateTextFields()
     {
@@ -51,6 +54,9 @@ public class FancyTextController : MonoBehaviour
         {
             textFields = GetComponentsInChildren<TextMeshProUGUI>();
         }
+
+        //setting the editor text to the score from the scriptable object
+        string editorText = (scoreData != null)? scoreData.CurrentScore.ToString(): "N/A";
 
         // Update all text fields
         foreach (var tmp in textFields)
