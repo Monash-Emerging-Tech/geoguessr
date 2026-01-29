@@ -64,7 +64,25 @@
         meta.name = 'viewport';
         meta.content =
           'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no';
-        document.head.appendChild(meta);
+        document.getElementsByTagName('head')[0].appendChild(meta);
+
+        var gameContainer = document.querySelector("#game-container");
+        var canvas = document.querySelector("#unity-canvas");
+        
+        // Make game container fill the viewport
+        gameContainer.style.width = "100vw";
+        gameContainer.style.height = "100vh";
+        gameContainer.style.maxWidth = "none";
+        gameContainer.style.maxHeight = "none";
+        
+        // Make canvas fill the container while maintaining aspect ratio
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+        canvas.style.maxWidth = "none";
+        canvas.style.aspectRatio = "none";
+        canvas.style.position = "fixed";
+
+        document.body.style.textAlign = "left";
       }
 
       // Create Unity instance (placeholders replaced with real paths)
@@ -81,7 +99,7 @@
         window.gameInstance = unityInstance;
         console.log("Unity instance created");
       }).catch((message) => {
-        console.error("Unity failed to load:", message);
+        console.error("Unity instance creation failed:", message);
       });
     </script>
 
