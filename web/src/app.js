@@ -67,7 +67,7 @@
     } catch (error) {
       console.error(
         "Failed to initialize Maze Maps:",
-        error && error.message ? error.message : error
+        error && error.message ? error.message : error,
       );
     }
   }
@@ -88,7 +88,7 @@
       color: "MazeBlue",
       size: 36,
       zLevel: zLevel,
-      imgUrl: "../assets/img/markers/handthing.png",
+      imgUrl: "/assets/img/markers/handthing.png",
       imgScale: 1.7,
       color: "white",
       innerCircle: false,
@@ -165,8 +165,8 @@
         marker._storedZLevel !== undefined
           ? marker._storedZLevel
           : marker.options
-          ? marker.options.zLevel
-          : map.zLevel || 0;
+            ? marker.options.zLevel
+            : map.zLevel || 0;
 
       // Build JSON payload matching EnhancedMapClickData structure
       var payload = {
@@ -187,7 +187,7 @@
           unityInstance.SendMessage(
             "MapInteractionManager", // GameObject name
             "SubmitGuess", // Method name
-            jsonString // JSON string
+            jsonString, // JSON string
           );
           console.log("Guess submitted to Unity:", payload);
 
@@ -252,7 +252,7 @@
       var map = window.mazeMapInstance;
       if (!map) {
         console.error(
-          "Map instance not available for addActualLocationFromUnity"
+          "Map instance not available for addActualLocationFromUnity",
         );
         return;
       }
@@ -339,6 +339,9 @@
   // Expose to global scope for Unity to call
   window.showMapFromUnity = showMapFromUnity;
   window.hideMapFromUnity = hideMapFromUnity;
+  window.mmSetWidgetSize = setWidgetSize;
+  window.submitGuess = submitGuess;
+  window.addActualLocationFromUnity = addActualLocationFromUnity;
 
   // --------------------------------------------------------------- GUESS BUTTON MANAGEMENT
   function updateGuessButtonState(hasMarker) {
