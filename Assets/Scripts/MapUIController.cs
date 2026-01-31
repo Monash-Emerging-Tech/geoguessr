@@ -334,7 +334,7 @@ public class MapUIController : MonoBehaviour
             if (currentGuess != null)
             {
                 guessInfoText.text = string.Format(guessFormat,
-                    currentGuess.lat, currentGuess.lng);
+                    currentGuess.latitude, currentGuess.longitude);
                 guessInfoText.gameObject.SetActive(true);
             }
             else
@@ -352,7 +352,7 @@ public class MapUIController : MonoBehaviour
     {
         currentGuess = guessLocation;
         UpdateGuessInfo();
-        LogDebug($"Guess submitted at {guessLocation.lat}, {guessLocation.lng}, Level: {guessLocation.zLevelName} - UI updated");
+        LogDebug($"Guess submitted at {guessLocation.latitude}, {guessLocation.longitude}, Level: {guessLocation.zLevelName} - UI updated");
     }
 
     private void OnMapOpened()

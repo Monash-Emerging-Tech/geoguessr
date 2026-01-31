@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>MNET Monash Geoguessr</title>
+
+    <!-- MazeMaps CSS -->
+    <link
+      rel="stylesheet"
+      href="https://api.mazemap.com/js/v2.2.1/mazemap.min.css"
+    />
+
+    <!-- App CSS -->
+    <link rel="stylesheet" href="/assets/css/app.css" />
+
+    <!-- MazeMaps JS -->
+    <script
+      src="https://api.mazemap.com/js/v2.2.1/mazemap.min.js"
+      onerror="console.error('Failed to load Maze Maps JavaScript library')"
+      onload="console.log('Maze Maps JavaScript library loaded')"
+    ></script>
+  </head>
+
+  <body style="padding:0; margin:0; overflow:hidden;">
+    <div
+      id="game-container"
+      style="position: relative; width: 100vw; height: 100vh;"
+    >
+      <!-- Unity canvas -->
+      <canvas
+        id="unity-canvas"
+        tabindex="-1"
+        style="width:100%; height:100%; background:#231F20; display:block;"
+      ></canvas>
+
+      <!-- Maze Map UI -->
+      <div id="maze-map-ui" style="position:absolute; bottom:20px; right:20px; display:none;">
+        <div class="mm-controls">
+          <button class="mm-btn mm-expand"></button>
+          <button class="mm-btn mm-minimise"></button>
+          <button class="mm-btn mm-pin"></button>
+        </div>
+
+        <div id="maze-map-widget" class="maze-map-widget mm-size-s">
+          <div id="maze-maps-container" class="mazemap-container">
+            <div id="map"></div>
+          </div>
+        </div>
+
+        <button id="guess-button" class="mm-guess-btn" disabled>
+          PLACE YOUR PIN ON THE MAP
+        </button>
+      </div>
+    </div>
+
+    <!-- Unity loader (from WebGL build output) -->
+    <script src="/unity/Build/unity.loader.js"></script>
+
+    <script>
+      // Mobile handling (unchanged logic)
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        const meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content =
+          'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no';
+        document.getElementsByTagName('head')[0].appendChild(meta);
+
+        var gameContainer = document.querySelector("#game-container");
+        var canvas = document.querySelector("#unity-canvas");
+        
+        // Make game container fill the viewport
+        gameContainer.style.width = "100vw";
+        gameContainer.style.height = "100vh";
+        gameContainer.style.maxWidth = "none";
+        gameContainer.style.maxHeight = "none";
+        
+        // Make canvas fill the container while maintaining aspect ratio
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+        canvas.style.maxWidth = "none";
+        canvas.style.aspectRatio = "none";
+        canvas.style.position = "fixed";
+
+        document.body.style.textAlign = "left";
+      }
+
+      // Create Unity instance (placeholders replaced with real paths)
+      createUnityInstance(document.querySelector("#unity-canvas"), {
+        dataUrl: "/unity/Build/unity.data",
+        frameworkUrl: "/unity/Build/unity.framework.js",
+        codeUrl: "/unity/Build/unity.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "MNET",
+        productName: "Geoguessr",
+        productVersion: "0.1"
+      }).then((unityInstance) => {
+        window.unityInstance = unityInstance;
+        window.gameInstance = unityInstance;
+        console.log("Unity instance created");
+      }).catch((message) => {
+        console.error("Unity instance creation failed:", message);
+      });
+    </script>
+
+    <!-- Your app logic (Vite-managed) -->
+    <script type="module" src="/src/app.js"></script>
+  </body>
+</html>

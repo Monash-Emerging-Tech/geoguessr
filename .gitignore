@@ -82,3 +82,10 @@ Assets/TextMeshPro/Resources/FontAssetCreationSettings.asset
 
 # Ignore the whole TextMesh Pro directory
 /[Aa]ssets/[Tt]extMesh [Pp]ro/
+
+# Web
+web/node_modules/
+web/dist/
+web/public/unity/
+# Prevent Unity meta spam in web folder
+web/**/*.meta
