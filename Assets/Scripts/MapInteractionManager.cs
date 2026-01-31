@@ -1,3 +1,5 @@
+
+#nullable enable
 using UnityEngine;
 using System.Collections.Generic;
 using System;
@@ -8,7 +10,7 @@ using System;
 /// Handles map clicks, scoring, and marker placement
 /// 
 /// Written by aleu0007
-/// Last Modified: 24/09/2025
+/// Last Modified: 29/01/2026
 /// </summary>
 public class MapInteractionManager : MonoBehaviour
 {
@@ -30,18 +32,17 @@ public class MapInteractionManager : MonoBehaviour
     [SerializeField] private bool enableDebugLogs = true;
 
     // Current game state
-#nullable enable
     private LocationData? currentActualLocation;
     private LocationData? currentGuessLocation;
+    private MarkerData? currentGuessMarker;
+    private MarkerData? currentActualMarker;
     private bool isMapActive = false;
-
-#nullable disable
     // Events
-    public static event Action<LocationData> OnGuessSubmitted; // Event with location data
-    public static event Action<int> OnScoreCalculated;
-    public static event Action OnMapOpened;
-    public static event Action OnMapClosed;
-    public static event Action<int> OnZLevelChanged; // New z-level event
+    public static event Action<LocationData>? OnGuessSubmitted; // Event with location data
+    public static event Action<int>? OnScoreCalculated;
+    public static event Action? OnMapOpened;
+    public static event Action? OnMapClosed;
+    public static event Action<int>? OnZLevelChanged; // New z-level event
 
     // Singleton pattern
     public static MapInteractionManager Instance { get; private set; }
@@ -129,16 +130,24 @@ public class MapInteractionManager : MonoBehaviour
     /// <param name="zLevel">Z-level of actual location</param>
     public void SetActualLocation(float latitude, float longitude, float zLevel)
     {
-        int zLevelInt = Mathf.RoundToInt(zLevel);
         currentActualLocation = new LocationData
+        {
+            latitude = latitude,
+            longitude = longitude,
+            zLevel = Mathf.RoundToInt(zLevel),
+            zLevelName = GetZLevelName(Mathf.RoundToInt(zLevel))
+        };
+
+        // Create enhanced marker data
+        currentActualMarker = new MarkerData
         {
             lat = latitude,
             lng = longitude,
-            zLevel = zLevelInt,
-            zLevelName = GetZLevelName(zLevelInt)
+            zLevel = Mathf.RoundToInt(zLevel),
+            zLevelName = GetZLevelName(Mathf.RoundToInt(zLevel))
         };
 
-        LogDebug($"Actual location set to: {latitude}, {longitude}, Level: {zLevelInt} - {GetZLevelName(zLevelInt)} (Instance ID: {this.GetInstanceID()})");
+        LogDebug($"Actual location set to: {latitude}, {longitude}, Level: {GetZLevelName(Mathf.RoundToInt(zLevel))}");
     }
 
     /// <summary>
@@ -157,6 +166,72 @@ public class MapInteractionManager : MonoBehaviour
     #region JavaScript Communication
 
     /// <summary>
+    /// Called from JavaScript when map is clicked (enhanced version with z-level)
+    /// </summary>
+    /// <param name="jsonData">JSON string containing enhanced click data</param>
+    public void OnMapClick(string jsonData)
+    {
+        try
+        {
+            // Try to parse as enhanced data first
+            var enhancedData = JsonUtility.FromJson<EnhancedMapClickData>(jsonData);
+            if (enhancedData != null && !string.IsNullOrEmpty(enhancedData.zLevelName))
+            {
+                // Enhanced data with z-level
+
+                currentGuessLocation = new LocationData
+                {
+                    latitude = enhancedData.latitude,
+                    longitude = enhancedData.longitude,
+                    zLevel = enhancedData.zLevel,
+                    zLevelName = enhancedData.zLevelName
+                };
+
+                // Create enhanced marker data
+                currentGuessMarker = new MarkerData
+                {
+                    id = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
+                    lng = enhancedData.longitude,
+                    lat = enhancedData.latitude,
+                    zLevel = enhancedData.zLevel,
+                    zLevelName = enhancedData.zLevelName,
+                    timestamp = enhancedData.timestamp.ToString(),
+                    options = new MarkerOptions
+                    {
+                        imgUrl = "images/handthing.svg",
+                        imgScale = 1.7f,
+                        color = "white",
+                        size = 60,
+                        innerCircle = false,
+                        shape = "marker",
+                        zLevel = enhancedData.zLevel
+                    },
+                    markerType = "player"
+                };
+
+                LogDebug($"Map clicked at: {enhancedData.latitude}, {enhancedData.longitude}, Level: {enhancedData.zLevelName}");
+            }
+            else
+            {
+                // Fallback to legacy data
+                var clickData = JsonUtility.FromJson<MapClickData>(jsonData);
+                currentGuessLocation = new LocationData
+                {
+                    latitude = clickData.latitude,
+                    longitude = clickData.longitude,
+                    zLevel = currentZLevel,
+                    zLevelName = GetZLevelName(currentZLevel)
+                };
+                LogDebug($"Map clicked at: {clickData.latitude}, {clickData.longitude} (legacy data)");
+            }
+        }
+        catch (Exception e)
+        {
+            LogError($"Error parsing map click data: {e.Message}");
+        }
+    }
+
+    /// <summary>
     /// Called from JavaScript when guess is submitted
     /// Receives LocationPayload and calculates score
     /// </summary>
@@ -167,30 +242,86 @@ public class MapInteractionManager : MonoBehaviour
         {
             LogDebug($"SubmitGuess called on instance: {this.GetInstanceID()}, currentActualLocation is null: {currentActualLocation == null}");
 
-            if (currentActualLocation == null)
-            {
-                LogWarning($"Cannot calculate score: actual location not set before guess. Ignoring guess. (Instance ID: {this.GetInstanceID()})");
-                return;
-            }
-
-            // Parse the payload from JavaScript
+            // Try to parse enhanced payload first
             var payload = JsonUtility.FromJson<LocationPayload>(jsonData);
-            if (payload == null)
+            if (payload != null && !string.IsNullOrEmpty(payload.zLevelName))
             {
-                LogError("Failed to parse guess payload from JavaScript");
-                return;
+                // Enhanced data with z-level
+                currentGuessLocation = new LocationData
+                {
+                    latitude = payload.latitude,
+                    longitude = payload.longitude,
+                    zLevel = payload.zLevel,
+                    zLevelName = payload.zLevelName
+                };
+
+                // Create enhanced marker data for guess
+                currentGuessMarker = new MarkerData
+                {
+                    id = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
+                    lng = payload.longitude,
+                    lat = payload.latitude,
+                    zLevel = payload.zLevel,
+                    zLevelName = payload.zLevelName,
+                    timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
+                    options = new MarkerOptions
+                    {
+                        imgUrl = "images/handthing.svg",
+                        imgScale = 1.7f,
+                        color = "white",
+                        size = 60,
+                        innerCircle = false,
+                        shape = "marker",
+                        zLevel = payload.zLevel
+                    },
+                    markerType = "player"
+                };
+
+                LogDebug($"Guess submitted at: {payload.latitude}, {payload.longitude}, Level: {payload.zLevelName}");
             }
-
-            // Store guess location data
-            currentGuessLocation = new LocationData
+            else
             {
-                lat = payload.latitude,
-                lng = payload.longitude,
-                zLevel = payload.zLevel,
-                zLevelName = payload.zLevelName
-            };
+                // Fallback to legacy data
+                var guessData = JsonUtility.FromJson<MapClickData>(jsonData);
+                if (guessData != null)
+                {
+                    currentGuessLocation = new LocationData
+                    {
+                        latitude = guessData.latitude,
+                        longitude = guessData.longitude,
+                        zLevel = currentZLevel,
+                        zLevelName = GetZLevelName(currentZLevel)
+                    };
 
-            LogDebug($"Guess submitted at: {payload.latitude}, {payload.longitude}, Level: {payload.zLevel} - {payload.zLevelName}");
+                    // Create basic marker data for legacy guess
+                    currentGuessMarker = new MarkerData
+                    {
+                        id = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
+                        lng = guessData.longitude,
+                        lat = guessData.latitude,
+                        zLevel = currentZLevel, // Use current z-level
+                        zLevelName = GetZLevelName(currentZLevel),
+                        timestamp = guessData.timestamp.ToString(),
+                        options = new MarkerOptions
+                        {
+                            imgUrl = "images/handthing.svg",
+                            imgScale = 1.7f,
+                            color = "white",
+                            size = 60,
+                            innerCircle = false,
+                            shape = "marker",
+                            zLevel = currentZLevel
+                        },
+                        markerType = "player"
+                    };
+
+                    LogDebug($"Guess submitted at: {guessData.latitude}, {guessData.longitude} (legacy data)");
+                }
+                else
+                {
+                    LogWarning("Could not parse guess data from JSON");
+                }
+            }
 
             // Trigger guess submitted event
             if (currentGuessLocation != null)
@@ -198,18 +329,18 @@ public class MapInteractionManager : MonoBehaviour
                 OnGuessSubmitted?.Invoke(currentGuessLocation);
             }
 
-            // Calculate score (we already ensured actual is present)
-            if (currentGuessLocation != null)
+            // Calculate score if we have both locations
+            if (currentActualLocation != null && currentGuessLocation != null)
             {
                 int score = CalculateScore(currentActualLocation, currentGuessLocation);
                 OnScoreCalculated?.Invoke(score);
 
-                // Show actual location on map
+                // Show both locations on map
                 ShowBothLocations();
             }
             else
             {
-                LogWarning("Cannot calculate score: guess location missing");
+                LogWarning("Cannot calculate score: guess or actual location missing");
             }
         }
         catch (Exception e)
@@ -219,7 +350,7 @@ public class MapInteractionManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Sends actual location data to JavaScript with x, y, z coordinates
+    /// Sends actual location data to JavaScript with latitude, longitude, zLevel, zLevelName
     /// </summary>
     /// <param name="latitude">Latitude (x coordinate)</param>
     /// <param name="longitude">Longitude (y coordinate)</param>
@@ -245,23 +376,6 @@ public class MapInteractionManager : MonoBehaviour
 #else
         LogDebug($"Actual location would be sent to JavaScript: ({latitude}, {longitude}), Level: {GetZLevelName(zLevel)}");
 #endif
-    }
-
-    /// <summary>
-    /// Shows actual location on the map by sending it to JavaScript
-    /// </summary>
-    public void ShowBothLocations()
-    {
-        if (currentActualLocation != null)
-        {
-            SendActualLocationToJavaScript(
-                currentActualLocation.lat,
-                currentActualLocation.lng,
-                currentActualLocation.zLevel
-            );
-        }
-
-        LogDebug("Actual location sent to JavaScript for display");
     }
 
     #endregion
@@ -308,8 +422,8 @@ public class MapInteractionManager : MonoBehaviour
         // Convert degrees to approximate meters
         // 1 degree latitude ~ 111,000 meters
         // 1 degree longitude ~ 111,000 * cos(latitude) meters
-        float latDiff = (coord2.lat - coord1.lat) * 111000f;
-        float lngDiff = (coord2.lng - coord1.lng) * 111000f * Mathf.Cos(coord1.lat * Mathf.Deg2Rad);
+        float latDiff = (coord2.latitude - coord1.latitude) * 111000f;
+        float lngDiff = (coord2.longitude - coord1.longitude) * 111000f * Mathf.Cos(coord1.latitude * Mathf.Deg2Rad);
 
         return Mathf.Sqrt(latDiff * latDiff + lngDiff * lngDiff);
     }
@@ -343,6 +457,30 @@ public class MapInteractionManager : MonoBehaviour
 #else
         LogDebug($"Loading would be {(show ? "shown" : "hidden")}");
 #endif
+    }
+
+    #endregion
+
+    #region Map Markers
+
+    /// <summary>
+    /// Shows both actual and guess locations on the map
+    /// </summary>
+    private void ShowBothLocations()
+    {
+        if (currentActualLocation == null || currentGuessLocation == null) return;
+
+        // Add actual location marker
+#if UNITY_WEBGL && !UNITY_EDITOR
+        Application.ExternalEval($"addMarkerFromUnity({currentActualLocation.Value.lat}, {currentActualLocation.Value.lng}, 'Actual Location', 'actual')");
+#endif
+
+        // Add guess location marker (if not already added)
+#if UNITY_WEBGL && !UNITY_EDITOR
+        Application.ExternalEval($"addMarkerFromUnity({currentGuessLocation.Value.lat}, {currentGuessLocation.Value.lng}, 'Your Guess', 'guess')");
+#endif
+
+        LogDebug("Both locations displayed on map");
     }
 
     #endregion
@@ -449,7 +587,7 @@ public class MapInteractionManager : MonoBehaviour
         public float latitude;
         public float longitude;
         public int zLevel;
-        public string zLevelName;
+        public string? zLevelName;
         public long timestamp;
     }
 
@@ -470,14 +608,14 @@ public class MapInteractionManager : MonoBehaviour
     [System.Serializable]
     public class MarkerData
     {
-        public string id;
+        public string? id;
         public float lng;
         public float lat;
         public int zLevel;
-        public string zLevelName;
-        public string timestamp;
-        public MarkerOptions options;
-        public string markerType; // "player" or "actual"
+        public string? zLevelName;
+        public string? timestamp;
+        public MarkerOptions? options;
+        public string? markerType; // "player" or "actual"
     }
 
     // Legacy data structure for backward compatibility
@@ -496,17 +634,17 @@ public class MapInteractionManager : MonoBehaviour
         public float latitude;
         public float longitude;
         public int zLevel;
-        public string zLevelName;
+        public string? zLevelName;
     }
 
-    // Location data structure with lng, lat, zLevel, zLevelName
+    // Location data structure with lat, lng, zLevel, zLevelName
     [System.Serializable]
     public class LocationData
     {
-        public float lat;
-        public float lng;
+        public float latitude;
+        public float longitude;
         public int zLevel;
-        public string zLevelName;
+        public string? zLevelName;
     }
 
     #endregion
