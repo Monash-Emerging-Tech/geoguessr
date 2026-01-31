@@ -523,7 +523,7 @@ public class GameLogic : MonoBehaviour
     /// <param name="guessLocation">The guessed location data with z-level support</param>
     private void OnGuessSubmitted(MapInteractionManager.LocationData guessLocation)
     {
-        LogDebug($"Guess submitted at: {guessLocation.lat}, {guessLocation.lng}, Level: {guessLocation.zLevelName}");
+        LogDebug($"Guess submitted at: {guessLocation.latitude}, {guessLocation.longitude}, Level: {guessLocation.zLevelName}");
         // The score calculation will be handled by OnScoreCalculated
     }
 

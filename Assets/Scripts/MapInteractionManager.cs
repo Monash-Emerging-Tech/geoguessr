@@ -45,7 +45,7 @@ public class MapInteractionManager : MonoBehaviour
     public static event Action<int>? OnZLevelChanged; // New z-level event
 
     // Singleton pattern
-    public static MapInteractionManager Instance { get; private set; }
+    public static MapInteractionManager Instance { get; private set; } = null!;
 
     #region Unity Lifecycle & Initialization
 
