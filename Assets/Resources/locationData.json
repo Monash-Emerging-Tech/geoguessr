@@ -4,121 +4,121 @@
       "ID": 0,
       "Name": "Monash 101 - Digital Makerspace (Building 94, G03)",
       "FileName": "360_Monash101_DigiMakerspace",
-      "x": 145.135015,
-      "y": -37.90986,
-      "z": 1
+      "latitude": 145.135015,
+      "longitude": -37.90986,
+      "zLevel": 1
     },
     {
       "ID": 1,
       "Name": "Outside Living - Campus Centre North, Floor 1 Outside",
       "FileName": "360_OL_CC_N_1_O",
-      "x": 145.13276,
-      "y": -37.91158,
-      "z": 2
+      "latitude": 145.13276,
+      "longitude": -37.91158,
+      "zLevel": 2
     },
     {
       "ID": 2,
       "Name": "Outside Living - Hargrave-Andrew Library Outside",
       "FileName": "360_OL_HAL_Outside",
-      "x": 145.132195,
-      "y": -37.910039,
-      "z": 1
+      "latitude": 145.132195,
+      "longitude": -37.910039,
+      "zLevel": 1
     },
     {
       "ID": 3,
       "Name": "Outside Living - Hump Lawn Chairs",
       "FileName": "360_OL_HumpLawnChairs",
-      "x": 145.132319,
-      "y": -37.910958,
-      "z": 1
+      "latitude": 145.132319,
+      "longitude": -37.910958,
+      "zLevel": 1
     },
     {
       "ID": 4,
       "Name": "Outside Living - Joe's Pizzeria'",
       "FileName": "360_OL_JoePizza",
-      "x": 145.135821,
-      "y": -37.911653,
-      "z": 1
+      "latitude": 145.135821,
+      "longitude": -37.911653,
+      "zLevel": 1
     },
     {
       "ID": 5,
       "Name": "Monash 101 - Building 94 Lecture Stairs",
       "FileName": "360_Monash101_Woodside_Lecture_Stairs",
-      "x": 145.135268,
-      "y": -37.910022,
-      "z": 1
+      "latitude": 145.135268,
+      "longitude": -37.910022,
+      "zLevel": 1
     },
     {
       "ID": 6,
       "Name": "Outside Living - Campus Park East",
       "FileName": "360_OL_CampusParkEast",
-      "x": 145.136202,
-      "y": -37.910556,
-      "z": 1
+      "latitude": 145.136202,
+      "longitude": -37.910556,
+      "zLevel": 1
     },
     {
       "ID": 7,
       "Name": "Outside Living - Campus Centre North, Ground Floor Outside",
       "FileName": "360_OL_CC_N_G_O",
-      "x": 145.132844,
-      "y": -37.911494,
-      "z": 1
+      "latitude": 145.132844,
+      "longitude": -37.911494,
+      "zLevel": 1
     },
     {
       "ID": 8,
       "Name": "Outside Living - Kenneth Hunt Lawn BBQs",
       "FileName": "360_OL_KennethHuntBBQ",
-      "x": 145.133133,
-      "y": -37.909732,
-      "z": 1
+      "latitude": 145.133133,
+      "longitude": -37.909732,
+      "zLevel": 1
     },
     {
       "ID": 9,
       "Name": "Outside Living - Lemon Scented Lawn West",
       "FileName": "360_OL_LemonScentedWest",
-      "x": 145.133035,
-      "y": -37.911002,
-      "z": 1
+      "latitude": 145.133035,
+      "longitude": -37.911002,
+      "zLevel": 1
     },
     {
       "ID": 10,
       "Name": "Outside Living - Performing Arts Centre Outside",
       "FileName": "360_OL_PAC_Outside",
-      "x": 145.134915,
-      "y": -37.913379,
-      "z": 1
+      "latitude": 145.134915,
+      "longitude": -37.913379,
+      "zLevel": 1
     },
     {
       "ID": 11,
       "Name": "Outside Living - Secret Garden Eatery Outside",
       "FileName": "360_OL_SecretGarden_Outside",
-      "x": 145.132486,
-      "y": -37.909815,
-      "z": 1
+      "latitude": 145.132486,
+      "longitude": -37.909815,
+      "zLevel": 1
     },
     {
       "ID": 12,
       "Name": "Outside Living - The Sound Shell",
       "FileName": "360_OL_SoundShell",
-      "x": 145.133011,
-      "y": -37.910683,
-      "z": 1
+      "latitude": 145.133011,
+      "longitude": -37.910683,
+      "zLevel": 1
     },
     {
       "ID": 13,
       "Name": "Outside Living - Table Tennis Tables Outside Building 94",
       "FileName": "360_OL_TableTennis94",
-      "x": 145.134979,
-      "y": -37.910189,
-      "z": 1
+      "latitude": 145.134979,
+      "longitude": -37.910189,
+      "zLevel": 1
     },
     {
       "ID": 14,
       "Name": "That Fountain",
       "FileName": "360_OL_ThatFountain",
-      "x": 145.136249,
-      "y": -37.910438,
-      "z": 1
+      "latitude": 145.136249,
+      "longitude": -37.910438,
+      "zLevel": 1
     }
   ],
 

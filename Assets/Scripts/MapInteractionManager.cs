@@ -14,6 +14,21 @@ using System;
 /// </summary>
 public class MapInteractionManager : MonoBehaviour
 {
+    // WebGL JavaScript interop
+#if UNITY_WEBGL && !UNITY_EDITOR
+    [System.Runtime.InteropServices.DllImport("__Internal")]
+    private static extern void showMapFromUnity();
+    [System.Runtime.InteropServices.DllImport("__Internal")]
+    private static extern void hideMapFromUnity();
+    [System.Runtime.InteropServices.DllImport("__Internal")]
+    private static extern void addActualLocationFromUnity(string json);
+    [System.Runtime.InteropServices.DllImport("__Internal")]
+    private static extern void updateScoreFromUnity(int score, int round);
+    [System.Runtime.InteropServices.DllImport("__Internal")]
+    private static extern void showLoading(bool show);
+    [System.Runtime.InteropServices.DllImport("__Internal")]
+    private static extern void addMarkerFromUnity(float lat, float lng, string label, string type);
+#endif
     [Header("Map Settings")]
     [SerializeField] private bool enableMapOnStart = false;
     [SerializeField] private float maxGuessDistance = 1000f; // Maximum distance for scoring in meters
@@ -88,8 +103,9 @@ public class MapInteractionManager : MonoBehaviour
         isMapActive = true;
 
         // Call JavaScript function to show map
+
 #if UNITY_WEBGL && !UNITY_EDITOR
-        Application.ExternalEval("showMapFromUnity()");
+    showMapFromUnity();
 #else
         LogDebug("Map would be shown (WebGL only)");
 #endif
@@ -109,7 +125,7 @@ public class MapInteractionManager : MonoBehaviour
 
         // Call JavaScript function to hide map
 #if UNITY_WEBGL && !UNITY_EDITOR
-        Application.ExternalEval("hideMapFromUnity()");
+    hideMapFromUnity();
 #else
         LogDebug("Map would be hidden (WebGL only)");
 #endif
@@ -370,9 +386,7 @@ public class MapInteractionManager : MonoBehaviour
         string jsonPayload = JsonUtility.ToJson(locationPayload);
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-        // Escape single quotes and backslashes for JavaScript string literal
-        string escapedJson = jsonPayload.Replace("\\", "\\\\").Replace("'", "\\'");
-        Application.ExternalEval($"addActualLocationFromUnity('{escapedJson}')");
+    addActualLocationFromUnity(jsonPayload);
 #else
         LogDebug($"Actual location would be sent to JavaScript: ({latitude}, {longitude}), Level: {GetZLevelName(zLevel)}");
 #endif
@@ -440,7 +454,7 @@ public class MapInteractionManager : MonoBehaviour
     public void UpdateScoreDisplay(int score, int round)
     {
 #if UNITY_WEBGL && !UNITY_EDITOR
-        Application.ExternalEval($"updateScoreFromUnity({score}, {round})");
+    updateScoreFromUnity(score, round);
 #else
         LogDebug($"Score would be updated: {score}, Round: {round}");
 #endif
@@ -453,7 +467,7 @@ public class MapInteractionManager : MonoBehaviour
     public void ShowLoading(bool show)
     {
 #if UNITY_WEBGL && !UNITY_EDITOR
-        Application.ExternalEval($"showLoading({show.ToString().ToLower()})");
+    showLoading(show);
 #else
         LogDebug($"Loading would be {(show ? "shown" : "hidden")}");
 #endif
@@ -470,14 +484,14 @@ public class MapInteractionManager : MonoBehaviour
     {
         if (currentActualLocation == null || currentGuessLocation == null) return;
 
+
         // Add actual location marker
 #if UNITY_WEBGL && !UNITY_EDITOR
-        Application.ExternalEval($"addMarkerFromUnity({currentActualLocation.Value.lat}, {currentActualLocation.Value.lng}, 'Actual Location', 'actual')");
+    addMarkerFromUnity(currentActualLocation.latitude, currentActualLocation.longitude, "Actual Location", "actual");
 #endif
 
-        // Add guess location marker (if not already added)
 #if UNITY_WEBGL && !UNITY_EDITOR
-        Application.ExternalEval($"addMarkerFromUnity({currentGuessLocation.Value.lat}, {currentGuessLocation.Value.lng}, 'Your Guess', 'guess')");
+    addMarkerFromUnity(currentGuessLocation.latitude, currentGuessLocation.longitude, "Your Guess", "guess");
 #endif
 
         LogDebug("Both locations displayed on map");
