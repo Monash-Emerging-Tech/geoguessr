@@ -6,14 +6,14 @@ using UnityEngine.UI;
  * ScoreBar, Responsible for displaying the score bar with a progress bar, 
  * 
  * Written by aleu0007
- * Last Modified: 1/08/2025
+ * Last Modified: 31/01/2026
  * 
  */
 [ExecuteInEditMode()]
 public class ScoreBar : MonoBehaviour
-{   
+{
     public int maximum;
-    
+
     public Image mask;
     // [SerializeField] private string editorText = "Default Text";
     [SerializeField] private ScoreDataScriptableObject scoreData;
@@ -22,7 +22,7 @@ public class ScoreBar : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+
     }
 
     void Awake() => Refresh();
@@ -30,8 +30,8 @@ public class ScoreBar : MonoBehaviour
 
     private void Refresh()
     {
-        int current = (scoreData != null)? scoreData.CurrentScore: 0;
-        float fillAmount = (float)current/(float)maximum;
+        int current = (scoreData != null) ? scoreData.CurrentScore : 0;
+        float fillAmount = (float)current / (float)maximum;
         mask.fillAmount = fillAmount;
-    }    
+    }
 }
