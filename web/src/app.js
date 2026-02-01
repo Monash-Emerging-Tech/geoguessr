@@ -317,7 +317,7 @@
       // Ensure guess button width matches widget when shown
       syncGuessButtonWidth();
       requestAnimationFrame(syncGuessButtonWidth);
-      console.log("Map UI shown from Unity");
+      console.log("Unity call to show Minimap UI");
     } else {
       console.error("maze-map-ui element not found");
     }
@@ -330,7 +330,7 @@
     var mapUI = document.getElementById("maze-map-ui");
     if (mapUI) {
       mapUI.style.display = "none";
-      console.log("Map UI hidden from Unity");
+      console.log("Unity call to hide Minimap UI");
     } else {
       console.error("maze-map-ui element not found");
     }

@@ -237,7 +237,7 @@ public class GameLogic : MonoBehaviour
             {
                 MapInteractionManager.Instance.HideMap();
             }
-            LogDebug("MenuScene loaded - Map hidden");
+            LogDebug("MenuScene loaded - Minimap UI hidden");
         }
         // Show map and initialize game when GameScene is loaded
         else if (scene.name == "GameScene")
@@ -523,7 +523,7 @@ public class GameLogic : MonoBehaviour
     /// <param name="guessLocation">The guessed location data with z-level support</param>
     private void OnGuessSubmitted(MapInteractionManager.LocationData guessLocation)
     {
-        LogDebug($"Guess submitted at: {guessLocation.latitude}, {guessLocation.longitude}, Level: {guessLocation.zLevelName}");
+        LogDebug($"Guess submitted at: latitude:{guessLocation.latitude}, longitude:{guessLocation.longitude}, zLevel: {guessLocation.zLevelName}");
         // The score calculation will be handled by OnScoreCalculated
     }
 
@@ -554,7 +554,7 @@ public class GameLogic : MonoBehaviour
     /// </summary>
     private void OnMapOpened()
     {
-        LogDebug("Map opened");
+        LogDebug("Minimap UI opened");
         // Update UI to show map is active
     }
 
@@ -563,7 +563,7 @@ public class GameLogic : MonoBehaviour
     /// </summary>
     private void OnMapClosed()
     {
-        LogDebug("Map closed");
+        LogDebug("Minimap UI closed");
         // Update UI to show map is not active
     }
 

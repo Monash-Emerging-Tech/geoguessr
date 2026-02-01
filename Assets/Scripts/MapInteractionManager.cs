@@ -293,7 +293,7 @@ public class MapInteractionManager : MonoBehaviour
                     markerType = "player"
                 };
 
-                LogDebug($"Guess submitted at: {payload.latitude}, {payload.longitude}, Level: {payload.zLevelName}");
+                LogDebug($"Guess submitted at: latitude:{payload.latitude}, longitude:{payload.longitude}, zLevel: {payload.zLevelName}");
             }
             else
             {
