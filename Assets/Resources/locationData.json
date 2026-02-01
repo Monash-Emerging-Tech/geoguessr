@@ -126,17 +126,22 @@
     {
       "ID": 0,
       "Name": "all",
-      "locationIDs": []
+      "locationIDs": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
     },
     {
       "ID": 1,
       "Name": "OG Placeholders",
-      "locationIDs": [0, 1]
+      "locationIDs": [0, 14]
     },
     {
       "ID": 2,
       "Name": "Monash 101",
       "locationIDs": [6]
+    },
+    {
+      "ID": 3,
+      "Name": "Outside Living",
+      "locationIDs": [1, 2, 3, 4, 7, 8, 9, 10, 11, 12, 13, 14]
     }
   ]
 }
