@@ -91,9 +91,9 @@
 
     map._clickMarker = new Mazemap.MazeMarker({
       color: "MazeBlue",
-      size: 36,
+      size: 60,
       zLevel: zLevel,
-      imgUrl: "../assets/img/markers/handthing.png",
+      imgUrl: "/assets/img/markers/handthing.png",
       imgScale: 1.7,
       color: "white",
       innerCircle: false,
@@ -268,6 +268,8 @@
       var lng = locationData.longitude;
       var zLevel = locationData.zLevel || 0;
 
+      console.log("Received actual location from Unity:", locationData);
+
       // Remove any existing actual location marker
       if (map._actualLocationMarker) {
         map._actualLocationMarker.remove();
@@ -310,7 +312,6 @@
 
   // Expose to global scope for Unity to call
   window.addActualLocationFromUnity = addActualLocationFromUnity;
-  window.setGuessingStateFromUnity = setGuessingStateFromUnity;
 
   // --------------------------------------------------------------- UNITY MAP VISIBILITY CONTROL
   /**
@@ -323,7 +324,7 @@
       // Ensure guess button width matches widget when shown
       syncGuessButtonWidth();
       requestAnimationFrame(syncGuessButtonWidth);
-      console.log("Map UI shown from Unity");
+      console.log("Unity call to show Minimap UI");
     } else {
       console.error("maze-map-ui element not found");
     }
@@ -336,7 +337,7 @@
     var mapUI = document.getElementById("maze-map-ui");
     if (mapUI) {
       mapUI.style.display = "none";
-      console.log("Map UI hidden from Unity");
+      console.log("Unity call to hide Minimap UI");
     } else {
       console.error("maze-map-ui element not found");
     }
@@ -345,6 +346,10 @@
   // Expose to global scope for Unity to call
   window.showMapFromUnity = showMapFromUnity;
   window.hideMapFromUnity = hideMapFromUnity;
+  window.mmSetWidgetSize = setWidgetSize;
+  window.submitGuess = submitGuess;
+  window.addActualLocationFromUnity = addActualLocationFromUnity;
+  window.setGuessingStateFromUnity = setGuessingStateFromUnity;
 
   // --------------------------------------------------------------- GUESS BUTTON MANAGEMENT
   function updateGuessButtonState(hasMarker) {
@@ -550,6 +555,7 @@
   }
 
   function handleOutsideClick(event) {
+    if (!isGuessingState) return;
     if (pinActive) return; // pinned: ignore outside clicks
     var widget = document.getElementById("maze-map-widget");
     var controls = document.querySelector("#maze-map-ui .mm-controls");

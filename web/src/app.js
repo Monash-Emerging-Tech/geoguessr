@@ -555,6 +555,7 @@
   }
 
   function handleOutsideClick(event) {
+    if (!isGuessingState) return;
     if (pinActive) return; // pinned: ignore outside clicks
     var widget = document.getElementById("maze-map-widget");
     var controls = document.querySelector("#maze-map-ui .mm-controls");
