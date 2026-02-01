@@ -19,7 +19,6 @@
 
 /* Layout helpers */
 html, body { height: 100%; }
-
 #game-container { /* sizing is mostly inline to avoid breaking template; keep minimal here */ height: 100%; }
 
 /* Map container fills widget */
@@ -30,21 +29,38 @@ html, body { height: 100%; }
   background: #fff;
   border-top-right-radius: 4px;
   border-bottom-left-radius: 4px;
-  border-bottom-left-radius: 4px;
   overflow: hidden;
-  display: flex;              
-  flex-direction: column;    
+
+  display: flex;
+  flex-direction: column;
+
+  min-height: 0;
+  min-width: 0;
 }
 
 /* Sizes: base ratio 460x280 */
-.maze-map-widget.mm-size-s { width: 460px; height: 280px; }
-.maze-map-widget.mm-size-m { width: 690px; height: 420px; }
-.maze-map-widget.mm-size-l { width: 920px; height: 560px; }
+.mm-size-s { width: 460px; height: 280px; }
+.mm-size-m { width: 690px; height: 420px; }
+.mm-size-l { width: 920px; height: 560px; }
+#maze-map-ui.mm-round-end .maze-map-widget.mm-size-s,
+#maze-map-ui.mm-round-end .maze-map-widget.mm-size-m,
+#maze-map-ui.mm-round-end .maze-map-widget.mm-size-l {
+  width: 100%;
+  height: 100%;
+}
+.maze-map-widget.mm-size-round-end {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
 
 /* map container takes the remaining height of maze-map-widget*/
 .maze-map-widget .mazemap-container {
   flex: 1;
-  min-height: 0;              /* prevents overflow in flex containers */
+  min-height: 0;
+  min-width: 0;
 }
 
 /* Wrapper stacks controls above the widget and sits bottom-right */
@@ -52,6 +68,24 @@ html, body { height: 100%; }
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  z-index: 10;
+}
+
+#maze-map-ui.mm-round-end {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+
+  width: clamp(460px, 50vw, 920px);
+  height: clamp(280px, 60vh, 560px);
+
+  margin-bottom: 17vh;
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+
+  box-sizing: border-box;
   z-index: 10;
 }
 

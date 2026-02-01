@@ -23,6 +23,12 @@ public class MapInteractionManager : MonoBehaviour
     [System.Runtime.InteropServices.DllImport("__Internal")]
     private static extern void addActualLocationFromUnity(string json);
     [System.Runtime.InteropServices.DllImport("__Internal")]
+    private static extern void setGuessingStateFromUnity(bool isGuessing);
+    [System.Runtime.InteropServices.DllImport("__Internal")]
+    private static extern void mmSetWidgetSize(string size);
+    [System.Runtime.InteropServices.DllImport("__Internal")]
+    private static extern void clearMapStateFromUnity();
+    [System.Runtime.InteropServices.DllImport("__Internal")]
     private static extern void updateScoreFromUnity(int score, int round);
     [System.Runtime.InteropServices.DllImport("__Internal")]
     private static extern void showLoading(bool show);
@@ -39,7 +45,7 @@ public class MapInteractionManager : MonoBehaviour
     [SerializeField] private int currentZLevel = 0; // Ground level
 
     [Header("Scoring Settings")]
-    [SerializeField] private int maxScore = 5000;
+    [SerializeField] private int maxScore = 500; // per round
     [SerializeField] private int minScore = 0;
     [SerializeField] private AnimationCurve scoreCurve = AnimationCurve.EaseInOut(0, 1, 1, 0);
 
@@ -163,7 +169,7 @@ public class MapInteractionManager : MonoBehaviour
             zLevelName = GetZLevelName(Mathf.RoundToInt(zLevel))
         };
 
-        LogDebug($"Actual location set to: {latitude}, {longitude}, Level: {GetZLevelName(Mathf.RoundToInt(zLevel))}");
+        LogDebug($"Actual location set to: Latitude:{latitude}, Longitude:{longitude}, zLevel:{zLevel}, zLevelName:{GetZLevelName(Mathf.RoundToInt(zLevel))}");
     }
 
     /// <summary>
@@ -293,7 +299,7 @@ public class MapInteractionManager : MonoBehaviour
                     markerType = "player"
                 };
 
-                LogDebug($"Guess submitted at: {payload.latitude}, {payload.longitude}, Level: {payload.zLevelName}");
+                LogDebug($"Guess submitted at: latitude:{payload.latitude}, longitude:{payload.longitude}, zLevel: {payload.zLevelName}");
             }
             else
             {
@@ -392,6 +398,42 @@ public class MapInteractionManager : MonoBehaviour
 #endif
     }
 
+    /// <summary>
+    /// Updates the web UI guessing state (enables/disables marker placement and controls)
+    /// </summary>
+    public void SetWebGuessingState(bool isGuessing)
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+    setGuessingStateFromUnity(isGuessing);
+#else
+        LogDebug($"Guessing state would be sent to JavaScript: {(isGuessing ? "Guessing" : "Results")}");
+#endif
+    }
+
+    /// <summary>
+    /// Updates the web minimap widget size (e.g. "mm-size-s", "mm-size-m", "mm-size-l")
+    /// </summary>
+    public void SetWebMapSize(string size)
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+    mmSetWidgetSize(size);
+#else
+        LogDebug($"Map size would be sent to JavaScript: {size}");
+#endif
+    }
+
+    /// <summary>
+    /// Clears markers and lines on the web map UI
+    /// </summary>
+    public void ClearWebMapState()
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+    clearMapStateFromUnity();
+#else
+        LogDebug("Map state would be cleared on JavaScript");
+#endif
+    }
+
     #endregion
 
     #region Scoring System
@@ -480,7 +522,7 @@ public class MapInteractionManager : MonoBehaviour
     /// <summary>
     /// Shows both actual and guess locations on the map
     /// </summary>
-    private void ShowBothLocations()
+    public void ShowBothLocations()
     {
         if (currentActualLocation == null || currentGuessLocation == null) return;
 

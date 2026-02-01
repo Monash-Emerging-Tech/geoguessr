@@ -72,6 +72,12 @@ public class RotateCamera : MonoBehaviour
 
     void LateUpdate()
     {
+        if (GameLogic.Instance != null &&
+            GameLogic.Instance.IsRoundActive() &&
+            !GameLogic.Instance.IsGuessing())
+        {
+            return;
+        }
 
         // declare this else where with a function once the user has ability to edit mouse sensitivity
         // 200 is a number I found works, let's get rid of this scaling factor at a later date

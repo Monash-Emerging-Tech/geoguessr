@@ -352,6 +352,8 @@ public class MapUIController : MonoBehaviour
     {
         currentGuess = guessLocation;
         UpdateGuessInfo();
+        ExpandMap(true);
+        HideMapControls();
         LogDebug($"Guess submitted at {guessLocation.latitude}, {guessLocation.longitude}, Level: {guessLocation.zLevelName} - UI updated");
     }
 
@@ -400,6 +402,7 @@ public class MapUIController : MonoBehaviour
     {
         // Handle guess submission - expand map to fullscreen
         ExpandMap(true);
+        HideMapControls();
 
         LogDebug("Guess submitted - Map expanded to fullscreen");
     }
@@ -679,6 +682,12 @@ public class MapUIController : MonoBehaviour
             cornerButtons.gameObject.SetActive(false);
         }
 
+        // Hide submit guess button during results state
+        if (submitGuessButton != null)
+        {
+            submitGuessButton.gameObject.SetActive(false);
+        }
+
         LogDebug("Map controls hidden - Guess button clicked");
     }
 
@@ -703,6 +712,12 @@ public class MapUIController : MonoBehaviour
         if (cornerButtons != null)
         {
             cornerButtons.gameObject.SetActive(true);
+        }
+
+        // Show submit guess button during active guessing state
+        if (submitGuessButton != null)
+        {
+            submitGuessButton.gameObject.SetActive(true);
         }
 
         LogDebug("Map controls shown");
