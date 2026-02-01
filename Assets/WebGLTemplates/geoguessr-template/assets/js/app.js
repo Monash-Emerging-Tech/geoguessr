@@ -337,13 +337,15 @@
 
   function clearGuessLine() {
     var map = window.mazeMapInstance;
-    if (!map || !map._guessLine) return;
+    if (!map) return;
 
-    var leafletMap = getLeafletMap(map);
-    if (leafletMap) {
-      leafletMap.removeLayer(map._guessLine);
+    if (map._guessLine) {
+      var leafletMap = getLeafletMap(map);
+      if (leafletMap) {
+        leafletMap.removeLayer(map._guessLine);
+      }
+      map._guessLine = null;
     }
-    map._guessLine = null;
 
     var mapboxMap = getMapboxMap(map);
     if (mapboxMap) {
@@ -356,6 +358,35 @@
         mapboxMap.removeSource(sourceId);
       }
     }
+  }
+
+  function clearMapStateFromUnity() {
+    var map = window.mazeMapInstance;
+    if (!map) return;
+
+    if (map._clickMarker) {
+      map._clickMarker.remove();
+      map._clickMarker = null;
+    }
+    if (map._actualLocationMarker) {
+      map._actualLocationMarker.remove();
+      map._actualLocationMarker = null;
+    }
+
+    clearGuessLine();
+
+    if (map._guessLineLayer) {
+      var leafletMap = getLeafletMap(map);
+      if (leafletMap && typeof leafletMap.removeLayer === "function") {
+        leafletMap.removeLayer(map._guessLineLayer);
+      } else if (typeof map.removeLayer === "function") {
+        map.removeLayer(map._guessLineLayer);
+      }
+      map._guessLineLayer = null;
+      map._guessLineLayerZ = null;
+    }
+
+    updateGuessButtonState(false);
   }
 
   // --------------------------------------------------------------- Z-LEVEL NAME HELPER
@@ -619,6 +650,7 @@
   window.submitGuess = submitGuess;
   window.addActualLocationFromUnity = addActualLocationFromUnity;
   window.setGuessingStateFromUnity = setGuessingStateFromUnity;
+  window.clearMapStateFromUnity = clearMapStateFromUnity;
 
   // --------------------------------------------------------------- GUESS BUTTON MANAGEMENT
   function updateGuessButtonState(hasMarker) {

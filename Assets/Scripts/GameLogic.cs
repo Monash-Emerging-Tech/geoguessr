@@ -40,6 +40,7 @@ public class GameLogic : MonoBehaviour
     private bool isGuessing = false;
     private bool isGameActive = false;
     private bool isRoundActive = false;
+    private bool skipNextRoundWait = false;
 
     // MapPack management
     private int resolvedMapPackId = 2; // Default to Monash 101
@@ -186,6 +187,15 @@ public class GameLogic : MonoBehaviour
             MapInteractionManager.OnScoreCalculated -= OnScoreCalculated;
             MapInteractionManager.OnMapOpened -= OnMapOpened;
             MapInteractionManager.OnMapClosed -= OnMapClosed;
+        }
+    }
+
+    private void Update()
+    {
+        // Allow spacebar to advance from end-round state
+        if (isRoundActive && !isGuessing && Input.GetKeyDown(KeyCode.Space))
+        {
+            HandleNextRoundButtonPressed();
         }
     }
 
@@ -343,6 +353,11 @@ public class GameLogic : MonoBehaviour
         isGuessing = true;
         LogDebug($"nextRound() called | isGameActive:{isGameActive} isRoundActive:{isRoundActive} currentRound:{currentRound}");
 
+        if (MapInteractionManager.Instance != null)
+        {
+            MapInteractionManager.Instance.ClearWebMapState();
+        }
+
         // Get random location from location manager
         if (locationManager != null)
         {
@@ -419,8 +434,13 @@ public class GameLogic : MonoBehaviour
         OnRoundEnded?.Invoke(currentScore);
         LogDebug($"Round {currentRound} ended - Score: {currentScore}");
 
+        if (MapInteractionManager.Instance != null)
+        {
+            MapInteractionManager.Instance.ResetRound();
+        }
+
         // Start next round after delay
-        StartCoroutine(NextRoundDelay());
+        StartNextRoundRoutine();
 
     }
 
@@ -429,8 +449,13 @@ public class GameLogic : MonoBehaviour
     /// </summary>
     public void OnNextRoundButtonPressed()
     {
-        isRoundActive = false;
-        EndRound();
+        if (Instance != null && Instance != this)
+        {
+            Instance.HandleNextRoundButtonPressed();
+            return;
+        }
+
+        HandleNextRoundButtonPressed();
     }
 
     /// <summary>
@@ -438,7 +463,11 @@ public class GameLogic : MonoBehaviour
     /// </summary>
     private IEnumerator NextRoundDelay()
     {
-        yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space)); // Wait for Space to go to next Round
+        if (!skipNextRoundWait)
+        {
+            yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space)); // Wait for Space to go to next Round
+        }
+        skipNextRoundWait = false;
 
         // yield return new WaitForSeconds(2f); // 1 second delay 
 
@@ -451,6 +480,30 @@ public class GameLogic : MonoBehaviour
         currentRound++;
         OnRoundUpdated?.Invoke(currentRound, totalRounds);
         nextRound();
+    }
+
+    private void HandleNextRoundButtonPressed()
+    {
+        skipNextRoundWait = true;
+        isRoundActive = false;
+        EndRound();
+    }
+
+    private void StartNextRoundRoutine()
+    {
+        if (isActiveAndEnabled)
+        {
+            StartCoroutine(NextRoundDelay());
+            return;
+        }
+
+        if (Instance != null && Instance.isActiveAndEnabled)
+        {
+            Instance.StartCoroutine(NextRoundDelay());
+            return;
+        }
+
+        LogError("Cannot start NextRoundDelay because GameLogic is inactive.");
     }
 
     /// <summary>

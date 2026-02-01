@@ -27,6 +27,8 @@ public class MapInteractionManager : MonoBehaviour
     [System.Runtime.InteropServices.DllImport("__Internal")]
     private static extern void mmSetWidgetSize(string size);
     [System.Runtime.InteropServices.DllImport("__Internal")]
+    private static extern void clearMapStateFromUnity();
+    [System.Runtime.InteropServices.DllImport("__Internal")]
     private static extern void updateScoreFromUnity(int score, int round);
     [System.Runtime.InteropServices.DllImport("__Internal")]
     private static extern void showLoading(bool show);
@@ -43,7 +45,7 @@ public class MapInteractionManager : MonoBehaviour
     [SerializeField] private int currentZLevel = 0; // Ground level
 
     [Header("Scoring Settings")]
-    [SerializeField] private int maxScore = 5000;
+    [SerializeField] private int maxScore = 500; // per round
     [SerializeField] private int minScore = 0;
     [SerializeField] private AnimationCurve scoreCurve = AnimationCurve.EaseInOut(0, 1, 1, 0);
 
@@ -417,6 +419,18 @@ public class MapInteractionManager : MonoBehaviour
     mmSetWidgetSize(size);
 #else
         LogDebug($"Map size would be sent to JavaScript: {size}");
+#endif
+    }
+
+    /// <summary>
+    /// Clears markers and lines on the web map UI
+    /// </summary>
+    public void ClearWebMapState()
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+    clearMapStateFromUnity();
+#else
+        LogDebug("Map state would be cleared on JavaScript");
 #endif
     }
 

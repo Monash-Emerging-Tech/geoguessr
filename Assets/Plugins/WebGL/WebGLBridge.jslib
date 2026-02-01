@@ -21,6 +21,10 @@ mergeInto(LibraryManager.library, {
     if (typeof window.mmSetWidgetSize === "function")
       window.mmSetWidgetSize(size);
   },
+  clearMapStateFromUnity: function () {
+    if (typeof window.clearMapStateFromUnity === "function")
+      window.clearMapStateFromUnity();
+  },
   updateScoreFromUnity: function (score, round) {
     if (typeof window.updateScoreFromUnity === "function")
       window.updateScoreFromUnity(score, round);
