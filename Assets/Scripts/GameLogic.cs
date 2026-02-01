@@ -10,7 +10,7 @@ using UnityEngine.SceneManagement;
 /// 
 /// Written by O-Bolt
 /// Modified by aleu0007
-/// Last Modified: 24/09/2025
+/// Last Modified: 1/02/2026
 /// </summary>
 public class GameLogic : MonoBehaviour
 {
@@ -387,6 +387,8 @@ public class GameLogic : MonoBehaviour
         if (MapInteractionManager.Instance != null)
         {
             MapInteractionManager.Instance.ShowMap();
+            MapInteractionManager.Instance.SetWebGuessingState(true);
+            MapInteractionManager.Instance.SetWebMapSize("mm-size-s");
         }
 
         OnRoundStarted?.Invoke(currentRound);
@@ -399,9 +401,13 @@ public class GameLogic : MonoBehaviour
     /// </summary>
     public void EndRound()
     {
-        if (!isRoundActive) return;
+        // Only end the round if isRoundActive is false (triggered by Next Round button)
+        if (isRoundActive)
+        {
+            // Do not end round yet, wait for Next Round button
+            return;
+        }
 
-        isRoundActive = false;
         isGuessing = false;
 
         // Hide map - use singleton to ensure consistency
@@ -416,6 +422,15 @@ public class GameLogic : MonoBehaviour
         // Start next round after delay
         StartCoroutine(NextRoundDelay());
 
+    }
+
+    /// <summary>
+    /// Call this from your Next Round button handler to end the round and start the next one
+    /// </summary>
+    public void OnNextRoundButtonPressed()
+    {
+        isRoundActive = false;
+        EndRound();
     }
 
     /// <summary>
@@ -523,7 +538,17 @@ public class GameLogic : MonoBehaviour
     /// <param name="guessLocation">The guessed location data with z-level support</param>
     private void OnGuessSubmitted(MapInteractionManager.LocationData guessLocation)
     {
+        isGuessing = false;
         LogDebug($"Guess submitted at: latitude:{guessLocation.latitude}, longitude:{guessLocation.longitude}, zLevel: {guessLocation.zLevelName}");
+        if (MapInteractionManager.Instance != null && locationManager != null)
+        {
+            var location = locationManager.GetCurrentLocation();
+            MapInteractionManager.Instance.SendActualLocationToJavaScript(location.latitude, location.longitude, location.zLevel);
+            MapInteractionManager.Instance.ShowBothLocations();
+            MapInteractionManager.Instance.ShowMap();
+            MapInteractionManager.Instance.SetWebGuessingState(false);
+            MapInteractionManager.Instance.SetWebMapSize("mm-size-round-end");
+        }
         // The score calculation will be handled by OnScoreCalculated
     }
 

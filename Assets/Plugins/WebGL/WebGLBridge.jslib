@@ -12,6 +12,15 @@ mergeInto(LibraryManager.library, {
     if (typeof window.addActualLocationFromUnity === "function")
       window.addActualLocationFromUnity(json);
   },
+  setGuessingStateFromUnity: function (isGuessing) {
+    if (typeof window.setGuessingStateFromUnity === "function")
+      window.setGuessingStateFromUnity(!!isGuessing);
+  },
+  mmSetWidgetSize: function (sizePtr) {
+    var size = UTF8ToString(sizePtr);
+    if (typeof window.mmSetWidgetSize === "function")
+      window.mmSetWidgetSize(size);
+  },
   updateScoreFromUnity: function (score, round) {
     if (typeof window.updateScoreFromUnity === "function")
       window.updateScoreFromUnity(score, round);

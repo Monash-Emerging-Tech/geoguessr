@@ -1,5 +1,6 @@
 (function () {
   var pinActive = false; // false = inactive (auto-collapse allowed), true = active (pinned)
+  var isGuessingState = true; // true = guessing, false = results/end-round
   // --------------------------------------------------------------- MAZE MAP INITIALIZATION
   function isMazeMapReady() {
     if (typeof mazemap !== "undefined" && typeof mazemap.Map === "function")
@@ -62,12 +63,16 @@
       });
 
       map.on("click", function (e) {
+        if (!isGuessingState) {
+          console.log("Map click ignored - guessing disabled");
+          return;
+        }
         createSingleMarker(map, e.lngLat, map.zLevel);
       });
     } catch (error) {
       console.error(
         "Failed to initialize Maze Maps:",
-        error && error.message ? error.message : error,
+        error && error.message ? error.message : error
       );
     }
   }
@@ -86,7 +91,7 @@
 
     map._clickMarker = new Mazemap.MazeMarker({
       color: "MazeBlue",
-      size: 36,
+      size: 60,
       zLevel: zLevel,
       imgUrl: "/assets/img/markers/handthing.png",
       imgScale: 1.7,
@@ -165,8 +170,8 @@
         marker._storedZLevel !== undefined
           ? marker._storedZLevel
           : marker.options
-            ? marker.options.zLevel
-            : map.zLevel || 0;
+          ? marker.options.zLevel
+          : map.zLevel || 0;
 
       // Build JSON payload matching EnhancedMapClickData structure
       var payload = {
@@ -187,7 +192,7 @@
           unityInstance.SendMessage(
             "MapInteractionManager", // GameObject name
             "SubmitGuess", // Method name
-            jsonString, // JSON string
+            jsonString // JSON string
           );
           console.log("Guess submitted to Unity:", payload);
 
@@ -252,7 +257,7 @@
       var map = window.mazeMapInstance;
       if (!map) {
         console.error(
-          "Map instance not available for addActualLocationFromUnity",
+          "Map instance not available for addActualLocationFromUnity"
         );
         return;
       }
@@ -262,6 +267,8 @@
       var lat = locationData.latitude;
       var lng = locationData.longitude;
       var zLevel = locationData.zLevel || 0;
+
+      console.log("Received actual location from Unity:", locationData);
 
       // Remove any existing actual location marker
       if (map._actualLocationMarker) {
@@ -342,11 +349,17 @@
   window.mmSetWidgetSize = setWidgetSize;
   window.submitGuess = submitGuess;
   window.addActualLocationFromUnity = addActualLocationFromUnity;
+  window.setGuessingStateFromUnity = setGuessingStateFromUnity;
 
   // --------------------------------------------------------------- GUESS BUTTON MANAGEMENT
   function updateGuessButtonState(hasMarker) {
     var button = document.getElementById("guess-button");
     if (!button) return;
+    if (!isGuessingState) {
+      button.disabled = true;
+      button.style.display = "none";
+      return;
+    }
 
     if (hasMarker) {
       button.disabled = false;
@@ -355,6 +368,7 @@
       button.disabled = true;
       button.textContent = "PLACE YOUR PIN ON THE MAP";
     }
+    button.style.display = "";
   }
 
   function syncGuessButtonWidth() {
@@ -412,16 +426,39 @@
     }
   }
 
+  function setGuessingStateFromUnity(isGuessing) {
+    isGuessingState = !!isGuessing;
+    var button = document.getElementById("guess-button");
+    if (button) {
+      button.disabled = !isGuessingState;
+      button.style.display = isGuessingState ? "" : "none";
+    }
+    var controls = document.querySelector("#maze-map-ui .mm-controls");
+    if (controls) {
+      controls.style.display = isGuessingState ? "" : "none";
+    }
+    var map = window.mazeMapInstance;
+    updateGuessButtonState(!!(map && map._clickMarker));
+  }
+
   // --------------------------------------------------------------- UI CONTROLS FOR SIZE TOGGLING
   // Size toggle helpers (no logic wiring yet)
   function setWidgetSize(size) {
     var widget = document.getElementById("maze-map-widget");
     if (!widget) return;
-    var sizes = ["mm-size-s", "mm-size-m", "mm-size-l"];
+    var sizes = ["mm-size-s", "mm-size-m", "mm-size-l", "mm-size-round-end"];
     for (var i = 0; i < sizes.length; i++) {
       widget.classList.remove(sizes[i]);
     }
     widget.classList.add(size);
+    var mapUI = document.getElementById("maze-map-ui");
+    if (mapUI) {
+      if (size === "mm-size-round-end") {
+        mapUI.classList.add("mm-round-end");
+      } else {
+        mapUI.classList.remove("mm-round-end");
+      }
+    }
     // Update control states after size change
     updateControlDisabled();
     // Ensure MazeMap fits the new container size
@@ -435,7 +472,7 @@
   function getCurrentSize() {
     var widget = document.getElementById("maze-map-widget");
     if (!widget) return "mm-size-s";
-    var sizes = ["mm-size-s", "mm-size-m", "mm-size-l"];
+    var sizes = ["mm-size-s", "mm-size-m", "mm-size-l", "mm-size-round-end"];
     for (var i = 0; i < sizes.length; i++) {
       if (widget.classList.contains(sizes[i])) return sizes[i];
     }

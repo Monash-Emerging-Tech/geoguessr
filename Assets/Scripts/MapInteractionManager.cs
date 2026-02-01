@@ -23,6 +23,10 @@ public class MapInteractionManager : MonoBehaviour
     [System.Runtime.InteropServices.DllImport("__Internal")]
     private static extern void addActualLocationFromUnity(string json);
     [System.Runtime.InteropServices.DllImport("__Internal")]
+    private static extern void setGuessingStateFromUnity(bool isGuessing);
+    [System.Runtime.InteropServices.DllImport("__Internal")]
+    private static extern void mmSetWidgetSize(string size);
+    [System.Runtime.InteropServices.DllImport("__Internal")]
     private static extern void updateScoreFromUnity(int score, int round);
     [System.Runtime.InteropServices.DllImport("__Internal")]
     private static extern void showLoading(bool show);
@@ -392,6 +396,30 @@ public class MapInteractionManager : MonoBehaviour
 #endif
     }
 
+    /// <summary>
+    /// Updates the web UI guessing state (enables/disables marker placement and controls)
+    /// </summary>
+    public void SetWebGuessingState(bool isGuessing)
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+    setGuessingStateFromUnity(isGuessing);
+#else
+        LogDebug($"Guessing state would be sent to JavaScript: {(isGuessing ? "Guessing" : "Results")}");
+#endif
+    }
+
+    /// <summary>
+    /// Updates the web minimap widget size (e.g. "mm-size-s", "mm-size-m", "mm-size-l")
+    /// </summary>
+    public void SetWebMapSize(string size)
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+    mmSetWidgetSize(size);
+#else
+        LogDebug($"Map size would be sent to JavaScript: {size}");
+#endif
+    }
+
     #endregion
 
     #region Scoring System
@@ -480,7 +508,7 @@ public class MapInteractionManager : MonoBehaviour
     /// <summary>
     /// Shows both actual and guess locations on the map
     /// </summary>
-    private void ShowBothLocations()
+    public void ShowBothLocations()
     {
         if (currentActualLocation == null || currentGuessLocation == null) return;
 
