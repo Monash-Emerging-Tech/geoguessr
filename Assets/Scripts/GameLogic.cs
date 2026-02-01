@@ -372,14 +372,14 @@ public class GameLogic : MonoBehaviour
                 {
                     LogDebug("nextRound(): calling SetActualLocation");
                     // Use singleton instance to ensure SubmitGuess (called from JS) operates on the same instance
-                    MapInteractionManager.Instance.SetActualLocation(location.lat, location.lng, location.zLevel);
+                    MapInteractionManager.Instance.SetActualLocation(location.latitude, location.longitude, location.zLevel);
                 }
                 else
                 {
                     LogError("MapInteractionManager not found when setting actual location; score will be unavailable.");
                 }
 
-                LogDebug($"Round {currentRound} started - Location: {location.Name} | Coordinates: lat={location.lat}, lng={location.lng}, zLevel={location.zLevel}");
+                LogDebug($"Round {currentRound} started - Location: {location.Name} | latitude:{location.latitude}, longitude:{location.longitude}, zLevel={location.zLevel}");
             }
         }
 
@@ -504,7 +504,7 @@ public class GameLogic : MonoBehaviour
             var location = locationManager.GetCurrentLocation();
             if (!string.IsNullOrEmpty(location.Name))
             {
-                LogDebug($"Map changed - Location: {location.Name} | Coordinates: lat={location.lat}, lng={location.lng}, zLevel={location.zLevel}");
+                LogDebug($"Map changed - Location: {location.Name} | Coordinates: lat={location.latitude}, lng={location.longitude}, zLevel={location.zLevel}");
             }
         }
         else

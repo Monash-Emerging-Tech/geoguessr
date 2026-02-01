@@ -25,7 +25,7 @@ public class DebugLogScript : MonoBehaviour
     void Start()
     {
         Debug.Log("DebugLogScript starting on: " + gameObject.name);
-        
+
         // Make sure a gamemanager is connected
         gameManager = GameObject.Find("GameLogic");
         if (gameManager != null)
@@ -69,7 +69,7 @@ public class DebugLogScript : MonoBehaviour
             try
             {
                 string debugText = "Debug Log:";
-                
+
                 // Safe method calls with try-catch for each
                 try { debugText += "\r\ninGame: " + gameLoader.IsInGame(); } catch (System.Exception e) { debugText += "\r\ninGame: ERROR - " + e.Message; }
                 try { debugText += "\r\nGuessing: " + gameLoader.IsGuessing(); } catch (System.Exception e) { debugText += "\r\nGuessing: ERROR - " + e.Message; }
@@ -77,19 +77,19 @@ public class DebugLogScript : MonoBehaviour
                 try { debugText += "\r\nRound: " + gameLoader.GetCurrentRound(); } catch (System.Exception e) { debugText += "\r\nRound: ERROR - " + e.Message; }
                 try { debugText += "\r\nMapPackId: " + gameLoader.GetMapPackId(); } catch (System.Exception e) { debugText += "\r\nMapPackId: ERROR - " + e.Message; }
                 try { debugText += "\r\nMapPackName: " + gameLoader.GetMapPackName(); } catch (System.Exception e) { debugText += "\r\nMapPackName: ERROR - " + e.Message; }
-                try 
-                { 
+                try
+                {
                     var allMapPacks = gameLoader.GetAllMapPackNames();
-                    debugText += "\r\nAvailable MapPacks: " + (allMapPacks.Length > 0 ? string.Join(", ", allMapPacks) : "None"); 
-                } 
-                catch (System.Exception e) 
-                { 
-                    debugText += "\r\nAvailable MapPacks: ERROR - " + e.Message; 
+                    debugText += "\r\nAvailable MapPacks: " + (allMapPacks.Length > 0 ? string.Join(", ", allMapPacks) : "None");
                 }
-                
+                catch (System.Exception e)
+                {
+                    debugText += "\r\nAvailable MapPacks: ERROR - " + e.Message;
+                }
+
                 // Location manager calls - these are more likely to cause issues
-                try 
-                { 
+                try
+                {
                     var locationManager = gameLoader.GetLocationManager();
                     if (locationManager != null)
                     {
@@ -98,8 +98,8 @@ public class DebugLogScript : MonoBehaviour
                         if (!string.IsNullOrEmpty(currentLocation.Name))
                         {
                             debugText += "\r\nLocation: " + currentLocation.Name;
-                            debugText += "\r\nLocation Lat: " + currentLocation.lat;
-                            debugText += "\r\nLocation Lng: " + currentLocation.lng;
+                            debugText += "\r\nLocation Lat: " + currentLocation.latitude;
+                            debugText += "\r\nLocation Lng: " + currentLocation.longitude;
                             debugText += "\r\nLocation Z-Level: " + currentLocation.zLevel;
                         }
                         else
@@ -111,12 +111,12 @@ public class DebugLogScript : MonoBehaviour
                     {
                         debugText += "\r\nLocation Manager: NULL";
                     }
-                } 
-                catch (System.Exception e) 
-                { 
-                    debugText += "\r\nLocation: ERROR - " + e.Message; 
                 }
-                
+                catch (System.Exception e)
+                {
+                    debugText += "\r\nLocation: ERROR - " + e.Message;
+                }
+
                 text.text = debugText;
             }
             catch (System.Exception e)

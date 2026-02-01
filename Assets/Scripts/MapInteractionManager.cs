@@ -163,7 +163,7 @@ public class MapInteractionManager : MonoBehaviour
             zLevelName = GetZLevelName(Mathf.RoundToInt(zLevel))
         };
 
-        LogDebug($"Actual location set to: {latitude}, {longitude}, Level: {GetZLevelName(Mathf.RoundToInt(zLevel))}");
+        LogDebug($"Actual location set to: Latitude:{latitude}, Longitude:{longitude}, zLevel:{zLevel}, zLevelName:{GetZLevelName(Mathf.RoundToInt(zLevel))}");
     }
 
     /// <summary>
