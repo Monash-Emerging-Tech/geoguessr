@@ -109,6 +109,253 @@
     updateGuessButtonState(true);
 
     console.log("Guess Marker placed at:", lngLat, "on zLevel:", zLevel);
+    drawGuessToActualLine();
+  }
+
+  function getLeafletNamespace() {
+    return (
+      window.L ||
+      (window.mazemap && window.mazemap.L) ||
+      (window.MazeMap && window.MazeMap.L) ||
+      (window.Maze && window.Maze.L) ||
+      null
+    );
+  }
+
+  function getMapboxMap(map) {
+    if (!map) return null;
+    if (
+      typeof map.addSource === "function" &&
+      typeof map.addLayer === "function"
+    ) {
+      return map;
+    }
+    if (typeof map.getMap === "function") {
+      var inner = map.getMap();
+      if (
+        inner &&
+        typeof inner.addSource === "function" &&
+        typeof inner.addLayer === "function"
+      ) {
+        return inner;
+      }
+    }
+    var candidates = [map._map, map.map, map._mapObject, map._mapRef];
+    for (var i = 0; i < candidates.length; i++) {
+      var candidate = candidates[i];
+      if (
+        candidate &&
+        typeof candidate.addSource === "function" &&
+        typeof candidate.addLayer === "function"
+      ) {
+        return candidate;
+      }
+    }
+    return null;
+  }
+
+  function getOrCreateGuessLineLayer(map, zLevel) {
+    if (map._guessLineLayer && map._guessLineLayerZ === zLevel) {
+      return map._guessLineLayer;
+    }
+
+    // Remove old layer if zLevel changed
+    if (map._guessLineLayer) {
+      var leafletMap = getLeafletMap(map);
+      if (leafletMap && typeof leafletMap.removeLayer === "function") {
+        leafletMap.removeLayer(map._guessLineLayer);
+      } else if (typeof map.removeLayer === "function") {
+        map.removeLayer(map._guessLineLayer);
+      }
+    }
+
+    var layer = null;
+    if (window.mazemap && typeof window.mazemap.LayerGroup === "function") {
+      layer = new window.mazemap.LayerGroup({ zLevel: zLevel });
+      layer.addTo(map);
+    } else if (
+      typeof Mazemap !== "undefined" &&
+      typeof Mazemap.LayerGroup === "function"
+    ) {
+      layer = new Mazemap.LayerGroup({ zLevel: zLevel });
+      layer.addTo(map);
+    } else {
+      var leaflet = getLeafletMap(map);
+      var Lns = getLeafletNamespace();
+      if (leaflet && Lns && typeof Lns.layerGroup === "function") {
+        layer = Lns.layerGroup();
+        layer.addTo(leaflet);
+      }
+    }
+
+    map._guessLineLayer = layer;
+    map._guessLineLayerZ = zLevel;
+
+    return layer;
+  }
+
+  function drawGuessToActualLine() {
+    var map = window.mazeMapInstance;
+    if (!map) {
+      // console.log("[Line] No map instance");
+      return;
+    }
+    if (isGuessingState) {
+      // console.log("[Line] Skipped (guessing state true)");
+      clearGuessLine();
+      return;
+    }
+
+    var guessMarker = map._clickMarker;
+    var actualMarker = map._actualLocationMarker;
+
+    if (!guessMarker || !actualMarker) {
+      // console.log("[Line] Missing markers", {
+      //   hasGuess: !!guessMarker,
+      //   hasActual: !!actualMarker,
+      // });
+      if (map._guessLine) {
+        map._guessLine.remove();
+        map._guessLine = null;
+      }
+      return;
+    }
+
+    var guessLngLat =
+      typeof guessMarker.getLngLat === "function"
+        ? guessMarker.getLngLat()
+        : guessMarker._storedLngLat;
+
+    var actualLngLat =
+      typeof actualMarker.getLngLat === "function"
+        ? actualMarker.getLngLat()
+        : null;
+
+    if (!guessLngLat || !actualLngLat) {
+      // console.log("[Line] Missing marker coordinates", {
+      //   guessLngLat: guessLngLat,
+      //   actualLngLat: actualLngLat,
+      // });
+      return;
+    }
+
+    var guessZ = guessMarker._storedZLevel;
+
+    var layer = getOrCreateGuessLineLayer(map, guessZ);
+    var leafletMap = getLeafletMap(map);
+    var Lns = getLeafletNamespace();
+    var mapboxMap = getMapboxMap(map);
+
+    var latlngs = [
+      [guessLngLat.lat, guessLngLat.lng],
+      [actualLngLat.lat, actualLngLat.lng],
+    ];
+
+    if (Lns && (layer || leafletMap)) {
+      if (map._guessLine) {
+        map._guessLine.setLatLngs(latlngs);
+        // console.log("[Line] Updated existing line (Leaflet)", {
+        //   latlngs: latlngs,
+        // });
+      } else {
+        map._guessLine = Lns.polyline(latlngs, {
+          color: "#D31F40",
+          opacity: 0.9,
+          dashArray: "6,6",
+          interactive: false,
+        });
+
+        if (layer && typeof layer.addLayer === "function") {
+          layer.addLayer(map._guessLine);
+          // console.log("[Line] Added line via layer.addLayer");
+        } else if (layer && typeof map._guessLine.addTo === "function") {
+          map._guessLine.addTo(layer);
+          // console.log("[Line] Added line via addTo(layer)");
+        } else if (leafletMap && typeof map._guessLine.addTo === "function") {
+          map._guessLine.addTo(leafletMap);
+          // console.log("[Line] Added line via addTo(leafletMap)");
+        }
+      }
+      return;
+    }
+
+    if (mapboxMap) {
+      var sourceId = "guess-line-source";
+      var layerId = "guess-line-layer";
+      var geojson = {
+        type: "Feature",
+        geometry: {
+          type: "LineString",
+          coordinates: [
+            [guessLngLat.lng, guessLngLat.lat],
+            [actualLngLat.lng, actualLngLat.lat],
+          ],
+        },
+      };
+
+      if (mapboxMap.getSource && mapboxMap.getSource(sourceId)) {
+        mapboxMap.getSource(sourceId).setData(geojson);
+        // console.log("[Line] Updated existing line (Mapbox)");
+      } else {
+        mapboxMap.addSource(sourceId, { type: "geojson", data: geojson });
+        mapboxMap.addLayer({
+          id: layerId,
+          type: "line",
+          source: sourceId,
+          paint: {
+            "line-color": "#D31F40",
+            "line-width": 3,
+            "line-opacity": 0.9,
+            "line-dasharray": [2, 2],
+          },
+        });
+        // console.log("[Line] Added line (Mapbox)");
+      }
+      return;
+    }
+
+    // console.log("[Line] No layer target", {
+    //   hasL: !!Lns,
+    //   hasLayer: !!layer,
+    //   hasLeaflet: !!leafletMap,
+    //   hasMapbox: !!mapboxMap,
+    //   mapGetMap: typeof map.getMap,
+    //   mapKeys: Object.keys(map || {}).slice(0, 30),
+    //   mapCandidates: {
+    //     _map: !!map._map,
+    //     map: !!map.map,
+    //     leafletMap: !!map.leafletMap,
+    //     _leafletMap: !!map._leafletMap,
+    //     _mapObject: !!map._mapObject,
+    //     _mapRef: !!map._mapRef,
+    //   },
+    //   mazemapHasL: !!(window.mazemap && window.mazemap.L),
+    //   MazeMapHasL: !!(window.MazeMap && window.MazeMap.L),
+    //   MazeHasL: !!(window.Maze && window.Maze.L),
+    // });
+  }
+
+  function clearGuessLine() {
+    var map = window.mazeMapInstance;
+    if (!map || !map._guessLine) return;
+
+    var leafletMap = getLeafletMap(map);
+    if (leafletMap) {
+      leafletMap.removeLayer(map._guessLine);
+    }
+    map._guessLine = null;
+
+    var mapboxMap = getMapboxMap(map);
+    if (mapboxMap) {
+      var sourceId = "guess-line-source";
+      var layerId = "guess-line-layer";
+      if (mapboxMap.getLayer && mapboxMap.getLayer(layerId)) {
+        mapboxMap.removeLayer(layerId);
+      }
+      if (mapboxMap.getSource && mapboxMap.getSource(sourceId)) {
+        mapboxMap.removeSource(sourceId);
+      }
+    }
   }
 
   // --------------------------------------------------------------- Z-LEVEL NAME HELPER
@@ -292,6 +539,7 @@
 
       // Store marker reference
       map._actualLocationMarker = marker;
+      drawGuessToActualLine();
 
       console.log("Actual location added from Unity:", {
         coordinates: { lat: lat, lng: lng },
@@ -312,6 +560,27 @@
 
   // Expose to global scope for Unity to call
   window.addActualLocationFromUnity = addActualLocationFromUnity;
+
+  function getLeafletMap(map) {
+    if (!map) return null;
+    if (typeof map.getMap === "function") {
+      return map.getMap(); // MazeMap to Leaflet
+    }
+    var candidates = [
+      map._map,
+      map.map,
+      map.leafletMap,
+      map._leafletMap,
+      map._mapObject,
+      map._mapRef,
+    ];
+    for (var i = 0; i < candidates.length; i++) {
+      if (candidates[i] && typeof candidates[i].addLayer === "function") {
+        return candidates[i];
+      }
+    }
+    return null;
+  }
 
   // --------------------------------------------------------------- UNITY MAP VISIBILITY CONTROL
   /**
@@ -428,6 +697,7 @@
 
   function setGuessingStateFromUnity(isGuessing) {
     isGuessingState = !!isGuessing;
+    // console.log("[State] Guessing state updated:", isGuessingState);
     var button = document.getElementById("guess-button");
     if (button) {
       button.disabled = !isGuessingState;
@@ -439,6 +709,11 @@
     }
     var map = window.mazeMapInstance;
     updateGuessButtonState(!!(map && map._clickMarker));
+    if (isGuessingState) {
+      clearGuessLine();
+    } else {
+      drawGuessToActualLine();
+    }
   }
 
   // --------------------------------------------------------------- UI CONTROLS FOR SIZE TOGGLING
