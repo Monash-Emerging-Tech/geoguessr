@@ -63,12 +63,10 @@ A Unity-based geoguessr game integrated with Monash University's MazeMaps API. P
 
 1. **Import the project** into Unity
 2. **Configure WebGL Template**:
-
    - Set WebGL template to custom
    - Point to `Assets/WebGLTemplate/geoguessrTemplate/`
 
 3. **Set up Prefabs**:
-
    - Create LocationManager prefab with LocationManager script
    - Configure GameLogic prefab with all required references
    - Assign UI GameObjects to GameLogic prefab
@@ -80,14 +78,12 @@ A Unity-based geoguessr game integrated with Monash University's MazeMaps API. P
 ### Scene Configuration
 
 1. **Add Required GameObjects**:
-
    - GameLogic (with GameLogic script)
    - LocationManager (with LocationManager script)
    - MapInteractionManager (with MapInteractionManager script)
    - MapUIController (with MapUIController script)
 
 2. **Configure UI References**:
-
    - Assign main Canvas to GameLogic.gameUI
    - Assign minimap prefab to GameLogic.mapUI
    - Assign results UI to GameLogic.resultsUI
@@ -99,25 +95,21 @@ A Unity-based geoguessr game integrated with Monash University's MazeMaps API. P
 ## Game Flow
 
 1. **Game Initialization**:
-
    - LocationManager loads location data from JSON
    - GameLogic initializes round counter and scoring
    - MapInteractionManager sets up JavaScript communication
 
 2. **Round Start**:
-
    - Random location selected from current map pack
    - Skybox material applied for 360° viewing
    - Map interface prepared for interaction
 
 3. **Player Interaction**:
-
    - Player explores location using camera controls
    - Map opens when requested
    - Player places guess marker on campus map
 
 4. **Guess Submission**:
-
    - Distance calculated between guess and actual location
    - Score calculated using configurable curve
    - Results displayed with markers
@@ -159,13 +151,11 @@ A Unity-based geoguessr game integrated with Monash University's MazeMaps API. P
 ### WebGL Build
 
 1. **Build Settings**:
-
    - Platform: WebGL
    - Template: Custom (geoguessrTemplate)
    - Compression: Disabled (for development)
 
 2. **Build Process**:
-
    - File → Build Settings
    - Add scenes to build
    - Click Build and select output directory
@@ -186,19 +176,16 @@ A Unity-based geoguessr game integrated with Monash University's MazeMaps API. P
 ### Common Issues
 
 1. **LocationManager is null**:
-
    - Ensure LocationManager prefab is assigned to GameLogic
    - Verify LocationManager script is attached to prefab
    - Check that locationData.json exists in Resources folder
 
 2. **Map not loading**:
-
    - Check internet connection
    - Verify MazeMaps API access
    - Check browser console for JavaScript errors
 
 3. **Scoring issues**:
-
    - Ensure actual location is set before guess submission
    - Verify coordinate format (latitude, longitude)
    - Check scoring curve configuration
@@ -257,3 +244,5 @@ For technical support:
 - Review Unity console and browser logs
 - Enable debug mode for detailed information
 - Contact development team for complex issues
+
+delete this line
