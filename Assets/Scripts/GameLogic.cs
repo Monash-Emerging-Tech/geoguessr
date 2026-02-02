@@ -10,15 +10,15 @@ using UnityEngine.SceneManagement;
 /// 
 /// Written by O-Bolt
 /// Modified by aleu0007
-/// Last Modified: 24/09/2025
+/// Last Modified: 1/02/2026
 /// </summary>
 public class GameLogic : MonoBehaviour
 {
     [Header("Game Settings")]
     [SerializeField] private int totalRounds = 5;
     // [SerializeField] private int gameMode = 0; // TODO
-    [SerializeField] private string mapPackName = "Monash 101";
-    [SerializeField] private ScoreDataScriptableObject scoreData;
+    [SerializeField] private string mapPackName = "all";
+    [SerializeField] private ScoreDataScriptableObject scoreData; // Scriptable Object to hold score data
 
     [Header("Map Integration")]
     [SerializeField] private MapInteractionManager mapManager;
@@ -40,6 +40,7 @@ public class GameLogic : MonoBehaviour
     private bool isGuessing = false;
     private bool isGameActive = false;
     private bool isRoundActive = false;
+    private bool skipNextRoundWait = false;
 
     // MapPack management
     private int resolvedMapPackId = 2; // Default to Monash 101
@@ -189,6 +190,15 @@ public class GameLogic : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        // Allow spacebar to advance from end-round state
+        if (isRoundActive && !isGuessing && Input.GetKeyDown(KeyCode.Space))
+        {
+            HandleNextRoundButtonPressed();
+        }
+    }
+
     void OnEnable()
     {
         Debug.Log("OnEnable called");
@@ -237,7 +247,7 @@ public class GameLogic : MonoBehaviour
             {
                 MapInteractionManager.Instance.HideMap();
             }
-            LogDebug("MenuScene loaded - Map hidden");
+            LogDebug("MenuScene loaded - Minimap UI hidden");
         }
         // Show map and initialize game when GameScene is loaded
         else if (scene.name == "GameScene")
@@ -343,6 +353,11 @@ public class GameLogic : MonoBehaviour
         isGuessing = true;
         LogDebug($"nextRound() called | isGameActive:{isGameActive} isRoundActive:{isRoundActive} currentRound:{currentRound}");
 
+        if (MapInteractionManager.Instance != null)
+        {
+            MapInteractionManager.Instance.ClearWebMapState();
+        }
+
         // Get random location from location manager
         if (locationManager != null)
         {
@@ -372,14 +387,14 @@ public class GameLogic : MonoBehaviour
                 {
                     LogDebug("nextRound(): calling SetActualLocation");
                     // Use singleton instance to ensure SubmitGuess (called from JS) operates on the same instance
-                    MapInteractionManager.Instance.SetActualLocation(location.lat, location.lng, location.zLevel);
+                    MapInteractionManager.Instance.SetActualLocation(location.latitude, location.longitude, location.zLevel);
                 }
                 else
                 {
                     LogError("MapInteractionManager not found when setting actual location; score will be unavailable.");
                 }
 
-                LogDebug($"Round {currentRound} started - Location: {location.Name} | Coordinates: lat={location.lat}, lng={location.lng}, zLevel={location.zLevel}");
+                LogDebug($"Round {currentRound} started - Location: {location.Name} | latitude:{location.latitude}, longitude:{location.longitude}, zLevel={location.zLevel}");
             }
         }
 
@@ -387,6 +402,8 @@ public class GameLogic : MonoBehaviour
         if (MapInteractionManager.Instance != null)
         {
             MapInteractionManager.Instance.ShowMap();
+            MapInteractionManager.Instance.SetWebGuessingState(true);
+            MapInteractionManager.Instance.SetWebMapSize("mm-size-s");
         }
 
         OnRoundStarted?.Invoke(currentRound);
@@ -399,9 +416,13 @@ public class GameLogic : MonoBehaviour
     /// </summary>
     public void EndRound()
     {
-        if (!isRoundActive) return;
+        // Only end the round if isRoundActive is false (triggered by Next Round button)
+        if (isRoundActive)
+        {
+            // Do not end round yet, wait for Next Round button
+            return;
+        }
 
-        isRoundActive = false;
         isGuessing = false;
 
         // Hide map - use singleton to ensure consistency
@@ -413,9 +434,28 @@ public class GameLogic : MonoBehaviour
         OnRoundEnded?.Invoke(currentScore);
         LogDebug($"Round {currentRound} ended - Score: {currentScore}");
 
-        // Start next round after delay
-        StartCoroutine(NextRoundDelay());
+        if (MapInteractionManager.Instance != null)
+        {
+            MapInteractionManager.Instance.ResetRound();
+        }
 
+        // Start next round after delay
+        StartNextRoundRoutine();
+
+    }
+
+    /// <summary>
+    /// Call this from your Next Round button handler to end the round and start the next one
+    /// </summary>
+    public void OnNextRoundButtonPressed()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Instance.HandleNextRoundButtonPressed();
+            return;
+        }
+
+        HandleNextRoundButtonPressed();
     }
 
     /// <summary>
@@ -423,7 +463,11 @@ public class GameLogic : MonoBehaviour
     /// </summary>
     private IEnumerator NextRoundDelay()
     {
-        yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space)); // Wait for Space to go to next Round
+        if (!skipNextRoundWait)
+        {
+            yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space)); // Wait for Space to go to next Round
+        }
+        skipNextRoundWait = false;
 
         // yield return new WaitForSeconds(2f); // 1 second delay 
 
@@ -436,6 +480,30 @@ public class GameLogic : MonoBehaviour
         currentRound++;
         OnRoundUpdated?.Invoke(currentRound, totalRounds);
         nextRound();
+    }
+
+    private void HandleNextRoundButtonPressed()
+    {
+        skipNextRoundWait = true;
+        isRoundActive = false;
+        EndRound();
+    }
+
+    private void StartNextRoundRoutine()
+    {
+        if (isActiveAndEnabled)
+        {
+            StartCoroutine(NextRoundDelay());
+            return;
+        }
+
+        if (Instance != null && Instance.isActiveAndEnabled)
+        {
+            Instance.StartCoroutine(NextRoundDelay());
+            return;
+        }
+
+        LogError("Cannot start NextRoundDelay because GameLogic is inactive.");
     }
 
     /// <summary>
@@ -504,7 +572,7 @@ public class GameLogic : MonoBehaviour
             var location = locationManager.GetCurrentLocation();
             if (!string.IsNullOrEmpty(location.Name))
             {
-                LogDebug($"Map changed - Location: {location.Name} | Coordinates: lat={location.lat}, lng={location.lng}, zLevel={location.zLevel}");
+                LogDebug($"Map changed - Location: {location.Name} | Coordinates: lat={location.latitude}, lng={location.longitude}, zLevel={location.zLevel}");
             }
         }
         else
@@ -523,7 +591,17 @@ public class GameLogic : MonoBehaviour
     /// <param name="guessLocation">The guessed location data with z-level support</param>
     private void OnGuessSubmitted(MapInteractionManager.LocationData guessLocation)
     {
-        LogDebug($"Guess submitted at: {guessLocation.lat}, {guessLocation.lng}, Level: {guessLocation.zLevelName}");
+        isGuessing = false;
+        LogDebug($"Guess submitted at: latitude:{guessLocation.latitude}, longitude:{guessLocation.longitude}, zLevel: {guessLocation.zLevelName}");
+        if (MapInteractionManager.Instance != null && locationManager != null)
+        {
+            var location = locationManager.GetCurrentLocation();
+            MapInteractionManager.Instance.SendActualLocationToJavaScript(location.latitude, location.longitude, location.zLevel);
+            MapInteractionManager.Instance.ShowBothLocations();
+            MapInteractionManager.Instance.ShowMap();
+            MapInteractionManager.Instance.SetWebGuessingState(false);
+            MapInteractionManager.Instance.SetWebMapSize("mm-size-round-end");
+        }
         // The score calculation will be handled by OnScoreCalculated
     }
 
@@ -554,7 +632,7 @@ public class GameLogic : MonoBehaviour
     /// </summary>
     private void OnMapOpened()
     {
-        LogDebug("Map opened");
+        LogDebug("Minimap UI opened");
         // Update UI to show map is active
     }
 
@@ -563,7 +641,7 @@ public class GameLogic : MonoBehaviour
     /// </summary>
     private void OnMapClosed()
     {
-        LogDebug("Map closed");
+        LogDebug("Minimap UI closed");
         // Update UI to show map is not active
     }
 

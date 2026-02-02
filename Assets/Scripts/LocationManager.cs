@@ -13,7 +13,7 @@ using UnityEngine;
 public class LocationManager : MonoBehaviour
 {
     #region Data Structures
-    
+
     /// <summary>
     /// Container for location and map pack data loaded from JSON
     /// </summary>
@@ -35,8 +35,8 @@ public class LocationManager : MonoBehaviour
         public int ID;
         public string Name;
         public string FileName;
-        public float lat;  // Latitude (replaces x)
-        public float lng;  // Longitude (replaces y)
+        public float latitude;  // Latitude (replaces x)
+        public float longitude;  // Longitude (replaces y)
         public int zLevel; // Z-level (replaces z)
 
         [System.NonSerialized]
@@ -58,23 +58,23 @@ public class LocationManager : MonoBehaviour
     #endregion
 
     #region Inspector Variables
-    
+
     [Header("Data Configuration")]
     [SerializeField] private string jsonResourcePath = "locationData";
-    
+
     #endregion
 
     #region Private Variables
-    
+
     private Dictionary<int, Location> locationDict;
     private Dictionary<int, MapPack> mapPackDict;
     private MapPack currentMapPack;
     private Location currentLocation;
-    
+
     #endregion
 
     #region Public Getters
-    
+
     /// <summary>
     /// Checks if LocationManager has been initialized with data
     /// </summary>
@@ -83,13 +83,13 @@ public class LocationManager : MonoBehaviour
     {
         return mapPackDict != null && locationDict != null;
     }
-    
+
     public Location GetCurrentLocation() => currentLocation;
     public MapPack GetCurrentMapPack() => currentMapPack;
     public string GetCurrentMapPackName() => currentMapPack.Name;
     public Dictionary<int, Location> GetLocationDict() => locationDict;
     public Dictionary<int, MapPack> GetMapPackDict() => mapPackDict;
-    
+
     /// <summary>
     /// Gets all available MapPack names
     /// </summary>
@@ -103,7 +103,7 @@ public class LocationManager : MonoBehaviour
         }
         return mapPackDict.Values.Select(mp => mp.Name).ToArray();
     }
-    
+
     /// <summary>
     /// Gets MapPack name by ID
     /// </summary>
@@ -118,7 +118,7 @@ public class LocationManager : MonoBehaviour
         }
         return mapPackDict.ContainsKey(id) ? mapPackDict[id].Name : "Unknown";
     }
-    
+
     /// <summary>
     /// Gets MapPack ID by name
     /// </summary>
@@ -127,13 +127,13 @@ public class LocationManager : MonoBehaviour
     public int GetMapPackIdByName(string name)
     {
         if (string.IsNullOrEmpty(name)) return -1;
-        
+
         if (mapPackDict == null)
         {
             Debug.LogError("LocationManager: GetMapPackIdByName() called before initialization. MapPack dictionary is null.");
             return -1;
         }
-        
+
         foreach (var kvp in mapPackDict)
         {
             if (kvp.Value.Name.Equals(name, System.StringComparison.OrdinalIgnoreCase))
@@ -143,7 +143,7 @@ public class LocationManager : MonoBehaviour
         }
         return -1;
     }
-    
+
     /// <summary>
     /// Validates if a MapPack name exists
     /// </summary>
@@ -153,11 +153,11 @@ public class LocationManager : MonoBehaviour
     {
         return GetMapPackIdByName(name) != -1;
     }
-    
+
     #endregion
 
     #region Initialization
-    
+
     /// <summary>
     /// Initializes the LocationManager by loading data from JSON
     /// </summary>
@@ -167,11 +167,11 @@ public class LocationManager : MonoBehaviour
         LoadData();
         Debug.Log($"LocationManager: Init complete. Loaded {locationDict?.Count ?? 0} locations, {mapPackDict?.Count ?? 0} map packs.");
     }
-    
+
     #endregion
 
     #region Location Management
-    
+
     /// <summary>
     /// Selects a random location from the current map pack and sets it as skybox
     /// </summary>
@@ -182,9 +182,9 @@ public class LocationManager : MonoBehaviour
             Debug.LogWarning("LocationManager: Cannot select random location - no map pack is set. Call SetCurrentMapPack() first.");
             return;
         }
-        
+
         List<Location> locations = GetLocationsFromMapPack(currentMapPack);
-        
+
         if (locations.Count == 0)
         {
             Debug.LogWarning($"LocationManager: No locations found in map pack '{currentMapPack.Name}'");
@@ -193,7 +193,7 @@ public class LocationManager : MonoBehaviour
 
         int randomIndex = Random.Range(0, locations.Count);
         var selectedLocation = locations[randomIndex];
-        
+
         // Check if material is loaded before setting skybox
         if (selectedLocation.LocationMaterial == null)
         {
@@ -204,8 +204,8 @@ public class LocationManager : MonoBehaviour
             RenderSettings.skybox = selectedLocation.LocationMaterial;
             DynamicGI.UpdateEnvironment();
         }
-        
-        Debug.Log($"LocationManager: Location selected - ID:{selectedLocation.ID}, Name:{selectedLocation.Name}, lat:{selectedLocation.lat}, lng:{selectedLocation.lng}, z:{selectedLocation.zLevel}");
+
+        Debug.Log($"LocationManager: Location selected - ID:{selectedLocation.ID}, Name:{selectedLocation.Name}, latitude:{selectedLocation.latitude}, longitude:{selectedLocation.longitude}, z:{selectedLocation.zLevel}");
         SetCurrentLocation(selectedLocation);
     }
 
@@ -232,11 +232,11 @@ public class LocationManager : MonoBehaviour
 
         return locations;
     }
-    
+
     #endregion
 
     #region Setters
-    
+
     /// <summary>
     /// Sets the current location
     /// </summary>
@@ -257,7 +257,7 @@ public class LocationManager : MonoBehaviour
             Debug.LogError("LocationManager: Cannot set map pack - map pack dictionary not initialized.");
             return;
         }
-        
+
         if (mapPackDict.ContainsKey(id))
         {
             currentMapPack = mapPackDict[id];
@@ -269,11 +269,11 @@ public class LocationManager : MonoBehaviour
             Debug.LogWarning($"LocationManager: MapPack ID {id} not found. Available IDs: {string.Join(", ", mapPackDict.Keys)}");
         }
     }
-    
+
     #endregion
 
     #region Data Loading
-    
+
     /// <summary>
     /// Loads location and map pack data from JSON file and assigns materials
     /// </summary>
@@ -299,7 +299,7 @@ public class LocationManager : MonoBehaviour
             Debug.LogError("LocationManager: JSON file is empty!");
             return;
         }
-        
+
         Debug.Log($"LocationManager: JSON data loaded, length: {jsonData.Length} characters");
 
         locationData data = JsonUtility.FromJson<locationData>(jsonData);
@@ -308,23 +308,23 @@ public class LocationManager : MonoBehaviour
             Debug.LogError("LocationManager: Failed to parse JSON data!");
             return;
         }
-        
+
         if (data.Locations == null)
         {
             Debug.LogError("LocationManager: JSON data has null Locations array!");
             return;
         }
-        
+
         if (data.MapPacks == null)
         {
             Debug.LogError("LocationManager: JSON data has null MapPacks array!");
             return;
         }
-        
+
         // Initialize dictionaries
         locationDict = new Dictionary<int, Location>();
         mapPackDict = new Dictionary<int, MapPack>();
-        
+
         // Load locations
         Debug.Log($"LocationManager: Loading {data.Locations.Count} locations...");
         foreach (Location location in data.Locations)
@@ -347,12 +347,12 @@ public class LocationManager : MonoBehaviour
     private void AssignLocationMaterials()
     {
         int failureCount = 0;
-        
+
         foreach (Location location in locationDict.Values.ToList())
         {
             Location updatedLocation = location;
             string materialPath = $"Materials/Locations/{location.FileName}";
-            
+
             updatedLocation.LocationMaterial = Resources.Load<Material>(materialPath);
 
             if (updatedLocation.LocationMaterial == null)
@@ -363,7 +363,7 @@ public class LocationManager : MonoBehaviour
 
             locationDict[location.ID] = updatedLocation;
         }
-        
+
         if (failureCount > 0)
         {
             Debug.LogError($"LocationManager: Material assignment complete with {failureCount} failures");
@@ -373,11 +373,11 @@ public class LocationManager : MonoBehaviour
             Debug.Log("LocationManager: Material assignment complete with no failures");
         }
     }
-    
+
     #endregion
 
     #region Legacy Methods (Deprecated)
-    
+
     /// <summary>
     /// Legacy method - use GetLocationsFromMapPack instead
     /// </summary>
@@ -404,6 +404,6 @@ public class LocationManager : MonoBehaviour
     {
         SetCurrentMapPack(id);
     }
-    
+
     #endregion
 }
