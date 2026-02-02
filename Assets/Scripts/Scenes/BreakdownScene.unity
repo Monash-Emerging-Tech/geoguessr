@@ -436,6 +436,34 @@ PrefabInstance:
       propertyPath: m_Name
       value: bottom-bar-play-again
       objectReference: {fileID: 0}
+    - target: {fileID: 7000827580033299439, guid: 68bea656fb570f243abd1452b4e4f44e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7000827580033299439, guid: 68bea656fb570f243abd1452b4e4f44e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7000827580033299439, guid: 68bea656fb570f243abd1452b4e4f44e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 487263644213522047, guid: 00668585c194fc24aa8b327e232740d8, type: 3}
+    - target: {fileID: 7000827580033299439, guid: 68bea656fb570f243abd1452b4e4f44e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7000827580033299439, guid: 68bea656fb570f243abd1452b4e4f44e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: LoadGame
+      objectReference: {fileID: 0}
+    - target: {fileID: 7000827580033299439, guid: 68bea656fb570f243abd1452b4e4f44e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: GameLogic, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7000827580033299439, guid: 68bea656fb570f243abd1452b4e4f44e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 7676222870972186554, guid: 68bea656fb570f243abd1452b4e4f44e, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
