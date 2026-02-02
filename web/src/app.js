@@ -92,7 +92,7 @@
     map._clickMarker = new Mazemap.MazeMarker({
       size: 60,
       zLevel: zLevel,
-      imgUrl: "/assets/img/markers/handthing.png",
+      imgUrl: "assets/img/markers/handthing.png",
       imgScale: 1.7,
       color: "white",
       innerCircle: false,
@@ -557,7 +557,7 @@
         zLevel: zLevel,
         innerCircle: false,
         color: "#9D9DDC",
-        imgUrl: "../assets/img/markers/fat.png",
+        imgUrl: "assets/img/markers/fat.png",
         imgScale: 1.7,
         size: 60,
       };
