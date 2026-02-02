@@ -244,5 +244,3 @@ For technical support:
 - Review Unity console and browser logs
 - Enable debug mode for detailed information
 - Contact development team for complex issues
-
-delete this line
