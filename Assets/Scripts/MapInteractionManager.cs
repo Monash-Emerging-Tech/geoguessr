@@ -60,7 +60,7 @@ public class MapInteractionManager : MonoBehaviour
     private bool isMapActive = false;
     // Events
     public static event Action<LocationData>? OnGuessSubmitted; // Event with location data
-    public static event Action<int>? OnScoreCalculated;
+    public static event Action<int, int>? OnScoreCalculated;
     public static event Action? OnMapOpened;
     public static event Action? OnMapClosed;
     public static event Action<int>? OnZLevelChanged; // New z-level event
@@ -354,8 +354,8 @@ public class MapInteractionManager : MonoBehaviour
             // Calculate score if we have both locations
             if (currentActualLocation != null && currentGuessLocation != null)
             {
-                int score = CalculateScore(currentActualLocation, currentGuessLocation);
-                OnScoreCalculated?.Invoke(score);
+                var (score, distance) = CalculateScore(currentActualLocation, currentGuessLocation);
+                OnScoreCalculated?.Invoke(score, distance);
 
                 // Show both locations on map
                 ShowBothLocations();
@@ -444,7 +444,7 @@ public class MapInteractionManager : MonoBehaviour
     /// <param name="actual">Actual location data</param>
     /// <param name="guess">Guess location data</param>
     /// <returns>Score from 0 to maxScore</returns>
-    private int CalculateScore(LocationData actual, LocationData guess)
+    private (int score, int distance) CalculateScore(LocationData actual, LocationData guess)
     {
         float distance = CalculateDistance(actual, guess);
 
@@ -452,7 +452,7 @@ public class MapInteractionManager : MonoBehaviour
         if (distance > maxGuessDistance)
         {
             LogDebug($"Distance: {distance:F2}m exceeds max distance {maxGuessDistance}m - Score: {minScore}");
-            return minScore;
+            return (minScore, (int)distance);
         }
 
         // Linear scoring: maxScore minus proportional distance
@@ -463,7 +463,7 @@ public class MapInteractionManager : MonoBehaviour
         score = Mathf.Max(minScore, score);
 
         LogDebug($"Distance: {distance:F2}m, Max Distance: {maxGuessDistance}m, Score: {score}");
-        return score;
+        return (score, (int)distance);
     }
 
     /// <summary>
