@@ -15,6 +15,8 @@ public class FancyTextController : MonoBehaviour
     // [SerializeField] private string editorText = "Default Text";
     [SerializeField] private ScoreDataScriptableObject scoreData;
 
+    [SerializeField] private string data;
+
     private void OnValidate()
     {
         // This runs in the editor when values change
@@ -56,7 +58,7 @@ public class FancyTextController : MonoBehaviour
         }
 
         //setting the editor text to the score from the scriptable object
-        string editorText = (scoreData != null) ? scoreData.CurrentScore.ToString() : "0";
+        string editorText = (scoreData != null) ? scoreData.GetScoreData(data).ToString() : "0";
 
         // Update all text fields
         foreach (var tmp in textFields)
