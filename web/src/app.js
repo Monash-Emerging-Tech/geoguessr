@@ -72,7 +72,7 @@
     } catch (error) {
       console.error(
         "Failed to initialize Maze Maps:",
-        error && error.message ? error.message : error
+        error && error.message ? error.message : error,
       );
     }
   }
@@ -447,8 +447,8 @@
         marker._storedZLevel !== undefined
           ? marker._storedZLevel
           : marker.options
-          ? marker.options.zLevel
-          : map.zLevel || 0;
+            ? marker.options.zLevel
+            : map.zLevel || 0;
 
       // Build JSON payload matching EnhancedMapClickData structure
       var payload = {
@@ -469,7 +469,7 @@
           unityInstance.SendMessage(
             "MapInteractionManager", // GameObject name
             "SubmitGuess", // Method name
-            jsonString // JSON string
+            jsonString, // JSON string
           );
           console.log("Guess submitted to Unity:", payload);
 
@@ -534,10 +534,12 @@
       var map = window.mazeMapInstance;
       if (!map) {
         console.error(
-          "Map instance not available for addActualLocationFromUnity"
+          "Map instance not available for addActualLocationFromUnity",
         );
         return;
       }
+
+      var mapboxMap = getMapboxMap(map);
 
       // Parse JSON payload
       var locationData = JSON.parse(jsonPayload);
@@ -577,11 +579,37 @@
         zLevelName: locationData.zLevelName,
       });
 
-      // Optionally center map on marker when placed
-      map.flyTo({
-        center: [lng, lat],
-        zoom: map.getZoom(),
-      });
+      // Center and zoom to show both guess and actual markers if both are present
+      if (map._clickMarker && map._actualLocationMarker) {
+        var guessMarker = map._clickMarker;
+        var actualMarker = map._actualLocationMarker;
+        var guessLngLat =
+          typeof guessMarker.getLngLat === "function"
+            ? guessMarker.getLngLat()
+            : guessMarker._storedLngLat;
+        var actualLngLat =
+          typeof actualMarker.getLngLat === "function"
+            ? actualMarker.getLngLat()
+            : actualMarker._storedLngLat;
+        if (
+          guessLngLat &&
+          actualLngLat &&
+          mapboxMap &&
+          typeof mapboxMap.fitBounds === "function"
+        ) {
+          var bounds = [
+            [guessLngLat.lng, guessLngLat.lat],
+            [actualLngLat.lng, actualLngLat.lat],
+          ];
+          mapboxMap.fitBounds(bounds, { padding: 80 });
+        }
+      } else {
+        // Fallback: center on actual marker only
+        map.flyTo({
+          center: [lng, lat],
+          zoom: map.getZoom(),
+        });
+      }
     } catch (error) {
       console.error("Error adding actual location from Unity:", error);
       console.error("Payload received:", jsonPayload);
