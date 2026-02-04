@@ -609,17 +609,19 @@ public class GameLogic : MonoBehaviour
     /// Called when score is calculated
     /// </summary>
     /// <param name="score">The calculated score</param>
-    private void OnScoreCalculated(int score)
+    private void OnScoreCalculated(int score, int distance)
     {
         currentScore += score;
-        OnScoreUpdated?.Invoke(currentScore);
+        
         LogDebug($"Score calculated: {score}, Total: {currentScore}");
 
         LogDebug($"ScoreData reference: {scoreData}");
-        //Set current score to shared asset
+        //Set current score to shared assets
         if (scoreData != null)
         {
-            scoreData.SetScore(currentScore);
+            scoreData.SetTotalScore(currentScore);
+            scoreData.SetRoundScore(score);
+            scoreData.SetDistanceScore(distance);
         }
 
         OnScoreUpdated?.Invoke(currentScore);
