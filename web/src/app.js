@@ -31,7 +31,7 @@
           }
         }
       } catch (e) {
-        /* ignore */
+        console.error("Error checking MazeMap readiness:", e);
       }
     }
     return false;
@@ -934,7 +934,39 @@
       try {
         map.resize();
       } catch (e) {
-        /* ignore */
+        console.error("Error during map.resize():", e);
+      }
+      // After resize, re-center or fit bounds if both markers are present
+      var mapboxMap = getMapboxMap(map);
+      if (mapboxMap) {
+        var guessMarker = map._clickMarker;
+        var actualMarker = map._actualLocationMarker;
+        var guessLngLat =
+          guessMarker &&
+          (typeof guessMarker.getLngLat === "function"
+            ? guessMarker.getLngLat()
+            : guessMarker._storedLngLat);
+        var actualLngLat =
+          actualMarker &&
+          (typeof actualMarker.getLngLat === "function"
+            ? actualMarker.getLngLat()
+            : actualMarker._storedLngLat);
+        if (
+          guessLngLat &&
+          actualLngLat &&
+          typeof mapboxMap.fitBounds === "function"
+        ) {
+          var bounds = [
+            [guessLngLat.lng, guessLngLat.lat],
+            [actualLngLat.lng, actualLngLat.lat],
+          ];
+          mapboxMap.fitBounds(bounds, { padding: 80 });
+        } else if (actualLngLat && typeof map.flyTo === "function") {
+          map.flyTo({
+            center: [actualLngLat.lng, actualLngLat.lat],
+            zoom: map.getZoom(),
+          });
+        }
       }
     }
   }
