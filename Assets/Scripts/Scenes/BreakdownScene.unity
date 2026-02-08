@@ -911,6 +911,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 1099760876}
     m_Modifications:
     - target: {fileID: 1588468121685776354, guid: 96b0ad0adcb94ec4ba7952241c5c1e45, type: 3}
+      propertyPath: data
+      value: total
+      objectReference: {fileID: 0}
+    - target: {fileID: 1588468121685776354, guid: 96b0ad0adcb94ec4ba7952241c5c1e45, type: 3}
       propertyPath: scoreData
       value: 
       objectReference: {fileID: 11400000, guid: b39ae3316ff9c414aac57f600db77404, type: 2}
@@ -923,9 +927,17 @@ PrefabInstance:
       value: 2000
       objectReference: {fileID: 0}
     - target: {fileID: 2297092543061951722, guid: 96b0ad0adcb94ec4ba7952241c5c1e45, type: 3}
+      propertyPath: maximum
+      value: 2500
+      objectReference: {fileID: 0}
+    - target: {fileID: 2297092543061951722, guid: 96b0ad0adcb94ec4ba7952241c5c1e45, type: 3}
       propertyPath: scoreData
       value: 
       objectReference: {fileID: 11400000, guid: b39ae3316ff9c414aac57f600db77404, type: 2}
+    - target: {fileID: 3643537474843129062, guid: 96b0ad0adcb94ec4ba7952241c5c1e45, type: 3}
+      propertyPath: m_text
+      value: 1000
+      objectReference: {fileID: 0}
     - target: {fileID: 6848842689015710461, guid: 96b0ad0adcb94ec4ba7952241c5c1e45, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -1020,11 +1032,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7276587169057474650, guid: 96b0ad0adcb94ec4ba7952241c5c1e45, type: 3}
       propertyPath: m_text
-      value: 200
+      value: 1000
       objectReference: {fileID: 0}
     - target: {fileID: 7313251162505638706, guid: 96b0ad0adcb94ec4ba7952241c5c1e45, type: 3}
       propertyPath: m_FillAmount
-      value: 1
+      value: 0.04
       objectReference: {fileID: 0}
     - target: {fileID: 7313251162505638706, guid: 96b0ad0adcb94ec4ba7952241c5c1e45, type: 3}
       propertyPath: m_FillOrigin
@@ -1032,7 +1044,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7867940445427147696, guid: 96b0ad0adcb94ec4ba7952241c5c1e45, type: 3}
       propertyPath: m_text
-      value: 200
+      value: 1000
       objectReference: {fileID: 0}
     - target: {fileID: 8649237948618480698, guid: 96b0ad0adcb94ec4ba7952241c5c1e45, type: 3}
       propertyPath: m_Name

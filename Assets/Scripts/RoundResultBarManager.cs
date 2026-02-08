@@ -47,25 +47,19 @@ public class RoundResultBarManager : MonoBehaviour
         if (GameLogic.Instance != null)
         {
             GameLogic.OnRoundStarted += OnRoundStarted;
-            GameLogic.OnRoundEnded += OnRoundEnded;
+            GameLogic.OnScoreUpdated += OnScoreUpdated;
         }
         else
         {
             LogError("GameLogic instance not found! Round result bar will not work properly.");
         }
-
-        // Subscribe to guess submission events for results state
-        MapInteractionManager.OnGuessSubmitted += OnGuessSubmitted;
-        GuessButtonManager.OnGuessSubmitted += OnGuessSubmitted;
     }
     
     private void OnDestroy()
     {
         // Unsubscribe from events
         GameLogic.OnRoundStarted -= OnRoundStarted;
-        GameLogic.OnRoundEnded -= OnRoundEnded;
-        MapInteractionManager.OnGuessSubmitted -= OnGuessSubmitted;
-        GuessButtonManager.OnGuessSubmitted -= OnGuessSubmitted;
+        GameLogic.OnScoreUpdated -= OnScoreUpdated;
     }
     
     #endregion
@@ -81,22 +75,8 @@ public class RoundResultBarManager : MonoBehaviour
         HideRoundResultBar();
     }
     
-    /// <summary>
-    /// Called when a round ends - show round result bar
-    /// </summary>
-    private void OnRoundEnded(int score)
-    {
-        LogDebug($"Round ended with score {score} - showing round result bar");
-        ShowRoundResultBar();
-    }
 
-    private void OnGuessSubmitted(MapInteractionManager.LocationData guessLocation)
-    {
-        LogDebug("Guess submitted - showing round result bar");
-        ShowRoundResultBar();
-    }
-
-    private void OnGuessSubmitted()
+    private void OnScoreUpdated(int score)
     {
         LogDebug("Guess submitted - showing round result bar");
         ShowRoundResultBar();
