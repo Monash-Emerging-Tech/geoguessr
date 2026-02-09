@@ -41,10 +41,18 @@ public class ScoreDataScriptableObject : ScriptableObject
     }
 
 
+    /* Function for Calculating the Score based on the distance away
+    // The Score is based on how close you are to the target, with different 'harshness' applied to certain distances
+    // Within 3m is a Perfect Guess
+    // Between 4m and 25m inclusive the score will drop from 495 to 450
+    // Between 26m and 50m inclusive the score will drop from 447 to 350
+     Everything above 700m will result in a score of 0
 
+     Feel Free to play around with the values to make certain distance regions more harsh than others, this does not take into account z level
+
+    */
     public static int CalculateScore(int distance)
     {
-
 
         switch (distance)
         {
