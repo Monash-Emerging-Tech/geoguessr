@@ -1609,6 +1609,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Debug Log
       objectReference: {fileID: 0}
+    - target: {fileID: 5023843959306439777, guid: 51a10401f40b8d649a5609dd81a30822, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6049556330089122038, guid: 51a10401f40b8d649a5609dd81a30822, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
