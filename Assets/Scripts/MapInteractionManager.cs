@@ -448,6 +448,8 @@ public class MapInteractionManager : MonoBehaviour
     {
         float distance = CalculateDistance(actual, guess);
 
+        
+
         // If guess is beyond max distance, return minimum score
         if (distance > maxGuessDistance)
         {
@@ -455,11 +457,16 @@ public class MapInteractionManager : MonoBehaviour
             return (minScore, (int)distance);
         }
 
+        // New Scoring Method (04/02)
+
+        int score = ScoreDataScriptableObject.CalculateScore((int)distance);
+
         // Linear scoring: maxScore minus proportional distance
-        float scoreRatio = 1f - (distance / maxGuessDistance);
-        int score = Mathf.RoundToInt(maxScore * scoreRatio);
+        // float scoreRatio = 1f - (distance / maxGuessDistance);
+        // int score = Mathf.RoundToInt(maxScore * scoreRatio);
 
         // Ensure score doesn't go below minimum
+
         score = Mathf.Max(minScore, score);
 
         LogDebug($"Distance: {distance:F2}m, Max Distance: {maxGuessDistance}m, Score: {score}");
