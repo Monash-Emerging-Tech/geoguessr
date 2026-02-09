@@ -233,6 +233,29 @@ public class GameLogic : MonoBehaviour
         SceneManager.LoadScene("GameScene");
     }
 
+    /// <summary> Loads the main menu scene </summary>
+    public void LoadMenu()
+    {
+        // Reset game state
+        isGameActive = false;
+        isRoundActive = false;
+        inGame = false;
+        isGuessing = false;
+        currentScore = 0;
+        currentRound = 1;
+
+        // Hide map if it's currently shown
+        if (MapInteractionManager.Instance != null)
+        {
+            MapInteractionManager.Instance.HideMap();
+        }
+
+        LogDebug("Returning to menu - game state reset");
+        
+        // Load menu scene
+        SceneManager.LoadScene("MenuScene");
+    }
+
     /// <summary>
     /// Called when a scene is loaded - manages map visibility and game initialization
     /// </summary>
