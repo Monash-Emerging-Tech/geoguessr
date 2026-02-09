@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Linq;
 
 /// <summary>
 /// GameLogic, Responsible for all game logic including scoring, round management, and game state.
@@ -287,6 +288,7 @@ public class GameLogic : MonoBehaviour
             currentScore = 0;
             isGuessing = true;
             isRoundActive = false;  // Ensure round is not active so nextRound can proceed
+            scoreData.ResetAll();
 
             // Ensure map pack is resolved before starting round
             if (locationManager != null && resolvedMapPackId == -1)
@@ -396,7 +398,22 @@ public class GameLogic : MonoBehaviour
             LogDebug($"MapPack set to: {currentMapPack.Name} (ID: {resolvedMapPackId})");
 
             locationManager.SelectRandomLocation();
-            var location = locationManager.GetCurrentLocation();
+
+            LocationManager.Location location;
+
+            // Make it so the same location can't be selected twice in the same session
+
+
+            do
+            {
+                locationManager.SelectRandomLocation();
+                location = locationManager.GetCurrentLocation();
+                LogDebug($"Attempt Location Change - Location: {location.Name}");
+            } while (scoreData.PreviousLocations.Contains(location));
+
+            scoreData.AddLocation(location);
+
+            Debug.Log(scoreData.PreviousLocations);
 
             if (!string.IsNullOrEmpty(location.Name))
             {
@@ -573,37 +590,6 @@ public class GameLogic : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// changes the map shown to the player at the start of a new round
-    /// </summary>
-    public void changeMap()
-    {
-        if (locationManager != null)
-        {
-            // Resolve MapPack name to ID if not already resolved
-            if (resolvedMapPackId == -1 && !ResolveMapPackId())
-            {
-                LogError("Failed to resolve MapPack - cannot change map");
-                return;
-            }
-
-            locationManager.SetCurrentMapPack(resolvedMapPackId);
-            var currentMapPack = locationManager.GetCurrentMapPack();
-            LogDebug($"MapPack set to: {currentMapPack.Name} (ID: {resolvedMapPackId})");
-
-            locationManager.SelectRandomLocation(); // TODO: Make it so the same location can't be selected twice in the same session
-            var location = locationManager.GetCurrentLocation();
-            if (!string.IsNullOrEmpty(location.Name))
-            {
-                LogDebug($"Map changed - Location: {location.Name} | Coordinates: lat={location.latitude}, lng={location.longitude}, zLevel={location.zLevel}");
-            }
-        }
-        else
-        {
-            LogWarning("LocationManager not assigned - cannot change map");
-        }
-    }
-
     #endregion
 
     #region Event Handlers
@@ -645,6 +631,7 @@ public class GameLogic : MonoBehaviour
             scoreData.SetTotalScore(currentScore);
             scoreData.SetRoundScore(score);
             scoreData.SetDistanceScore(distance);
+            scoreData.AddScore(score);
         }
 
         OnScoreUpdated?.Invoke(currentScore);
