@@ -72,7 +72,7 @@
     } catch (error) {
       console.error(
         "Failed to initialize Maze Maps:",
-        error && error.message ? error.message : error,
+        error && error.message ? error.message : error
       );
     }
   }
@@ -447,8 +447,8 @@
         marker._storedZLevel !== undefined
           ? marker._storedZLevel
           : marker.options
-            ? marker.options.zLevel
-            : map.zLevel || 0;
+          ? marker.options.zLevel
+          : map.zLevel || 0;
 
       // Build JSON payload matching EnhancedMapClickData structure
       var payload = {
@@ -469,7 +469,7 @@
           unityInstance.SendMessage(
             "MapInteractionManager", // GameObject name
             "SubmitGuess", // Method name
-            jsonString, // JSON string
+            jsonString // JSON string
           );
           console.log("Guess submitted to Unity:", payload);
 
@@ -534,7 +534,7 @@
       var map = window.mazeMapInstance;
       if (!map) {
         console.error(
-          "Map instance not available for addActualLocationFromUnity",
+          "Map instance not available for addActualLocationFromUnity"
         );
         return;
       }
@@ -745,12 +745,16 @@
       if (typeof ResizeObserver !== "undefined") {
         var resizeObserver = new ResizeObserver(function () {
           syncGuessButtonWidth();
+          checkMazeMapWidgetHeight();
         });
         resizeObserver.observe(widget);
       }
 
       // Also watch for resize events
-      window.addEventListener("resize", syncGuessButtonWidth);
+      window.addEventListener("resize", function () {
+        syncGuessButtonWidth();
+        checkMazeMapWidgetHeight();
+      });
     }
   }
 
@@ -799,6 +803,7 @@
     queueMapResize();
     // Sync guess button width with new widget size
     syncGuessButtonWidth();
+    checkMazeMapWidgetHeight();
   }
   window.mmSetWidgetSize = setWidgetSize;
 
@@ -824,6 +829,7 @@
       idx = Math.max(0, idx - 1);
     }
     setWidgetSize(order[idx]);
+    checkMazeMapWidgetHeight();
   }
 
   function resetMapView() {
@@ -922,6 +928,66 @@
     ) {
       setWidgetSize("mm-size-s");
     }
+    checkMazeMapWidgetHeight();
+  }
+
+  function checkMazeMapWidgetHeight() {
+    var widget = document.getElementById("maze-map-widget");
+    if (!widget) return;
+
+    var widgetHeight = widget.offsetHeight;
+    var viewportHeight = window.innerHeight;
+
+    var ratio = widgetHeight / viewportHeight;
+
+    // Separate limiters for each threshold
+    if (!window._mazeMapWidgetHeightLastTriggerHigh)
+      window._mazeMapWidgetHeightLastTriggerHigh = 0;
+    if (!window._mazeMapWidgetHeightLastTriggerLow)
+      window._mazeMapWidgetHeightLastTriggerLow = 0;
+    var now = Date.now();
+    var limiterMs = 3000; // 3 seconds
+
+    var unityInstance = window.unityInstance || window.gameInstance;
+
+    if (
+      ratio > 0.7 &&
+      now - window._mazeMapWidgetHeightLastTriggerHigh > limiterMs
+    ) {
+      console.log(
+        "Maze map widget height > 70% of viewport (",
+        (ratio * 100).toFixed(1),
+        "%)"
+      );
+      console.log("[TooltipBox Debug] hasTooltipBox:", window.hasTooltipBox);
+      if (window.hasTooltipBox) {
+        if (unityInstance && typeof unityInstance.SendMessage === "function") {
+          unityInstance.SendMessage("TooltipBox", "ShowTooltipFromWeb", "5");
+        }
+      }
+      window._mazeMapWidgetHeightLastTriggerHigh = now;
+    } else if (
+      ratio < 0.2 &&
+      now - window._mazeMapWidgetHeightLastTriggerLow > limiterMs
+    ) {
+      console.log(
+        "Maze map widget height < 20% of viewport (",
+        (ratio * 100).toFixed(1),
+        "%)"
+      );
+      console.log("[TooltipBox Debug] hasTooltipBox:", window.hasTooltipBox);
+      if (window.hasTooltipBox) {
+        if (unityInstance && typeof unityInstance.SendMessage === "function") {
+          unityInstance.SendMessage("TooltipBox", "ShowTooltipFromWeb", "5");
+        }
+      }
+      window._mazeMapWidgetHeightLastTriggerLow = now;
+    }
+
+    // Unity can call these to indicate if TooltipBox is present in the current scene
+    window.setHasTooltipBox = function (hasIt) {
+      window.hasTooltipBox = !!hasIt;
+    };
   }
 
   // --------------------------------------------------------------- MAP CANVAS RESIZE HANDLING

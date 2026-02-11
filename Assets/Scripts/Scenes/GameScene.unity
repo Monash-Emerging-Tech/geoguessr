@@ -566,8 +566,9 @@ GameObject:
   - component: {fileID: 411112977}
   - component: {fileID: 411112976}
   - component: {fileID: 411112975}
+  - component: {fileID: 411112978}
   m_Layer: 5
-  m_Name: tooltip-box
+  m_Name: TooltipBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -588,10 +589,10 @@ RectTransform:
   - {fileID: 578205261}
   m_Father: {fileID: 1256462225}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 581.3, y: 373.7}
-  m_SizeDelta: {x: -1434.7887, y: -958.9316}
+  m_AnchoredPosition: {x: -378.7, y: -153.79999}
+  m_SizeDelta: {x: 485.2113, y: 96.06842}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &411112975
 MonoBehaviour:
@@ -619,7 +620,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 1726622910}
+  m_Material: {fileID: 1625500251}
   m_Color: {r: 0.11764706, g: 0.015686275, b: 0.6627451, a: 0.47843137}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -645,6 +646,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 411112973}
   m_CullTransparentMesh: 1
+--- !u!114 &411112978
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 411112973}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f46b51905e51bbd4ca770e904ade0d86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltipBox: {fileID: 411112973}
 --- !u!1 &461783008
 GameObject:
   m_ObjectHideFlags: 0
@@ -953,7 +967,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 8.216103, y: -10.066002}
+  m_AnchoredPosition: {x: 8.2161255, y: -10.0660095}
   m_SizeDelta: {x: -16.432, y: -20.132}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &578205262
@@ -1776,7 +1790,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f92108a3b2399b4cbaaebecd8358da8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!21 &1726622910
+--- !u!21 &1625500251
 Material:
   serializedVersion: 8
   m_ObjectHideFlags: 0
@@ -1814,7 +1828,7 @@ Material:
     - _UseUIAlphaClip: 0
     m_Colors:
     - _OuterUV: {r: 0, g: 0, b: 1, a: 1}
-    - _WidthHeightRadius: {r: 485.2113, g: 95.993835, b: 12, a: 0}
+    - _WidthHeightRadius: {r: 485.2113, g: 96.06842, b: 12, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!1 &1876124085 stripped
