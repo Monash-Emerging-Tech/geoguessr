@@ -89,3 +89,4 @@ web/dist/
 web/public/unity/
 # Prevent Unity meta spam in web folder
 web/**/*.meta
+Assets/Settings/UniversalRenderPipelineGlobalSettings.asset
