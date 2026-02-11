@@ -1,5 +1,9 @@
 using UnityEngine;
 using System;
+using System.Linq;
+using NUnit.Framework;
+using System.Collections;
+using System.Collections.Generic;
 
 [CreateAssetMenu(menuName = "Game/Score Data")]
 public class ScoreDataScriptableObject : ScriptableObject
@@ -8,11 +12,19 @@ public class ScoreDataScriptableObject : ScriptableObject
     [SerializeField] private int roundScore;
     [SerializeField] private int distanceScore;
 
+    [SerializeField] private List<LocationManager.Location> prevLocations = new List<LocationManager.Location>();
+    [SerializeField] private List<int> prevScores = new List<int>();
+
+
+
     public int CurrentScore => currentScore;
 
-    public int RoundScore => currentScore;
+    public int RoundScore => roundScore;
+    public int DistanceScore => distanceScore;
 
-    public int RoundDistance => currentScore;
+    public List<LocationManager.Location> PreviousLocations => prevLocations;
+
+    public List<int> PreviousScores => prevScores;
 
 
     public void SetTotalScore(int value) => currentScore = value;
@@ -21,8 +33,21 @@ public class ScoreDataScriptableObject : ScriptableObject
 
     public void SetDistanceScore(int value) => distanceScore = value;
 
-    public void ResetTotalScore() => currentScore = 0;
+    public void ResetAll() {
+        currentScore = 0;
+        prevLocations.Clear();
+        prevScores.Clear();
+    } 
 
+
+    public void AddLocation(LocationManager.Location location) {
+        prevLocations.Add(location);
+    }
+
+    public void AddScore(int score)
+    {
+        prevScores.Add(score);
+    }
 
     public string GetScoreData(string data) {
 

@@ -45,8 +45,6 @@ public class MapInteractionManager : MonoBehaviour
     [SerializeField] private int currentZLevel = 0; // Ground level
 
     [Header("Scoring Settings")]
-    [SerializeField] private int maxScore = 500; // per round
-    [SerializeField] private int minScore = 0;
     [SerializeField] private AnimationCurve scoreCurve = AnimationCurve.EaseInOut(0, 1, 1, 0);
 
     [Header("Debug")]
@@ -448,26 +446,26 @@ public class MapInteractionManager : MonoBehaviour
     {
         float distance = CalculateDistance(actual, guess);
 
-        
-
-        // If guess is beyond max distance, return minimum score
-        if (distance > maxGuessDistance)
-        {
-            LogDebug($"Distance: {distance:F2}m exceeds max distance {maxGuessDistance}m - Score: {minScore}");
-            return (minScore, (int)distance);
-        }
-
         // New Scoring Method (04/02)
 
         int score = ScoreDataScriptableObject.CalculateScore((int)distance);
+
+
+        // OLD SCORING METHOD
+        //// If guess is beyond max distance, return minimum score
+        //if (distance > maxGuessDistance)
+        //{
+        //    LogDebug($"Distance: {distance:F2}m exceeds max distance {maxGuessDistance}m - Score: {minScore}");
+        //    return (minScore, (int)distance);
+        //}
 
         // Linear scoring: maxScore minus proportional distance
         // float scoreRatio = 1f - (distance / maxGuessDistance);
         // int score = Mathf.RoundToInt(maxScore * scoreRatio);
 
-        // Ensure score doesn't go below minimum
+        //// Ensure score doesn't go below minimum
 
-        score = Mathf.Max(minScore, score);
+        //score = Mathf.Max(minScore, score);
 
         LogDebug($"Distance: {distance:F2}m, Max Distance: {maxGuessDistance}m, Score: {score}");
         return (score, (int)distance);
