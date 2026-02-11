@@ -38,4 +38,16 @@ mergeInto(LibraryManager.library, {
     if (typeof window.addMarkerFromUnity === "function")
       window.addMarkerFromUnity(lat, lng, label, type);
   },
+  showTooltipFromWeb: function (seconds) {
+    if (
+      typeof window.unityInstance !== "undefined" &&
+      window.unityInstance != null
+    ) {
+      window.unityInstance.SendMessage(
+        "TooltipBox",
+        "ShowTooltipFromWeb",
+        seconds,
+      );
+    }
+  },
 });
