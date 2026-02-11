@@ -868,9 +868,14 @@
     if (btnPin) {
       // Toggle pin active/inactive visual state
       btnPin.setAttribute("aria-pressed", "false");
+      btnPin.setAttribute("data-tooltip", "Pin map");
       btnPin.addEventListener("click", function (e) {
         pinActive = !pinActive;
         btnPin.setAttribute("aria-pressed", pinActive ? "true" : "false");
+        btnPin.setAttribute(
+          "data-tooltip",
+          pinActive ? "Pinned: map won't shrink" : "Pin map"
+        );
       });
     }
 
