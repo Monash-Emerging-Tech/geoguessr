@@ -826,11 +826,26 @@
     setWidgetSize(order[idx]);
   }
 
+  function resetMapView() {
+    var map = window.mazeMapInstance;
+    if (!map || typeof map.flyTo !== "function") return;
+    map.flyTo({
+      center: { lng: 145.1361, lat: -37.9106 },
+      zoom: 16,
+    });
+  }
+
   function wireControls() {
     var root = document.getElementById("maze-map-ui") || document;
     var btnExpand = root.querySelector(".mm-controls .mm-expand");
     var btnMinimize = root.querySelector(".mm-controls .mm-minimise");
     var btnPin = root.querySelector(".mm-controls .mm-pin");
+    var btnReset = root.querySelector(".mm-controls .mm-reset-map");
+    if (btnReset) {
+      btnReset.addEventListener("click", function () {
+        resetMapView();
+      });
+    }
 
     if (btnExpand) {
       btnExpand.addEventListener("click", function () {
@@ -909,7 +924,7 @@
     }
   }
 
-  // --------------------------------------------------------------- MAP RESIZE HANDLING
+  // --------------------------------------------------------------- MAP CANVAS RESIZE HANDLING
   // Debounced map.resize to avoid white gaps after container size changes
   var mapResizeScheduled = false;
   function queueMapResize() {
