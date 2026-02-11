@@ -119,6 +119,10 @@ public class SettingsMenuManager : MonoBehaviour
         {
             Time.timeScale = 0f;
         }
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+        Application.ExternalCall("hideMapFromUnity");
+#endif
         
         Debug.Log("Settings menu opened.");
     }
@@ -140,6 +144,10 @@ public class SettingsMenuManager : MonoBehaviour
         {
             Time.timeScale = 1f;
         }
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+        Application.ExternalCall("showMapFromUnity");
+#endif
         
         Debug.Log("Settings menu closed.");
     }
