@@ -648,6 +648,7 @@
     var mapUI = document.getElementById("maze-map-ui");
     if (mapUI) {
       mapUI.style.display = "block";
+      window.isMapVisible = true;
       // Ensure guess button width matches widget when shown
       syncGuessButtonWidth();
       requestAnimationFrame(syncGuessButtonWidth);
@@ -664,6 +665,7 @@
     var mapUI = document.getElementById("maze-map-ui");
     if (mapUI) {
       mapUI.style.display = "none";
+      window.isMapVisible = false;
       console.log("Unity call to hide Minimap UI");
     } else {
       console.error("maze-map-ui element not found");
@@ -949,6 +951,16 @@
     var limiterMs = 3000; // 3 seconds
 
     var unityInstance = window.unityInstance || window.gameInstance;
+
+    if (
+      window.isMapVisible === false ||
+      (function () {
+        var mapUI = document.getElementById("maze-map-ui");
+        return mapUI && mapUI.style.display === "none";
+      })()
+    ) {
+      return;
+    }
 
     if (
       ratio > 0.7 &&
