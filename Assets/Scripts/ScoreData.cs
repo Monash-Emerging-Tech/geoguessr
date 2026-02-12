@@ -65,6 +65,22 @@ public class ScoreDataScriptableObject : ScriptableObject
 
     }
 
+    public List<string> GetFormattedRoundBreakdown()
+    {
+        List<string> formattedRounds = new List<string>();
+        
+        for (int i = 0; i < prevLocations.Count && i < prevScores.Count; i++)
+        {
+            int roundNumber = i + 1;
+            string locationName = prevLocations[i].Name;
+            int score = prevScores[i];
+            
+            string formattedRound = $"{roundNumber}: {locationName} - {score}";
+            formattedRounds.Add(formattedRound);
+        }
+        
+        return formattedRounds;
+    }
 
     /* Function for Calculating the Score based on the distance away
     // The Score is based on how close you are to the target, with different 'harshness' applied to certain distances
