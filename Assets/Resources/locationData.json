@@ -113,12 +113,12 @@
       "zLevel": 1
     },
     {
-      "ID": 14,
-      "Name": "That Fountain",
-      "FileName": "360_OL_ThatFountain",
-      "latitude": -37.910438,
-      "longitude": 145.136249,
-      "zLevel": 1
+        "ID": 14,
+        "Name": "Outside Living - Weeping Women Fountains (SANNÉ MESTROM) Campus Park",
+        "FileName": "360_OL_ThatFountain",
+        "latitude": -37.910438,
+        "longitude": 145.136249,
+        "zLevel": 1
     }
   ],
 

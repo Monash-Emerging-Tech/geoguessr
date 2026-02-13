@@ -17,6 +17,15 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'OffBitRegular';
+  src: url('../../assets/fonts/WOFF2/OffBit-Regular.woff2') format('woff2'),
+       url('../../assets/fonts/WOFF/OffBit-Regular.woff') format('woff'),
+       url('../../assets/fonts/TTF/OffBit-Regular.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
 /* Layout helpers */
 html, body { height: 100%; }
 #game-container { /* sizing is mostly inline to avoid breaking template; keep minimal here */ height: 100%; }
@@ -98,7 +107,7 @@ html, body { height: 100%; }
   background: rgba(0,0,0,0.5);
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
-  width: 140px;
+  width: 180px;
 }
 
 .mm-btn {
@@ -108,10 +117,38 @@ html, body { height: 100%; }
   border-radius: 50%;
   background: transparent center/contain no-repeat;
   cursor: pointer;
+  position: relative;
+}
+
+/* Custom tooltips for mm-controls */
+.mm-btn[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  font-family: 'OffBitRegular';
+  font-size: 12px;
+  letter-spacing: 0.2px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  z-index: 20;
+}
+
+.mm-btn[data-tooltip]:hover::after,
+.mm-btn[data-tooltip]:focus-visible::after {
+  opacity: 1;
 }
 
 .mm-btn.mm-expand   { background-image: url("../../assets/img/controls/button-expand-default.png"); }
 .mm-btn.mm-minimise { background-image: url("../../assets/img/controls/button-minimise-default.png"); }
+.mm-btn.mm-reset-map { background-image: url("../../assets/img/controls/button-reset-map-default.png"); }
 
 .mm-btn.mm-pin      { background-image: url("../../assets/img/controls/button-pin-default.png"); }
 /* Pin inactive uses the disabled image; active uses default above */
@@ -119,6 +156,7 @@ html, body { height: 100%; }
 
 .mm-btn:hover.mm-expand   { background-image: url("../../assets/img/controls/button-expand-hover.png"); }
 .mm-btn:hover.mm-minimise { background-image: url("../../assets/img/controls/button-minimise-hover.png"); }
+.mm-btn:hover.mm-reset-map { background-image: url("../../assets/img/controls/button-reset-map-hover.png"); }
 .mm-btn:hover.mm-pin      { background-image: url("../../assets/img/controls/button-pin-hover.png"); }
 
 .mm-btn:disabled.mm-expand   { background-image: url("../../assets/img/controls/button-expand-disabled.png"); }
@@ -158,5 +196,3 @@ html, body { height: 100%; }
 .mm-guess-btn:not(:disabled):active {
   background-color: rgb(3, 43, 85); /* Even darker on click */
 }
-
-
