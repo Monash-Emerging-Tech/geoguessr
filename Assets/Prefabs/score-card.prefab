@@ -564,8 +564,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maximum: 2500
-  current: 200
   mask: {fileID: 7313251162505638706}
+  scoreData: {fileID: 0}
 --- !u!1 &8649237948618480698
 GameObject:
   m_ObjectHideFlags: 0
@@ -628,7 +628,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.21960786, g: 0.21960786, b: 0.21960786, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -717,7 +717,7 @@ MonoBehaviour:
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 0
-  m_FillAmount: 0.08
+  m_FillAmount: 0
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
@@ -745,11 +745,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 178037043072852828, guid: c21679bdf4dbfc64bbf5a7bc85cf1ff8, type: 3}
       propertyPath: m_text
-      value: 1955
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 843203249677584566, guid: c21679bdf4dbfc64bbf5a7bc85cf1ff8, type: 3}
       propertyPath: m_text
-      value: 1955
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3316873322378628033, guid: c21679bdf4dbfc64bbf5a7bc85cf1ff8, type: 3}
       propertyPath: m_Pivot.x
@@ -833,7 +833,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6762290759156888586, guid: c21679bdf4dbfc64bbf5a7bc85cf1ff8, type: 3}
       propertyPath: m_text
-      value: 1955
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7325434413919956343, guid: c21679bdf4dbfc64bbf5a7bc85cf1ff8, type: 3}
       propertyPath: m_Name

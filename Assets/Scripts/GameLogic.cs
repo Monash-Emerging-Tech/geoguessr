@@ -515,6 +515,7 @@ public class GameLogic : MonoBehaviour
         if (currentRound >= totalRounds)
         {
             EndGame();
+            yield break;
         }
 
         currentRound++;
