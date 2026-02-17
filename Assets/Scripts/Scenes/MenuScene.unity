@@ -119,6 +119,50 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &23660602
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 23660604}
+  - component: {fileID: 23660603}
+  m_Layer: 0
+  m_Name: BreakdownMenuBridge
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &23660603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 23660602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 976bde6bcd167614589928a1181f8938, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &23660604
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 23660602}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -8.813845, y: -0.6537795, z: 3.3600013}
+  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &33865606
 GameObject:
   m_ObjectHideFlags: 0
@@ -1719,17 +1763,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 374821797}
   m_Mesh: {fileID: 7857590630482128698, guid: 5c4ab2401ed7b4adeb781952112a76a3, type: 3}
---- !u!114 &384878404 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 487263644213522047, guid: 00668585c194fc24aa8b327e232740d8, type: 3}
-  m_PrefabInstance: {fileID: 1951764981528203213}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea2e0fad3b24fdf4099c344a196561a9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &411489233
 GameObject:
   m_ObjectHideFlags: 0
@@ -3832,8 +3865,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 384878404}
-        m_TargetAssemblyTypeName: GameLoader, Assembly-CSharp
+      - m_Target: {fileID: 23660603}
+        m_TargetAssemblyTypeName: MenuSceneBridge, Assembly-CSharp
         m_MethodName: LoadGame
         m_Mode: 1
         m_Arguments:
@@ -23360,6 +23393,7 @@ SceneRoots:
   - {fileID: 934550477}
   - {fileID: 1499656975}
   - {fileID: 1951764981528203213}
+  - {fileID: 23660604}
   - {fileID: 565171056}
   - {fileID: 319576128}
   - {fileID: 1396902474}
