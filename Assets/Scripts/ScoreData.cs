@@ -59,6 +59,11 @@ public class ScoreDataScriptableObject : ScriptableObject
                 return roundScore.ToString();
             case "round-distance":
                 return distanceScore + "m";
+            case "current-location":
+                if (prevLocations.Count > 0)
+                    return prevLocations[prevLocations.Count - 1].Name;
+                else
+                    return "N/A";
             default:
                 return currentScore.ToString();
         }
