@@ -38,17 +38,6 @@ public class FancyTextController : MonoBehaviour
     }
 
     [ContextMenu("Update Texts")]
-    // public void SetEditorText()
-    // {
-    //     UpdateTextFields();
-    // }
-
-    // public void SetText(string newText)
-    // {
-    //     editorText = newText;
-    //     UpdateTextFields();
-    // }
-
     private void UpdateTextFields()
     {
         // Ensure we have text fields
