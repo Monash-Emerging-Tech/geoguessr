@@ -116,6 +116,14 @@ JavaScript functions exposed to Unity (on `window`) include: `showMapFromUnity`,
 
 To install dependencies, run the dev server, or build for production, see **[INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md)**.
 
+**Repository sync note**
+
+- If you add or change web assets (for example: new files or folders under `web/src/`, `web/public/`, `assets/`, the Unity `Build/` output, `TemplateData/`, or `StreamingAssets/`), make sure to update both repositories:
+   - Keep the development repository (`geoguessr`) updated so developers can run and rebuild locally.
+   - Copy the built runtime assets (Unity `Build/` and any new static files) into the hosting repository (`geoguessrHost`) so the live site serves the correct resources.
+
+Keeping both repositories in sync avoids missing files or 404s when the site is deployed.
+
 ## Setup Instructions
 
 For **full setup** (Unity version, Node.js, web package, Vite, and development workflow), see **[INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md)**.
