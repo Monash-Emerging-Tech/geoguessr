@@ -2,7 +2,7 @@
   "Locations": [
     {
       "ID": 0,
-      "Name": "Monash 101 - Digital Makerspace (Building 94, G03)",
+      "Name": "Digital Makerspace (Building 94, G03)",
       "FileName": "360_Monash101_DigiMakerspace",
       "latitude": -37.90986,
       "longitude": 145.135015,
@@ -10,7 +10,7 @@
     },
     {
       "ID": 1,
-      "Name": "Outside Living - Campus Centre North, Floor 1 Outside",
+      "Name": "Campus Centre North, Floor 1 Outside",
       "FileName": "360_OL_CC_N_1_O",
       "latitude": -37.91158,
       "longitude": 145.13276,
@@ -18,7 +18,7 @@
     },
     {
       "ID": 2,
-      "Name": "Outside Living - Hargrave-Andrew Library Outside",
+      "Name": "Hargrave-Andrew Library Outside",
       "FileName": "360_OL_HAL_Outside",
       "latitude": -37.910039,
       "longitude": 145.132195,
@@ -26,7 +26,7 @@
     },
     {
       "ID": 3,
-      "Name": "Outside Living - Hump Lawn Chairs",
+      "Name": "Hump Lawn Chairs",
       "FileName": "360_OL_HumpLawnChairs",
       "latitude": -37.910958,
       "longitude": 145.132319,
@@ -34,7 +34,7 @@
     },
     {
       "ID": 4,
-      "Name": "Outside Living - Joe's Pizzeria'",
+      "Name": "Joe's Pizzeria'",
       "FileName": "360_OL_JoePizza",
       "latitude": -37.911653,
       "longitude": 145.135821,
@@ -50,7 +50,7 @@
     },
     {
       "ID": 6,
-      "Name": "Outside Living - Campus Park East",
+      "Name": "Campus Park East",
       "FileName": "360_OL_CampusParkEast",
       "latitude": -37.910556,
       "longitude": 145.136202,
@@ -58,7 +58,7 @@
     },
     {
       "ID": 7,
-      "Name": "Outside Living - Campus Centre North, Ground Floor Outside",
+      "Name": "Campus Centre North, Ground Floor Outside",
       "FileName": "360_OL_CC_N_G_O",
       "latitude": -37.911494,
       "longitude": 145.132844,
@@ -66,7 +66,7 @@
     },
     {
       "ID": 8,
-      "Name": "Outside Living - Kenneth Hunt Lawn BBQs",
+      "Name": "Kenneth Hunt Lawn BBQs",
       "FileName": "360_OL_KennethHuntBBQ",
       "latitude": -37.909732,
       "longitude": 145.133133,
@@ -74,7 +74,7 @@
     },
     {
       "ID": 9,
-      "Name": "Outside Living - Lemon Scented Lawn West",
+      "Name": "Lemon Scented Lawn West",
       "FileName": "360_OL_LemonScentedWest",
       "latitude": -37.911002,
       "longitude": 145.133035,
@@ -82,7 +82,7 @@
     },
     {
       "ID": 10,
-      "Name": "Outside Living - Performing Arts Centre Outside",
+      "Name": "Performing Arts Centre Outside",
       "FileName": "360_OL_PAC_Outside",
       "latitude": -37.913379,
       "longitude": 145.134915,
@@ -90,7 +90,7 @@
     },
     {
       "ID": 11,
-      "Name": "Outside Living - Secret Garden Eatery Outside",
+      "Name": "Secret Garden Eatery Outside",
       "FileName": "360_OL_SecretGarden_Outside",
       "latitude": -37.909815,
       "longitude": 145.132486,
@@ -98,7 +98,7 @@
     },
     {
       "ID": 12,
-      "Name": "Outside Living - The Sound Shell",
+      "Name": "The Sound Shell",
       "FileName": "360_OL_SoundShell",
       "latitude": -37.910683,
       "longitude": 145.133011,
@@ -106,7 +106,7 @@
     },
     {
       "ID": 13,
-      "Name": "Outside Living - Table Tennis Tables Outside Building 94",
+      "Name": "Table Tennis Tables Outside Building 94",
       "FileName": "360_OL_TableTennis94",
       "latitude": -37.910189,
       "longitude": 145.134979,
@@ -114,7 +114,7 @@
     },
     {
         "ID": 14,
-        "Name": "Outside Living - Weeping Women Fountains (SANNÉ MESTROM) Campus Park",
+        "Name": "Weeping Women Fountains (SANNÉ MESTROM) Campus Park",
         "FileName": "360_OL_ThatFountain",
         "latitude": -37.910438,
         "longitude": 145.136249,
