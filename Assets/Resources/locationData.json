@@ -42,7 +42,7 @@
     },
     {
       "ID": 5,
-      "Name": "Monash 101 - Building 94 Lecture Stairs",
+      "Name": "Design & Technology Building Lecture Stairs",
       "FileName": "360_Monash101_Woodside_Lecture_Stairs",
       "latitude": -37.910022,
       "longitude": 145.135268,
@@ -138,7 +138,7 @@
         "zLevel": 2
     },{
         "ID": 17,
-        "Name": "LTB_G81",
+        "Name": "LTB, G81",
         "FileName": "360_LTB_G81",
         "latitude": -37.913857943837506,
         "longitude": 145.13228375038608,
@@ -146,7 +146,7 @@
     },
     {
         "ID": 18,
-        "Name": "MenziesGroundFloor",
+        "Name": "Menzies Ground Floor",
         "FileName": "360_MenziesGroundFloor",
         "latitude": -37.91270903845613,
         "longitude": 145.13251189854333,
@@ -163,7 +163,7 @@
     ,
       {
         "ID": 20,
-        "Name": "LTB_G81_Corner",
+        "Name": "LTB, G81 Corner",
         "FileName": "360_LTB_G81_Corner",
         "latitude": -37.91369263128193,
         "longitude": 145.13234996381397,
@@ -177,19 +177,18 @@
         "longitude": 145.13281139226973,
         "zLevel": 2
     },
-        {
+    {
         "ID": 22,
-        "Name": "LG_14 Design and tech building",
+        "Name": "Design and tech building, LG-14",
         "FileName": "360_DT_LG_14",
         "latitude": -37.90985687032333,
-        "longitude": 145.1350765887716
-,
+        "longitude": 145.1350765887716,
         "zLevel": -1
     }
     ,
         {
         "ID": 23,
-        "Name": "L1_Menzies",
+        "Name": "Menzies Level 1",
         "FileName": "360_L1_Menzies",
         "latitude": -37.91265304613119,
         "longitude": 145.13264312657208,
@@ -198,7 +197,7 @@
     ,
         {
         "ID": 24,
-        "Name": "Eng Makerspace",
+        "Name": "Engineering Makerspace, Engineering 60",
         "FileName": "360_Eng_Makerspace",
         "latitude": -37.909854202716005,
         "longitude":145.13443414482776 ,
@@ -207,7 +206,7 @@
         ,
         {
         "ID": 25,
-        "Name": "Microwaves Campus Centre",
+        "Name": "Microwave Room, Campus Centre",
         "FileName": "360_Microwaves",
         "latitude": -37.91166728671166,
         "longitude": 145.13292591554273,
@@ -216,7 +215,7 @@
          ,
         {
         "ID": 26,
-        "Name": "G24 engineering 60",
+        "Name": "G24, Engineering 60",
         "FileName": "360_OutsideMakerspace",
         "latitude": -37.90984342324619,
         "longitude": 145.1342335335612,
@@ -225,7 +224,7 @@
      ,
       {
         "ID": 27,
-        "Name": "LG09 design and tech building",
+        "Name": "LG09 Design and Tech building",
         "FileName": "360_LG02Corridor",
         "latitude": -37.90975783175505,
         "longitude": 145.1354707378469,

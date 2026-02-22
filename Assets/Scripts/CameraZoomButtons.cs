@@ -52,6 +52,9 @@ public class CameraZoomButtons : MonoBehaviour
             currentDistance = Vector3.Distance(cam.transform.position, pivot.position);
             currentDistance = Mathf.Clamp(currentDistance, minDistance, maxDistance);
             cam.transform.position = pivot.position - cam.transform.forward * currentDistance;
+
+            currentDistance = maxDistance;
+            cam.transform.position = pivot.position - cam.transform.forward * currentDistance;
         }
     }
 
