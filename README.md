@@ -11,6 +11,15 @@ The project has two parts:
 
 For **prerequisites, install steps, Vite setup, and the development workflow**, see **[INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md)** (Unity version, Node.js, npm, building the web app, and how to run and build the project).
 
+## Members
+
+Rohan
+Oscar
+Ange
+Madison
+Moon
+Zaina
+
 ## Features
 
 - **360° Location Exploration**: Immersive skybox-based location viewing
