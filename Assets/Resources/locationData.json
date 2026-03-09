@@ -412,17 +412,20 @@
     {
       "ID": 1,
       "Name": "OG Placeholders",
-      "locationIDs": [0, 14]
+      "locationIDs": [0, 14],
+      "bucketSubdirectory": ""
     },
     {
       "ID": 2,
       "Name": "Monash 101",
-      "locationIDs": [6]
+      "locationIDs": [6],
+      "bucketSubdirectory": "monash-101"
     },
     {
       "ID": 3,
       "Name": "Outside Living",
-      "locationIDs": [1, 2, 3, 4, 7, 8, 9, 10, 11, 12, 13, 14]
+      "locationIDs": [1, 2, 3, 4, 7, 8, 9, 10, 11, 12, 13, 14],
+      "bucketSubdirectory": "outside-living"
     }
 
   ]

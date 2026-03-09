@@ -1,6 +1,8 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Networking;
 
 /// <summary>
 /// LocationManager, Responsible for handling location data, map packs, and location selection.
@@ -53,6 +55,7 @@ public class LocationManager : MonoBehaviour
         public int ID;
         public string Name;
         public List<int> locationIDs;
+        public string bucketSubdirectory; // Subdirectory in R2 bucket for this MapPack (e.g., "monash-101"). Leave empty for root level.
     }
 
     #endregion
@@ -62,6 +65,23 @@ public class LocationManager : MonoBehaviour
     [Header("Data Configuration")]
     [SerializeField] private string jsonResourcePath = "locationData";
 
+    [Header("Remote Image Configuration")]
+    [Tooltip("Base URL for 360 images. Use your custom domain (360images.monashemerging.tech) for production, " +
+             "or the public dev URL (https://pub-17f59a97c119414788b775aeebf13e76.r2.dev) for testing. " +
+             "Leave empty to use only local Resources. Include https:// prefix.")]
+    [SerializeField] private string imageBaseUrl = "";
+    
+    [Tooltip("File extension for images (e.g., .jpg, .png). Will be appended to FileName.")]
+    [SerializeField] private string imageFileExtension = ".jpg";
+    
+    [Tooltip("Use local Resources as fallback if remote loading fails. Set to false when all images are in the bucket.")]
+    [SerializeField] private bool useLocalFallback = true;
+    
+    // TODO: When all images are in the bucket, you can remove:
+    // - useLocalFallback field (or set it to false)
+    // - The local fallback logic in LoadLocationMaterialFromUrl()
+    // - The AssignLocationMaterials() method if you no longer need local-only mode
+
     #endregion
 
     #region Private Variables
@@ -70,6 +90,9 @@ public class LocationManager : MonoBehaviour
     private Dictionary<int, MapPack> mapPackDict;
     private MapPack currentMapPack;
     private Location currentLocation;
+    private Dictionary<int, bool> locationLoadingStatus; // Track which locations are currently loading
+    private int totalLocationsToLoad = 0;
+    private int locationsLoadedCount = 0;
 
     #endregion
 
@@ -338,11 +361,26 @@ public class LocationManager : MonoBehaviour
         }
 
         // Assign materials to locations
-        AssignLocationMaterials();
+        // Hybrid mode: Try remote first (if URL is set), then fall back to local Resources
+        if (string.IsNullOrEmpty(imageBaseUrl))
+        {
+            // No remote URL set - use local Resources only
+            AssignLocationMaterials();
+        }
+        else
+        {
+            // Remote URL is set - try loading from bucket first, fall back to local if enabled
+            StartCoroutine(AssignLocationMaterialsFromUrl());
+        }
+        
+        // TODO: When all images are in the bucket, you can simplify this to:
+        // StartCoroutine(AssignLocationMaterialsFromUrl());
+        // And remove the if/else check above
     }
 
     /// <summary>
-    /// Assigns materials to all loaded locations
+    /// Assigns materials to all loaded locations from local Resources
+    /// This method is used when imageBaseUrl is empty, or as a fallback when remote loading fails
     /// </summary>
     private void AssignLocationMaterials()
     {
@@ -373,6 +411,236 @@ public class LocationManager : MonoBehaviour
             Debug.Log("LocationManager: Material assignment complete with no failures");
         }
     }
+    
+    // TODO: When all images are in the bucket, you can remove this entire method if you no longer need local-only mode
+
+    /// <summary>
+    /// Assigns materials to all loaded locations from remote URLs
+    /// Tries remote first, then falls back to local Resources if enabled and remote fails
+    /// </summary>
+    private IEnumerator AssignLocationMaterialsFromUrl()
+    {
+        locationLoadingStatus = new Dictionary<int, bool>();
+        totalLocationsToLoad = locationDict.Count;
+        locationsLoadedCount = 0;
+
+        Debug.Log($"LocationManager: Starting hybrid material loading for {totalLocationsToLoad} locations from base URL: {imageBaseUrl} (local fallback: {useLocalFallback})");
+
+        // Start loading all locations (will try remote first, then local if needed)
+        foreach (Location location in locationDict.Values.ToList())
+        {
+            locationLoadingStatus[location.ID] = false;
+            StartCoroutine(LoadLocationMaterialFromUrl(location));
+        }
+
+        // Wait for all locations to finish loading
+        yield return new WaitUntil(() => locationsLoadedCount >= totalLocationsToLoad);
+
+        int successCount = locationLoadingStatus.Values.Count(status => status);
+        int failureCount = totalLocationsToLoad - successCount;
+
+        if (failureCount > 0)
+        {
+            Debug.LogWarning($"LocationManager: Material loading complete. {successCount} succeeded, {failureCount} failed.");
+        }
+        else
+        {
+            Debug.Log($"LocationManager: Material loading complete. All {successCount} locations loaded successfully.");
+        }
+    }
+
+    /// <summary>
+    /// Gets the bucket subdirectory for a location by finding which MapPack it belongs to
+    /// Only uses specific MapPacks (skips "all" since it's just a logical grouping, not a bucket subdirectory)
+    /// </summary>
+    private string GetBucketSubdirectoryForLocation(int locationID)
+    {
+        if (mapPackDict == null) return "";
+
+        // Find the first specific MapPack (not "all") that contains this location
+        foreach (var mapPack in mapPackDict.Values)
+        {
+            // Skip "all" MapPack - it's just a logical grouping, not a bucket subdirectory
+            if (mapPack.Name.ToLower() == "all")
+            {
+                continue;
+            }
+
+            if (mapPack.locationIDs != null && mapPack.locationIDs.Contains(locationID))
+            {
+                return mapPack.bucketSubdirectory ?? "";
+            }
+        }
+
+        // If location is only in "all" MapPack, return empty (root level)
+        // This shouldn't happen if all locations are properly assigned to specific MapPacks
+        return "";
+    }
+
+    /// <summary>
+    /// Loads a texture from URL and creates a skybox material for a location
+    /// Tries remote bucket first, then falls back to local Resources if enabled
+    /// </summary>
+    private IEnumerator LoadLocationMaterialFromUrl(Location location)
+    {
+        // Get bucket subdirectory from the MapPack that contains this location
+        string subdirectory = GetBucketSubdirectoryForLocation(location.ID);
+        
+        // Construct URL with bucket subdirectory
+        string imageUrl;
+        if (string.IsNullOrEmpty(subdirectory))
+        {
+            // No subdirectory (root level)
+            imageUrl = $"{imageBaseUrl.TrimEnd('/')}/{location.FileName}{imageFileExtension}";
+        }
+        else
+        {
+            // Include bucket subdirectory
+            imageUrl = $"{imageBaseUrl.TrimEnd('/')}/{subdirectory.Trim('/')}/{location.FileName}{imageFileExtension}";
+        }
+        
+        Debug.Log($"LocationManager: Attempting to load texture from URL: {imageUrl}");
+
+        using (UnityWebRequest www = UnityWebRequestTexture.GetTexture(imageUrl))
+        {
+            yield return www.SendWebRequest();
+
+            Location updatedLocation = location;
+            bool materialLoaded = false;
+
+            // Try remote bucket first
+            if (www.result == UnityWebRequest.Result.Success)
+            {
+                Texture2D texture = DownloadHandlerTexture.GetContent(www);
+                if (texture != null)
+                {
+                    Material skyboxMaterial = CreateSkyboxMaterial(location, texture);
+                    
+                    if (skyboxMaterial != null)
+                    {
+                        updatedLocation.LocationMaterial = skyboxMaterial;
+                        locationDict[location.ID] = updatedLocation;
+                        locationLoadingStatus[location.ID] = true;
+                        materialLoaded = true;
+                        Debug.Log($"LocationManager: ✓ Successfully loaded from bucket: '{location.Name}' (ID: {location.ID})");
+                    }
+                }
+            }
+
+            // Fall back to local Resources if remote failed and fallback is enabled
+            if (!materialLoaded && useLocalFallback)
+            {
+                string materialPath = $"Materials/Locations/{location.FileName}";
+                updatedLocation.LocationMaterial = Resources.Load<Material>(materialPath);
+                
+                if (updatedLocation.LocationMaterial != null)
+                {
+                    locationDict[location.ID] = updatedLocation;
+                    locationLoadingStatus[location.ID] = true;
+                    materialLoaded = true;
+                    Debug.Log($"LocationManager: ✓ Using local fallback for '{location.Name}' (ID: {location.ID}) - not found in bucket");
+                }
+            }
+
+            // If both failed, log error
+            if (!materialLoaded)
+            {
+                if (www.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.LogWarning($"LocationManager: ✗ Failed to load from bucket for '{location.Name}' (ID: {location.ID}): {www.error}");
+                }
+                
+                if (!useLocalFallback)
+                {
+                    Debug.LogError($"LocationManager: ✗ No local fallback enabled. Material missing for '{location.Name}' (ID: {location.ID})");
+                }
+                else
+                {
+                    Debug.LogError($"LocationManager: ✗ Both remote and local fallback failed for '{location.Name}' (ID: {location.ID})");
+                }
+                
+                locationLoadingStatus[location.ID] = false;
+            }
+        }
+
+        locationsLoadedCount++;
+    }
+
+    /// <summary>
+    /// Creates a skybox material from a texture, trying to clone existing materials first
+    /// </summary>
+    private Material CreateSkyboxMaterial(Location location, Texture2D texture)
+    {
+        Material skyboxMaterial = null;
+
+        // Try to load a reference material from Resources to clone its shader settings
+        Material refMaterial = Resources.Load<Material>($"Materials/Locations/{location.FileName}");
+        if (refMaterial != null)
+        {
+            skyboxMaterial = new Material(refMaterial);
+            Debug.Log($"LocationManager: Cloned material from Resources for '{location.Name}' (ID: {location.ID})");
+        }
+
+        // If no template found, create a new material with common skybox shaders
+        if (skyboxMaterial == null)
+        {
+            // Try common 360/skybox shaders
+            Shader skyboxShader = Shader.Find("Skybox/Panoramic") ?? 
+                                Shader.Find("Skybox/6 Sided") ?? 
+                                Shader.Find("Skybox/Cubemap");
+            
+            if (skyboxShader != null)
+            {
+                skyboxMaterial = new Material(skyboxShader);
+                Debug.Log($"LocationManager: Created new material with shader '{skyboxShader.name}' for '{location.Name}' (ID: {location.ID})");
+            }
+        }
+
+        if (skyboxMaterial != null)
+        {
+            // Set texture - try common property names
+            if (skyboxMaterial.HasProperty("_MainTex"))
+            {
+                skyboxMaterial.SetTexture("_MainTex", texture);
+            }
+            else if (skyboxMaterial.HasProperty("_Tex"))
+            {
+                skyboxMaterial.SetTexture("_Tex", texture);
+            }
+            else if (skyboxMaterial.HasProperty("_FrontTex"))
+            {
+                // For 6-sided skybox, set all faces to the same texture
+                skyboxMaterial.SetTexture("_FrontTex", texture);
+                skyboxMaterial.SetTexture("_BackTex", texture);
+                skyboxMaterial.SetTexture("_LeftTex", texture);
+                skyboxMaterial.SetTexture("_RightTex", texture);
+                skyboxMaterial.SetTexture("_UpTex", texture);
+                skyboxMaterial.SetTexture("_DownTex", texture);
+            }
+            else
+            {
+                // Try to set the first texture property found
+                var shader = skyboxMaterial.shader;
+                for (int i = 0; i < shader.GetPropertyCount(); i++)
+                {
+                    if (shader.GetPropertyType(i) == UnityEngine.Rendering.ShaderPropertyType.Texture)
+                    {
+                        string propName = shader.GetPropertyName(i);
+                        skyboxMaterial.SetTexture(propName, texture);
+                        Debug.Log($"LocationManager: Set texture property '{propName}' for '{location.Name}' (ID: {location.ID})");
+                        break;
+                    }
+                }
+            }
+        }
+
+        return skyboxMaterial;
+    }
+    
+    // TODO: When all images are in the bucket, you can:
+    // 1. Remove the useLocalFallback check and the local fallback code block in LoadLocationMaterialFromUrl()
+    // 2. Simplify error messages to only mention bucket failures
+    // 3. Consider removing the CreateSkyboxMaterial() method's Resources.Load fallback if you no longer need to clone local materials
 
     #endregion
 
