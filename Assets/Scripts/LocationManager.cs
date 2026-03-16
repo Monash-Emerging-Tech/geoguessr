@@ -4,6 +4,8 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
+// "locationIDs": [1, 2, 3, 4, 7, 8, 9, 10, 11, 12, 13, 14],
+
 /// <summary>
 /// LocationManager, Responsible for handling location data, map packs, and location selection.
 /// Manages JSON data loading, material assignment, and current location tracking.
@@ -69,7 +71,7 @@ public class LocationManager : MonoBehaviour
     [Tooltip("Base URL for 360 images. Use your custom domain (360images.monashemerging.tech) for production, " +
              "or the public dev URL (https://pub-17f59a97c119414788b775aeebf13e76.r2.dev) for testing. " +
              "Leave empty to use only local Resources. Include https:// prefix.")]
-    [SerializeField] private string imageBaseUrl = "";
+    [SerializeField] private string imageBaseUrl = "https://pub-17f59a97c119414788b775aeebf13e76.r2.dev";
     
     [Tooltip("File extension for images (e.g., .jpg, .png). Will be appended to FileName.")]
     [SerializeField] private string imageFileExtension = ".jpg";
@@ -364,13 +366,20 @@ public class LocationManager : MonoBehaviour
         // Hybrid mode: Try remote first (if URL is set), then fall back to local Resources
         if (string.IsNullOrEmpty(imageBaseUrl))
         {
-            // No remote URL set - use local Resources only
+            const string defaultR2Url = "https://pub-17f59a97c119414788b775aeebf13e76.r2.dev";
+            imageBaseUrl = defaultR2Url;
+            Debug.Log($"LocationManager: Image Base Url was empty - using default R2 URL: {imageBaseUrl}");
+        }
+
+        if (string.IsNullOrEmpty(imageBaseUrl))
+        {
+            Debug.Log("LocationManager: Image Base Url is empty - using local Resources only. Set Image Base Url in Inspector to load from R2.");
             AssignLocationMaterials();
         }
         else
         {
-            // Remote URL is set - try loading from bucket first, fall back to local if enabled
-            StartCoroutine(AssignLocationMaterialsFromUrl());
+            Debug.Log($"LocationManager: Image Base Url set to '{imageBaseUrl}' - loading textures from remote URLs.");
+            StartCoroutine(DeferredAssignLocationMaterialsFromUrl());
         }
         
         // TODO: When all images are in the bucket, you can simplify this to:
@@ -415,6 +424,20 @@ public class LocationManager : MonoBehaviour
     // TODO: When all images are in the bucket, you can remove this entire method if you no longer need local-only mode
 
     /// <summary>
+    /// Waits one frame so the GameObject is guaranteed active (avoids "Coroutine couldn't be started because the game object is inactive").
+    /// </summary>
+    private IEnumerator DeferredAssignLocationMaterialsFromUrl()
+    {
+        yield return null;
+        if (!gameObject.activeInHierarchy)
+        {
+            Debug.LogError("LocationManager: GameObject is inactive - cannot start URL loading. Ensure LocationManager stays active at startup.");
+            yield break;
+        }
+        yield return AssignLocationMaterialsFromUrl();
+    }
+
+    /// <summary>
     /// Assigns materials to all loaded locations from remote URLs
     /// Tries remote first, then falls back to local Resources if enabled and remote fails
     /// </summary>
@@ -426,15 +449,12 @@ public class LocationManager : MonoBehaviour
 
         Debug.Log($"LocationManager: Starting hybrid material loading for {totalLocationsToLoad} locations from base URL: {imageBaseUrl} (local fallback: {useLocalFallback})");
 
-        // Start loading all locations (will try remote first, then local if needed)
+        // Load one location at a time in this coroutine (avoids starting 46 coroutines on an object that may become inactive)
         foreach (Location location in locationDict.Values.ToList())
         {
             locationLoadingStatus[location.ID] = false;
-            StartCoroutine(LoadLocationMaterialFromUrl(location));
+            yield return LoadLocationMaterialFromUrl(location);
         }
-
-        // Wait for all locations to finish loading
-        yield return new WaitUntil(() => locationsLoadedCount >= totalLocationsToLoad);
 
         int successCount = locationLoadingStatus.Values.Count(status => status);
         int failureCount = totalLocationsToLoad - successCount;
@@ -522,7 +542,7 @@ public class LocationManager : MonoBehaviour
                         locationDict[location.ID] = updatedLocation;
                         locationLoadingStatus[location.ID] = true;
                         materialLoaded = true;
-                        Debug.Log($"LocationManager: ✓ Successfully loaded from bucket: '{location.Name}' (ID: {location.ID})");
+                        Debug.Log($"LocationManager: Successfully loaded from bucket: '{location.Name}' (ID: {location.ID})");
                     }
                 }
             }
@@ -538,7 +558,7 @@ public class LocationManager : MonoBehaviour
                     locationDict[location.ID] = updatedLocation;
                     locationLoadingStatus[location.ID] = true;
                     materialLoaded = true;
-                    Debug.Log($"LocationManager: ✓ Using local fallback for '{location.Name}' (ID: {location.ID}) - not found in bucket");
+                    Debug.Log($"LocationManager: Using local fallback for '{location.Name}' (ID: {location.ID}) - not found in bucket");
                 }
             }
 
@@ -547,16 +567,16 @@ public class LocationManager : MonoBehaviour
             {
                 if (www.result != UnityWebRequest.Result.Success)
                 {
-                    Debug.LogWarning($"LocationManager: ✗ Failed to load from bucket for '{location.Name}' (ID: {location.ID}): {www.error}");
+                    Debug.LogWarning($"LocationManager: Failed to load from bucket for '{location.Name}' (ID: {location.ID}): {www.error}");
                 }
                 
                 if (!useLocalFallback)
                 {
-                    Debug.LogError($"LocationManager: ✗ No local fallback enabled. Material missing for '{location.Name}' (ID: {location.ID})");
+                    Debug.LogError($"LocationManager: No local fallback enabled. Material missing for '{location.Name}' (ID: {location.ID})");
                 }
                 else
                 {
-                    Debug.LogError($"LocationManager: ✗ Both remote and local fallback failed for '{location.Name}' (ID: {location.ID})");
+                    Debug.LogError($"LocationManager: Both remote and local fallback failed for '{location.Name}' (ID: {location.ID})");
                 }
                 
                 locationLoadingStatus[location.ID] = false;
